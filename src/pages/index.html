@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>КУБ — сайт</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/main.css" />
+    <script defer src="js/main.js"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div class="container header__inner">
+          <a class="logo" href="#">
+            <img
+              src="https://www.figma.com/api/mcp/asset/f0c695eb-93ca-42c4-81da-32adaa050abc"
+              alt="КУБ"
+            />
+          </a>
+          <nav class="nav">
+            <ul class="nav__list">
+              <li><a href="#projects">Проекты</a></li>
+              <li><a href="#apartments">Квартиры</a></li>
+              <li><a href="#commerce">Коммерция</a></li>
+              <li><a href="#company">О компании</a></li>
+              <li><a href="#tenders">Тендеры</a></li>
+              <li><a href="#promo">Акции</a></li>
+              <li><a href="#news">Новости</a></li>
+              <li><a href="#mortgage">Ипотека</a></li>
+            </ul>
+          </nav>
+          <div class="header__actions">
+            <div class="header__phone">
+              <img
+                src="https://www.figma.com/api/mcp/asset/5ce40d0d-8a0e-4c43-b274-c7aeeb5d600e"
+                alt=""
+              />
+              <a href="tel:88000000000">8-800 000-00-00</a>
+            </div>
+            <button class="btn btn--light" type="button">Заказать звонок</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="hero">
+          <div class="container">
+            <div class="hero__top">
+              <article class="hero-main">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/2a4f429a-dd52-4323-ae0a-3f1bc0404ebc"
+                  alt="ЖК Вертикаль"
+                />
+                <div class="hero-main__overlay">
+                  <p class="hero-main__title">ЖК Вертикаль старт продаж</p>
+                  <p class="hero-main__subtitle">квартиры с видом на водохранилище</p>
+                </div>
+              </article>
+
+              <div class="hero-aside">
+                <article class="hero-card">
+                  <img
+                    src="https://www.figma.com/api/mcp/asset/d19d0bcf-14ae-4fb3-a3dc-4363edabe21a"
+                    alt="Семейная ипотека"
+                  />
+                  <div class="hero-card__label">
+                    Семейная ипотека<br />от 3%
+                  </div>
+                </article>
+                <article class="hero-card">
+                  <img
+                    src="https://www.figma.com/api/mcp/asset/d19d0bcf-14ae-4fb3-a3dc-4363edabe21a"
+                    alt="Квартира в рассрочку"
+                  />
+                  <div class="hero-card__label hero-card__label--tall">
+                    Квартира в рассрочку<br />без первоначального взноса
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <div class="hero__bottom">
+              <article class="hero-banner">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/a17e7efd-457c-4226-a2bf-b3322ae1ecbe"
+                  alt="Варианты отделки"
+                />
+                <div class="hero-banner__label">Варианты отделки</div>
+              </article>
+              <article class="hero-banner">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/e344372e-8660-419b-8537-aa79b5b36e9f"
+                  alt="Спецусловия по коммерции"
+                />
+                <div class="hero-banner__label">Спецусловия по коммерции</div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="projects" id="projects">
+          <div class="container">
+            <h2 class="section-title">Проекты</h2>
+            <div class="filters">
+              <div class="filters__controls">
+                <div class="filter filter--select">
+                  <span class="filter__label">Город и ЖК</span>
+                  <div class="filter__field">Выберите город и ЖК</div>
+                </div>
+
+                <div class="filter filter--rooms">
+                  <span class="filter__label">Комнатность</span>
+                  <div class="filter__rooms">
+                    <span class="filter__room">Студия</span>
+                    <span class="filter__room">1к</span>
+                    <span class="filter__room">2к</span>
+                    <span class="filter__room">3к</span>
+                    <span class="filter__room">4+</span>
+                  </div>
+                </div>
+
+                <div class="filter filter--range">
+                  <span class="filter__label">Укажите стоимость, р.</span>
+                  <div class="filter__range">
+                    <div class="filter__range-text">
+                      <span>От</span>
+                      <span class="filter__muted">5 109 880</span>
+                    </div>
+                    <div class="filter__range-text">
+                      <span>До</span>
+                      <span class="filter__muted">15 680 000</span>
+                    </div>
+                    <div class="filter__range-track">
+                      <img
+                        src="https://www.figma.com/api/mcp/asset/289c8b8b-1e32-4987-bfaa-45a488ab19a5"
+                        alt=""
+                      />
+                      <img
+                        class="filter__range-dot filter__range-dot--left"
+                        src="https://www.figma.com/api/mcp/asset/31a2ae99-1a69-4c06-bb45-0df5366952f9"
+                        alt=""
+                      />
+                      <img
+                        class="filter__range-dot filter__range-dot--right"
+                        src="https://www.figma.com/api/mcp/asset/31a2ae99-1a69-4c06-bb45-0df5366952f9"
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="filter filter--range">
+                  <span class="filter__label">Этажность</span>
+                  <div class="filter__range">
+                    <div class="filter__range-text">
+                      <span>От</span>
+                      <span class="filter__muted">1</span>
+                    </div>
+                    <div class="filter__range-text">
+                      <span>До</span>
+                      <span class="filter__muted">16</span>
+                    </div>
+                    <div class="filter__range-track">
+                      <img
+                        src="https://www.figma.com/api/mcp/asset/d40cfef8-ca00-4225-bb57-463b0301d18b"
+                        alt=""
+                      />
+                      <img
+                        class="filter__range-dot filter__range-dot--left"
+                        src="https://www.figma.com/api/mcp/asset/31a2ae99-1a69-4c06-bb45-0df5366952f9"
+                        alt=""
+                      />
+                      <img
+                        class="filter__range-dot filter__range-dot--right"
+                        src="https://www.figma.com/api/mcp/asset/31a2ae99-1a69-4c06-bb45-0df5366952f9"
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filters__actions">
+                <button class="btn btn--outline" type="button">
+                  <img
+                    src="https://www.figma.com/api/mcp/asset/79c1f9fd-6c0a-4f8c-b28d-1eb500e82390"
+                    alt=""
+                  />
+                  Все фильтры
+                </button>
+                <button class="btn btn--primary" type="button">Выбрать квартиру</button>
+              </div>
+            </div>
+
+            <div class="projects__cards">
+              <article class="project-card">
+                <div class="project-card__image">
+                  <img
+                    src="https://www.figma.com/api/mcp/asset/e49e3630-0570-4129-9108-ff4214910170"
+                    alt="Коллекция"
+                  />
+                  <div class="project-card__tags">
+                    <span class="tag tag--solid">Бизнес</span>
+                    <span class="tag tag--outline">Скидки 5%</span>
+                  </div>
+                </div>
+                <div class="project-card__body">
+                  <span class="project-card__label">Жилой комплекс</span>
+                  <span class="project-card__meta">г. Воронеж, ул. Жилина 7</span>
+                  <h3 class="project-card__title">Коллекция</h3>
+                  <span class="project-card__meta">
+                    Срок сдачи <strong>III квартал 2026г.</strong>
+                  </span>
+                  <span class="project-card__meta">Цена на квартиры</span>
+                  <div class="project-card__footer">
+                    <button class="btn btn--primary" type="button">Подробнее</button>
+                    <span class="project-card__price">от 6 538 000 р.</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="project-card">
+                <div class="project-card__image">
+                  <img
+                    src="https://www.figma.com/api/mcp/asset/6c3f203f-be9a-4001-ab97-edc7f3b4a9e3"
+                    alt="Вертикаль"
+                  />
+                  <div class="project-card__tags">
+                    <span class="tag tag--solid">Комфорт +</span>
+                    <span class="tag tag--outline">527 квартир</span>
+                  </div>
+                </div>
+                <div class="project-card__body">
+                  <span class="project-card__label">Жилой комплекс</span>
+                  <span class="project-card__meta">г. Воронеж, ул. Фронтовая 5</span>
+                  <h3 class="project-card__title">Вертикаль</h3>
+                  <span class="project-card__meta">
+                    Срок сдачи <strong>III квартал 2027г.</strong>
+                  </span>
+                  <span class="project-card__meta">Цена на квартиры</span>
+                  <div class="project-card__footer">
+                    <button class="btn btn--primary" type="button">Подробнее</button>
+                    <span class="project-card__price">от 7 538 000 р.</span>
+                  </div>
+                </div>
+              </article>
+
+              <article class="project-card">
+                <div class="project-card__image">
+                  <img
+                    src="https://www.figma.com/api/mcp/asset/17a34e21-fda4-4b6d-ba1b-1f615eae284a"
+                    alt="Краснознаменная"
+                  />
+                  <div class="project-card__tags">
+                    <span class="tag tag--solid">Бизнес</span>
+                    <span class="tag tag--outline">Скоро</span>
+                  </div>
+                </div>
+                <div class="project-card__body">
+                  <span class="project-card__label">Жилой комплекс</span>
+                  <span class="project-card__meta">г. Воронеж, ул. Краснознаменная</span>
+                  <h3 class="project-card__title">Краснознаменная</h3>
+                  <span class="project-card__meta">
+                    Срок сдачи <strong>I квартал 2028г.</strong>
+                  </span>
+                  <span class="project-card__meta">Цена на квартиры</span>
+                  <div class="project-card__footer">
+                    <button class="btn btn--primary" type="button">Подробнее</button>
+                    <span class="project-card__price">от 8 000 000 р.</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="extra" id="apartments">
+          <div class="container">
+            <h2 class="section-title">Кроме квартир</h2>
+            <div class="extra__cards">
+              <article class="extra-card">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/d19d0bcf-14ae-4fb3-a3dc-4363edabe21a"
+                  alt="Коммерческая недвижимость"
+                />
+                <div class="extra-card__overlay">
+                  <h3>Коммерческая недвижимость</h3>
+                  <div class="extra-card__link">
+                    Подробнее
+                    <img
+                      src="https://www.figma.com/api/mcp/asset/c9a51b74-4033-4a0d-a682-d597c518fcf6"
+                      alt=""
+                    />
+                  </div>
+                </div>
+              </article>
+
+              <article class="extra-card">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/683b8703-3ea0-4192-baac-c2b5ed21c8ba"
+                  alt="Паркинг"
+                />
+                <div class="extra-card__overlay">
+                  <h3>Паркинг</h3>
+                  <div class="extra-card__link">
+                    Подробнее
+                    <img
+                      src="https://www.figma.com/api/mcp/asset/c9a51b74-4033-4a0d-a682-d597c518fcf6"
+                      alt=""
+                    />
+                  </div>
+                </div>
+              </article>
+
+              <article class="extra-card">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/962f733c-d79a-402f-b82c-1e5b010739c3"
+                  alt="Кладовые"
+                />
+                <div class="extra-card__overlay">
+                  <h3>Кладовые</h3>
+                  <div class="extra-card__link">
+                    Подробнее
+                    <img
+                      src="https://www.figma.com/api/mcp/asset/c9a51b74-4033-4a0d-a682-d597c518fcf6"
+                      alt=""
+                    />
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="promo" id="promo">
+          <div class="container">
+            <h2 class="section-title">Акции</h2>
+            <div class="promo__cards">
+              <article class="promo-card promo-card--left">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/8964cdee-e9c9-4b1f-9979-9cd074589984"
+                  alt="Новогодние скидки"
+                />
+                <div class="promo-card__overlay promo-card__overlay--full">
+                  <p>Новогодние выгодные</p>
+                  <strong>скидки до 15%</strong>
+                  <button class="btn btn--light" type="button">Подробнее</button>
+                </div>
+              </article>
+
+              <article class="promo-card promo-card--right">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/683b8703-3ea0-4192-baac-c2b5ed21c8ba"
+                  alt="Рассрочка"
+                />
+                <div class="promo-card__overlay promo-card__overlay--split">
+                  <p>Рассрочка</p>
+                  <strong>на 1 год</strong>
+                </div>
+                <button class="btn btn--light promo-card__button" type="button">Подробнее</button>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="news" id="news">
+          <div class="container">
+            <h2 class="section-title">Новости</h2>
+            <div class="news__cards">
+              <article class="news-card">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/81a996ea-05ba-44a4-bb97-0a11d7fc5096"
+                  alt="Новость"
+                />
+                <time datetime="2024-05-10">10.05.2024</time>
+                <h3>Lorem ipsum dolor sit amet consectetur.</h3>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+                  consectetur.
+                </p>
+              </article>
+              <article class="news-card">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/962f733c-d79a-402f-b82c-1e5b010739c3"
+                  alt="Новость"
+                />
+                <time datetime="2024-05-10">10.05.2024</time>
+                <h3>Lorem ipsum dolor sit amet consectetur.</h3>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+                  consectetur.
+                </p>
+              </article>
+              <article class="news-card">
+                <img
+                  src="https://www.figma.com/api/mcp/asset/00c913e7-155b-407c-b698-3a6167b5fba3"
+                  alt="Новость"
+                />
+                <time datetime="2024-05-10">10.05.2024</time>
+                <h3>Lorem ipsum dolor sit amet consectetur.</h3>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+                  consectetur.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="faq" id="company">
+          <div class="container">
+            <h2 class="section-title">Вопрос-ответ</h2>
+            <div class="faq__grid">
+              <div class="faq__list">
+                <article class="faq-item faq-item--open">
+                  <div class="faq-item__title">
+                    Lorem ipsum dolor sit amet consectetur.
+                  </div>
+                  <div class="faq-item__content">
+                    Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+                    consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+                    consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+                    consectetur.Lorem ipsum dolor sit amet consectetur.
+                  </div>
+                  <img
+                    class="faq-item__icon"
+                    src="https://www.figma.com/api/mcp/asset/21c845e3-0c20-4d5b-8738-05820ffd4764"
+                    alt=""
+                  />
+                </article>
+                <article class="faq-item">
+                  <div class="faq-item__title">
+                    Lorem ipsum dolor sit amet consectetur.
+                  </div>
+                  <img
+                    class="faq-item__icon"
+                    src="https://www.figma.com/api/mcp/asset/1f349c3b-38f8-4a12-8a20-5fc7d0d6d738"
+                    alt=""
+                  />
+                </article>
+                <article class="faq-item">
+                  <div class="faq-item__title">
+                    Lorem ipsum dolor sit amet consectetur.
+                  </div>
+                  <img
+                    class="faq-item__icon"
+                    src="https://www.figma.com/api/mcp/asset/1f349c3b-38f8-4a12-8a20-5fc7d0d6d738"
+                    alt=""
+                  />
+                </article>
+              </div>
+
+              <form class="faq__form" id="contact-form">
+                <h3>Остались вопросы?</h3>
+                <label>
+                  Ваше имя
+                  <input type="text" placeholder="Имя" />
+                </label>
+                <label>
+                  Телефон
+                  <input type="tel" placeholder="+7 999 999 99 99" />
+                </label>
+                <button class="btn btn--primary" type="button">Отправить</button>
+                <label class="faq__checkbox">
+                  <input type="checkbox" checked />
+                  Отправляя обращение, я принимаю условия Пользовательского соглашения и даю свое
+                  согласие на обработку моих персональных данных в соответствии с Политикой
+                  конфиденциальности
+                </label>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="contacts" id="contacts">
+          <div class="container contacts__inner">
+            <h2 class="section-title">Контакты</h2>
+            <div class="contacts__map">
+              <img
+                src="https://www.figma.com/api/mcp/asset/ad5135d5-8953-486d-9f15-a18fed7d5c84"
+                alt="Карта"
+              />
+            </div>
+            <div class="contacts__card">
+              <ul>
+                <li>
+                  <span class="contacts__icon"></span>
+                  ул. апппппппппп
+                </li>
+                <li>
+                  <span class="contacts__icon"></span>
+                  Пн-пт: 9:00-19:00<br />Сб: 10:00 - 16:00<br />Вс: выходной
+                </li>
+                <li>
+                  <span class="contacts__icon"></span>
+                  +7 (473) 000-00-00
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="container footer__top">
+          <div class="footer__nav">
+            <a href="#projects">Проекты</a>
+            <a href="#apartments">Квартиры</a>
+            <a href="#tenders">Тендеры</a>
+            <a href="#promo">Акции</a>
+            <a href="#news">Новости</a>
+            <a href="#mortgage">Ипотека</a>
+            <a href="#company">О компании</a>
+            <a href="#commerce">Коммерция</a>
+          </div>
+
+          <div class="footer__contacts">
+            <div class="footer__phone">
+              <img
+                src="https://www.figma.com/api/mcp/asset/5ce40d0d-8a0e-4c43-b274-c7aeeb5d600e"
+                alt=""
+              />
+              8-800 000-00-00
+            </div>
+            <div class="footer__address">ул. апппппппппп</div>
+            <div class="footer__address">ул. апппппппппп</div>
+          </div>
+        </div>
+
+        <div class="container footer__bottom">
+          <div class="footer__logo">
+            <img
+              src="https://www.figma.com/api/mcp/asset/c9c9ef2d-69bd-4f4c-b48c-1419b9401f81"
+              alt="КУБ"
+            />
+          </div>
+          <a class="footer__policy" href="#">Политика конфиденциальности</a>
+          <div class="footer__social">
+            <img
+              src="https://www.figma.com/api/mcp/asset/c1f76e58-1dff-410f-bb61-2a3589523612"
+              alt=""
+            />
+            <img
+              src="https://www.figma.com/api/mcp/asset/50e65cad-8079-4c51-9c27-e2c3ea20b134"
+              alt=""
+            />
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
