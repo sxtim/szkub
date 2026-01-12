@@ -1,0 +1,86 @@
+.promo {
+  padding-bottom: 115px;
+
+  .section-title {
+    margin-bottom: 62px;
+  }
+
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 27px;
+  }
+}
+
+.promo-card {
+  position: relative;
+  height: 205px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+
+  &__overlay {
+    position: absolute;
+    left: 0;
+    color: var(--white);
+    padding: 38px 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    p {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    strong {
+      font-size: 35px;
+      font-weight: 700;
+    }
+
+    &--full {
+      top: 0;
+      height: 205px;
+      width: 349px;
+      background: rgba(26, 59, 136, 0.53);
+      backdrop-filter: blur(3.6px);
+
+      .btn {
+        margin-top: 30px;
+        width: 141px;
+        height: 46px;
+      }
+    }
+
+    &--split {
+      top: 105px;
+      width: 391px;
+      height: 100px;
+      background: rgba(26, 59, 136, 0.53);
+      backdrop-filter: blur(3.6px);
+    }
+  }
+
+  &__button {
+    position: absolute;
+    right: 26px;
+    top: 135px;
+    width: 141px;
+    height: 46px;
+  }
+}
+
+@media (max-width: 768px) {
+  .promo {
+    padding-bottom: 70px;
+  }
+
+  .promo-card {
+    height: 180px;
+  }
+
+  .promo-card__overlay--full,
+  .promo-card__overlay--split {
+    width: 100%;
+  }
+}

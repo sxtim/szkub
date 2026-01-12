@@ -5,9 +5,10 @@
   "scripts": {
     "build:dirs": "mkdir -p dist/css dist/js dist",
     "build:css": "sass src/scss/main.scss dist/css/main.css --style=expanded --no-source-map",
-    "build:js": "esbuild src/js/main.js --bundle --format=iife --sourcemap --outfile=dist/js/main.js",
-    "build:html": "cp -R src/pages/* dist/",
-    "build": "npm run build:dirs && npm run build:css && npm run build:js && npm run build:html"
+    "build:js": "esbuild src/js/index.js --bundle --format=iife --sourcemap --outfile=dist/js/index.bundle.js",
+    "build:img": "mkdir -p dist/img && cp -R src/img/. dist/img/",
+    "build:html": "node scripts/build-html.mjs",
+    "build": "npm run build:dirs && npm run build:css && npm run build:js && npm run build:img && npm run build:html"
   },
   "devDependencies": {
     "esbuild": "^0.24.2",

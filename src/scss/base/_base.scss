@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  color: var(--gray-800);
+  background: var(--white);
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

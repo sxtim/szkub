@@ -1,9 +1,6 @@
 # Node
 node_modules/
 
-# Build output
-dist/
-
 # Logs
 npm-debug.log*
 yarn-debug.log*
@@ -17,3 +14,5 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+sync_config.jsonc

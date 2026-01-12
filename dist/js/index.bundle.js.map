@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/js/index.js"],
+  "sourcesContent": ["document.addEventListener(\"DOMContentLoaded\", () => {\n  const navBtn = document.querySelector(\".mobile-nav-btn\");\n  const nav = document.querySelector(\".mobile-nav\");\n  const menuIcon = document.querySelector(\".nav-icon\");\n\n  if (!navBtn || !nav || !menuIcon) {\n    return;\n  }\n\n  const toggleNav = () => {\n    nav.classList.toggle(\"mobile-nav--open\");\n    menuIcon.classList.toggle(\"nav-icon--active\");\n    document.body.classList.toggle(\"no-scroll\");\n  };\n\n  navBtn.addEventListener(\"click\", toggleNav);\n\n  nav.addEventListener(\"click\", (event) => {\n    const link = event.target.closest(\"a\");\n    if (link) {\n      toggleNav();\n    }\n  });\n});\n"],
+  "mappings": ";;AAAA,WAAS,iBAAiB,oBAAoB,MAAM;AAClD,UAAM,SAAS,SAAS,cAAc,iBAAiB;AACvD,UAAM,MAAM,SAAS,cAAc,aAAa;AAChD,UAAM,WAAW,SAAS,cAAc,WAAW;AAEnD,QAAI,CAAC,UAAU,CAAC,OAAO,CAAC,UAAU;AAChC;AAAA,IACF;AAEA,UAAM,YAAY,MAAM;AACtB,UAAI,UAAU,OAAO,kBAAkB;AACvC,eAAS,UAAU,OAAO,kBAAkB;AAC5C,eAAS,KAAK,UAAU,OAAO,WAAW;AAAA,IAC5C;AAEA,WAAO,iBAAiB,SAAS,SAAS;AAE1C,QAAI,iBAAiB,SAAS,CAAC,UAAU;AACvC,YAAM,OAAO,MAAM,OAAO,QAAQ,GAAG;AACrC,UAAI,MAAM;AACR,kBAAU;AAAA,MACZ;AAAA,IACF,CAAC;AAAA,EACH,CAAC;",
+  "names": []
+}
