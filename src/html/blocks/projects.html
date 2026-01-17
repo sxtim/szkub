@@ -19,62 +19,56 @@
           </div>
         </div>
 
-        <div class="filter filter--range">
+        <div class="filter filter--range filter--price">
           <span class="filter__label">Укажите стоимость, р.</span>
           <div class="filter__range">
             <div class="filter__range-text">
               <span>От</span>
-              <span class="filter__muted">5 109 880</span>
+              <span class="filter__muted" data-range-value="price-from">5 109 880</span>
             </div>
             <div class="filter__range-text">
               <span>До</span>
-              <span class="filter__muted">15 680 000</span>
+              <span class="filter__muted" data-range-value="price-to">15 680 000</span>
             </div>
             <div class="filter__range-track">
-              <img
-                src="img/figma-289c8b8b-1e32-4987-bfaa-45a488ab19a5.svg"
-                alt=""
-              />
-              <img
-                class="filter__range-dot filter__range-dot--left"
-                src="img/figma-31a2ae99-1a69-4c06-bb45-0df5366952f9.svg"
-                alt=""
-              />
-              <img
-                class="filter__range-dot filter__range-dot--right"
-                src="img/figma-31a2ae99-1a69-4c06-bb45-0df5366952f9.svg"
-                alt=""
-              />
+              <div
+                class="range-slider"
+                data-range="price"
+                data-min="0"
+                data-max="20000000"
+                data-start="5109880"
+                data-end="15680000"
+                data-step="1000"
+              ></div>
+              <input type="hidden" name="price_from" data-range-input="price-from" />
+              <input type="hidden" name="price_to" data-range-input="price-to" />
             </div>
           </div>
         </div>
 
-        <div class="filter filter--range">
+        <div class="filter filter--range filter--floors">
           <span class="filter__label">Этажность</span>
           <div class="filter__range">
             <div class="filter__range-text">
               <span>От</span>
-              <span class="filter__muted">1</span>
+              <span class="filter__muted" data-range-value="floors-from">1</span>
             </div>
             <div class="filter__range-text">
               <span>До</span>
-              <span class="filter__muted">16</span>
+              <span class="filter__muted" data-range-value="floors-to">16</span>
             </div>
             <div class="filter__range-track">
-              <img
-                src="img/figma-d40cfef8-ca00-4225-bb57-463b0301d18b.svg"
-                alt=""
-              />
-              <img
-                class="filter__range-dot filter__range-dot--left"
-                src="img/figma-31a2ae99-1a69-4c06-bb45-0df5366952f9.svg"
-                alt=""
-              />
-              <img
-                class="filter__range-dot filter__range-dot--right"
-                src="img/figma-31a2ae99-1a69-4c06-bb45-0df5366952f9.svg"
-                alt=""
-              />
+              <div
+                class="range-slider"
+                data-range="floors"
+                data-min="1"
+                data-max="16"
+                data-start="1"
+                data-end="16"
+                data-step="1"
+              ></div>
+              <input type="hidden" name="floor_from" data-range-input="floors-from" />
+              <input type="hidden" name="floor_to" data-range-input="floors-to" />
             </div>
           </div>
         </div>

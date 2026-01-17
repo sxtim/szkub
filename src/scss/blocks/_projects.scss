@@ -10,11 +10,12 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 25px;
   margin-bottom: 82px;
 
   &__controls {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 215px 280px 312px 220px;
     gap: 28px;
   }
 
@@ -22,10 +23,26 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin-top: 14px;
+    margin-top: 0;
+    min-width: 189px;
 
     .btn--primary {
       width: 189px;
+      height: 46px;
+      border-radius: 4.12px;
+    }
+
+    .btn--outline {
+      width: 187px;
+      height: 46px;
+      border-width: 0.824px;
+      border-radius: 4.12px;
+    }
+
+    img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
     }
   }
 }
@@ -39,12 +56,13 @@
     font-size: 15px;
     font-weight: 500;
     color: var(--gray-800);
+    line-height: 1;
   }
 
   &__field {
     height: 38px;
-    border: 1px solid rgba(64, 64, 64, 0.25);
-    border-radius: 2.6px;
+    border: 0.522px solid rgba(64, 64, 64, 0.25);
+    border-radius: 2.609px;
     display: flex;
     align-items: center;
     padding-left: 16px;
@@ -59,8 +77,8 @@
 
   &__room {
     height: 38px;
-    border: 1px solid rgba(64, 64, 64, 0.25);
-    border-radius: 2.6px;
+    border: 0.522px solid rgba(64, 64, 64, 0.25);
+    border-radius: 2.609px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -85,6 +103,7 @@
     font-size: 15px;
     font-weight: 500;
     color: var(--gray-800);
+    line-height: 1;
   }
 
   &__muted {
@@ -95,12 +114,8 @@
     grid-column: 1 / -1;
     height: 20px;
     position: relative;
-
-    img:first-child {
-      width: 100%;
-      height: auto;
-      margin-top: 6px;
-    }
+    width: 100%;
+    overflow: visible;
   }
 
   &__range-dot {
@@ -119,6 +134,95 @@
   }
 }
 
+.range-slider {
+  width: 100%;
+}
+
+.range-slider,
+.range-slider * {
+  box-sizing: border-box;
+  touch-action: none;
+  user-select: none;
+}
+
+.range-slider {
+  position: relative;
+}
+
+.range-slider .noUi-base,
+.range-slider .noUi-connects {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.range-slider .noUi-connects {
+  overflow: hidden;
+  z-index: 0;
+}
+
+.range-slider .noUi-connect,
+.range-slider .noUi-origin {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  transform-origin: 0 0;
+  transform-style: flat;
+}
+
+.range-slider.noUi-horizontal .noUi-origin {
+  height: 0;
+}
+
+.range-slider .noUi-handle {
+  position: absolute;
+}
+
+.range-slider .noUi-touch-area {
+  height: 100%;
+  width: 100%;
+}
+
+.range-slider.noUi-target {
+  background: #b4b4b4;
+  border: none;
+  box-shadow: none;
+  height: 2.5px;
+  margin-top: 8.5px;
+}
+
+.range-slider .noUi-connect {
+  background: #b4b4b4;
+}
+
+.range-slider.noUi-horizontal .noUi-handle {
+  width: 19.8px;
+  height: 19.8px;
+  border-radius: 50%;
+  background: #b4b4b4;
+  border: none;
+  box-shadow: none;
+  right: -9.9px;
+  top: -8.7px;
+}
+
+.range-slider .noUi-handle::before,
+.range-slider .noUi-handle::after {
+  display: none;
+}
+
+.filter--price .filter__range-track {
+  width: 257px;
+}
+
+.filter--floors .filter__range-track {
+  width: 220px;
+}
+
 .projects__cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -134,7 +238,6 @@
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-    border-radius: var(--radius-sm);
     overflow: hidden;
   }
 
@@ -188,6 +291,11 @@
   .filters__actions {
     flex-direction: row;
     flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .filters__controls {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
 

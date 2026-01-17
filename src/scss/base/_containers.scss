@@ -1,12 +1,11 @@
 .container {
-  width: 100%;
+  width: calc(100% - 40px);
   max-width: var(--container-width);
   margin: 0 auto;
-  padding: 0 20px;
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 0 16px;
+    width: calc(100% - 32px);
   }
 }
