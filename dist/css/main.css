@@ -371,9 +371,11 @@ a {
   padding-bottom: 134px;
 }
 .hero__top {
+  margin-top: 26px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 27px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+  gap: 33px;
+  align-items: stretch;
 }
 .hero__bottom {
   display: grid;
@@ -414,17 +416,16 @@ a {
 
 .hero-aside {
   display: grid;
-  gap: 23px;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 33px;
+  height: 487px;
 }
 
 .hero-card {
   position: relative;
   width: 100%;
   overflow: hidden;
-  height: 228px;
-}
-.hero-card:last-child {
-  height: 236px;
+  height: 100%;
 }
 .hero-card__label {
   position: absolute;
@@ -479,6 +480,10 @@ a {
   }
   .hero-main {
     height: 420px;
+  }
+  .hero-aside {
+    height: auto;
+    gap: 23px;
   }
   .hero-card {
     height: 210px;
@@ -909,7 +914,7 @@ a {
   position: absolute;
   left: 0;
   color: var(--white);
-  padding: 38px 34px;
+  padding: 10px 10px 10px 36px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -920,7 +925,7 @@ a {
   font-weight: 700;
 }
 .promo-card__overlay strong {
-  font-size: 35px;
+  font-size: 24px;
   font-weight: 700;
 }
 .promo-card__overlay--full {
@@ -935,15 +940,29 @@ a {
 }
 .promo-card__overlay--split {
   top: 105px;
+  left: 2px;
   width: 391px;
   height: 100px;
+  border-radius: 5px;
+  padding: 20px 22px;
   background: rgba(26, 59, 136, 0.53);
   backdrop-filter: blur(3.6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .promo-card__button {
+  align-self: flex-start;
+}
+
+.promo-card__overlay--split {
   position: absolute;
-  right: 26px;
-  top: 135px;
+}
+
+.promo-card__overlay--split .promo-card__button {
+  position: absolute;
+  left: 160px;
+  bottom: 12px;
 }
 
 .promo-card .btn {

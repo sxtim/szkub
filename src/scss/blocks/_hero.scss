@@ -2,9 +2,11 @@
   padding-bottom: 134px;
 
   &__top {
+   margin-top: 26px;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 27px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+    gap: 33px;
+    align-items: stretch;
   }
 
   &__bottom {
@@ -50,18 +52,16 @@
 
 .hero-aside {
   display: grid;
-  gap: 23px;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 33px;
+  height: 487px;
 }
 
 .hero-card {
   position: relative;
   width: 100%;
   overflow: hidden;
-  height: 228px;
-
-  &:last-child {
-    height: 236px;
-  }
+  height: 100%;
 
   &__label {
     position: absolute;
@@ -121,6 +121,11 @@
 
   .hero-main {
     height: 420px;
+  }
+
+  .hero-aside {
+    height: auto;
+    gap: 23px;
   }
 
   .hero-card {
