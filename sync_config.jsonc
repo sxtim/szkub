@@ -1,7 +1,7 @@
 {
 	"szkub": {
 		"type": "sftp",
-		"host": "vh276.timeweb.ru",
+		"host": "bone024.timeweb.ru",
 		"port": 22,
 		"username": "cf144342",
 		"password": "TTVd0$gl?3pQ",
@@ -18,7 +18,7 @@
 		"deleteRemote": false,
 		"upload_to_root": false,
 		"distPath": [],
-		"remotePath": "/home/c/cf144342/bitrix_n3agv/public_html",
+		"remotePath": "/home/c/cf144342/",
 		"excludePath": [],
 		"downloadPath": "",
 		"downloadExcludePath": [],

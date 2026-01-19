@@ -11,7 +11,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/accordion.css" />
     <script defer src="js/index.bundle.js"></script>
+    <script defer src="js/accordion.js"></script>
   </head>
   <body>
     <div class="page">
@@ -228,15 +230,28 @@
             <span class="tag tag--outline">Скидки 5%</span>
           </div>
         </div>
-        <div class="project-card__body">
-          <span class="project-card__label">Жилой комплекс</span>
-          <span class="project-card__meta">г. Воронеж, ул. Жилина 7</span>
-          <h3 class="project-card__title">Коллекция</h3>
-          <span class="project-card__meta">
-            Срок сдачи <strong>III квартал 2026г.</strong>
-          </span>
-          <span class="project-card__meta">Цена на квартиры</span>
+        <div class="project-card__content">
+          <div class="project-card__details">
+            <span class="project-card__label">Жилой комплекс</span>
+            <span class="project-card__meta">г. Воронеж, ул. Жилина 7</span>
+            <h3 class="project-card__title">Коллекция</h3>
+            <span class="project-card__meta">
+              Срок сдачи <strong>III квартал 2026г.</strong>
+            </span>
+            <div class="project-card__sale">
+              <span class="project-card__sale-label">В продаже:</span>
+              <div class="project-card__rooms">
+                <span class="project-card__room">Студия</span>
+                <span class="project-card__room">1к</span>
+                <span class="project-card__room">2к</span>
+                <span class="project-card__room">3к</span>
+              </div>
+              
+            </div>
+            
+          </div>
           <div class="project-card__footer">
+          <span class="project-card__sale-count">173 квартиры</span>
             <span class="project-card__price">от 6 538 000 р.</span>
           </div>
         </div>
@@ -253,15 +268,28 @@
             <span class="tag tag--outline">527 квартир</span>
           </div>
         </div>
-        <div class="project-card__body">
-          <span class="project-card__label">Жилой комплекс</span>
-          <span class="project-card__meta">г. Воронеж, ул. Фронтовая 5</span>
-          <h3 class="project-card__title">Вертикаль</h3>
-          <span class="project-card__meta">
-            Срок сдачи <strong>III квартал 2027г.</strong>
-          </span>
-          <span class="project-card__meta">Цена на квартиры</span>
+        <div class="project-card__content">
+          <div class="project-card__details">
+            <span class="project-card__label">Жилой комплекс</span>
+            <span class="project-card__meta">г. Воронеж, ул. Фронтовая 5</span>
+            <h3 class="project-card__title">Вертикаль</h3>
+            <span class="project-card__meta">
+              Срок сдачи <strong>III квартал 2027г.</strong>
+            </span>
+            <div class="project-card__sale">
+              <span class="project-card__sale-label">В продаже:</span>
+              <div class="project-card__rooms">
+                <span class="project-card__room">Студия</span>
+                <span class="project-card__room">1к</span>
+                <span class="project-card__room">2к</span>
+                <span class="project-card__room">3к</span>
+              </div>
+              
+            </div>
+      
+          </div>
           <div class="project-card__footer">
+           <span class="project-card__sale-count">173 квартиры</span>
             <span class="project-card__price">от 7 538 000 р.</span>
           </div>
         </div>
@@ -270,7 +298,7 @@
       <article class="project-card">
         <div class="project-card__image">
           <img
-            src="img/figma-17a34e21-fda4-4b6d-ba1b-1f615eae284a.jpg"
+            src="img/figma-6c3f203f-be9a-4001-ab97-edc7f3b4a9e3.png"
             alt="Краснознаменная"
           />
           <div class="project-card__tags">
@@ -278,19 +306,33 @@
             <span class="tag tag--outline">Скоро</span>
           </div>
         </div>
-        <div class="project-card__body">
-          <span class="project-card__label">Жилой комплекс</span>
-          <span class="project-card__meta">г. Воронеж, ул. Краснознаменная</span>
-          <h3 class="project-card__title">Краснознаменная</h3>
-          <span class="project-card__meta">
-            Срок сдачи <strong>I квартал 2028г.</strong>
-          </span>
-          <span class="project-card__meta">Цена на квартиры</span>
+        <div class="project-card__content">
+          <div class="project-card__details">
+            <span class="project-card__label">Жилой комплекс</span>
+            <span class="project-card__meta">г. Воронеж, ул. Краснознаменная</span>
+            <h3 class="project-card__title">Краснознаменная</h3>
+            <span class="project-card__meta">
+              Срок сдачи <strong>I квартал 2028г.</strong>
+            </span>
+            <div class="project-card__sale">
+              <span class="project-card__sale-label">В продаже:</span>
+              <div class="project-card__rooms">
+                <span class="project-card__room">Студия</span>
+                <span class="project-card__room">1к</span>
+                <span class="project-card__room">2к</span>
+                <span class="project-card__room">3к</span>
+              </div>
+              
+            </div>
+            
+          </div>
           <div class="project-card__footer">
+           <span class="project-card__sale-count">173 квартиры</span>
             <span class="project-card__price">от 8 000 000 р.</span>
           </div>
         </div>
       </article>
+      
     </div>
   </div>
 </section>
@@ -432,43 +474,38 @@
   <div class="container">
     <h2 class="section-title">Вопрос-ответ</h2>
     <div class="faq__grid">
-      <div class="faq__list">
-        <article class="faq-item faq-item--open">
-          <div class="faq-item__title">
+      <div class="faq__list details-group">
+        <details class="details" open>
+          <summary class="details__summary">
             Lorem ipsum dolor sit amet consectetur.
+          </summary>
+          <div class="details__content">
+            <p>
+              Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+              consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit
+              amet consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor
+              sit amet consectetur.Lorem ipsum dolor sit amet consectetur.
+            </p>
           </div>
-          <div class="faq-item__content">
-            Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-            consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-            consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-            consectetur.Lorem ipsum dolor sit amet consectetur.
+        </details>
+        <details class="details">
+          <summary class="details__summary">Lorem ipsum dolor sit amet consectetur.</summary>
+          <div class="details__content">
+            <p>
+              Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+              consectetur.Lorem ipsum dolor sit amet consectetur.
+            </p>
           </div>
-          <img
-            class="faq-item__icon"
-            src="img/figma-21c845e3-0c20-4d5b-8738-05820ffd4764.svg"
-            alt=""
-          />
-        </article>
-        <article class="faq-item">
-          <div class="faq-item__title">
-            Lorem ipsum dolor sit amet consectetur.
+        </details>
+        <details class="details">
+          <summary class="details__summary">Lorem ipsum dolor sit amet consectetur.</summary>
+          <div class="details__content">
+            <p>
+              Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
+              consectetur.Lorem ipsum dolor sit amet consectetur.
+            </p>
           </div>
-          <img
-            class="faq-item__icon"
-            src="img/figma-1f349c3b-38f8-4a12-8a20-5fc7d0d6d738.svg"
-            alt=""
-          />
-        </article>
-        <article class="faq-item">
-          <div class="faq-item__title">
-            Lorem ipsum dolor sit amet consectetur.
-          </div>
-          <img
-            class="faq-item__icon"
-            src="img/figma-1f349c3b-38f8-4a12-8a20-5fc7d0d6d738.svg"
-            alt=""
-          />
-        </article>
+        </details>
       </div>
 
       <form class="faq__form" id="contact-form">

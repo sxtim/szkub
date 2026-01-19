@@ -225,14 +225,17 @@
 
 .projects__cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 58px;
 }
 
 .project-card {
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
+  position: relative;
+
 
   &__image {
     position: relative;
@@ -249,10 +252,24 @@
     gap: 8px;
   }
 
-  &__body {
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--white);
+    margin-top: -90px;
+    overflow: hidden;
+  }
+
+  &__details {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    position: relative;
+    background-color: white;
+    z-index: 1;
+    transform: translateY(92px);
+    transition: transform 0.3s ease;
   }
 
   &__label {
@@ -263,6 +280,50 @@
     font-size: 12px;
   }
 
+  &__sale {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__sale-label {
+    font-size: 12px;
+    color: var(--gray-800);
+  }
+
+  &__rooms {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__room {
+    min-width: 34px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid rgba(27, 27, 27, 0.2);
+    border-radius: 4px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-800);
+    background: var(--white);
+  }
+
+  &__sale-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1b1b1b;
+    background: #d8c49c;
+    border-radius: 2px;
+    width: fit-content;
+  }
+
   &__title {
     margin: 0;
     font-size: 20px;
@@ -271,8 +332,13 @@
 
   &__footer {
     display: flex;
+    padding-top: 8px;
     align-items: center;
     justify-content: space-between;
+    border-top: 1px solid rgba(17, 17, 17, 0.08);
+    position: relative;
+    z-index: 2;
+    background: var(--white);
   }
 
   &__price {
@@ -282,7 +348,17 @@
   }
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .project-card:hover .project-card__details {
+    transform: translateY(-1px);
+  }
+}
+
 @media (max-width: 1200px) {
+  .projects__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .filters {
     flex-direction: column;
     gap: 24px;
@@ -300,6 +376,10 @@
 }
 
 @media (max-width: 768px) {
+  .projects__cards {
+    grid-template-columns: 1fr;
+  }
+
   .projects {
     padding-bottom: 80px;
   }
