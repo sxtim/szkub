@@ -21,7 +21,8 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 248px;
+    --overlay-width: 248px;
+    width: var(--overlay-width);
     height: 205px;
     background: rgba(75, 75, 75, 0.38);
     backdrop-filter: blur(3.95px);
@@ -30,6 +31,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: width 1000ms ease;
   }
 
   h3 {
@@ -53,6 +55,35 @@
   }
 }
 
+.extra-card:hover .extra-card__overlay {
+  width: 100%;
+}
+
+.extra-card--reset .extra-card__overlay {
+  width: 100%;
+  animation: extra-overlay-reset 1000ms ease;
+  transition: none;
+}
+
+@keyframes extra-overlay-reset {
+  0% {
+    left: 0;
+    width: 100%;
+  }
+  49% {
+    left: 100%;
+    width: 100%;
+  }
+  50% {
+    left: calc(-1 * var(--overlay-width));
+    width: var(--overlay-width);
+  }
+  100% {
+    left: 0;
+    width: var(--overlay-width);
+  }
+}
+
 @media (max-width: 768px) {
   .extra {
     padding-bottom: 70px;
@@ -63,6 +94,7 @@
   }
 
   .extra-card__overlay {
-    width: 70%;
+    --overlay-width: 70%;
+    width: var(--overlay-width);
   }
 }

@@ -5,7 +5,7 @@
   "scripts": {
     "build:dirs": "mkdir -p dist/css dist/js dist",
     "build:css": "sass src/scss/main.scss dist/css/main.css --style=expanded --no-source-map && sass src/scss/accordion.scss dist/css/accordion.css --style=expanded --no-source-map",
-    "build:js": "esbuild src/js/index.js --bundle --format=iife --sourcemap --outfile=dist/js/index.bundle.js && cp src/js/accordion.js dist/js/accordion.js",
+    "build:js": "cp src/js/index.js dist/js/index.js && cp src/js/accordion.js dist/js/accordion.js && cp src/js/filters.js dist/js/filters.js && mkdir -p dist/js/vendor && cp node_modules/nouislider/dist/nouislider.min.js dist/js/vendor/nouislider.min.js",
     "build:img": "mkdir -p dist/img && cp -R src/img/. dist/img/",
     "build:html": "node scripts/build-html.mjs",
     "build": "npm run build:dirs && npm run build:css && npm run build:js && npm run build:img && npm run build:html"
