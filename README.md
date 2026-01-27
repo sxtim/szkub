@@ -3,29 +3,30 @@
 Краткая инструкция по работе с вёрсткой.
 
 ## Структура
-- `src/pages/` — HTML‑страницы (источник)
-- `src/scss/main.scss` — стили (источник)
-- `src/js/main.js` — JS (источник)
-- `dist/` — сборка (CSS/JS + HTML)
-- `dist/img/` — изображения (кладутся вручную)
+- `dist/` — рабочая папка (то, что потом пойдёт в Bitrix)
+- `dist/css/` — стили (`main.css`, `accordion.css`, `page-*.css`)
+- `dist/js/` — скрипты (`index.js`, `filters.js`, `accordion.js`)
+- `dist/js/vendor/` — библиотеки (`nouislider.min.js` и т.д.)
+- `dist/img/` — изображения
+- `src/` — исходники для удобства вёрстки (SCSS/HTML/JS), можно держать как архив
 
 ## Установка
 ```bash
 npm install
 ```
 
-## Сборка
+## Сборка (опционально)
 ```bash
 npm run build
 ```
 
 Результат:
-- `dist/index.html`
-- `dist/css/main.css`
-- `dist/js/main.js`
+- обновляется `dist/index.html`
+- компилируется `dist/css/main.css` и `dist/css/accordion.css`
+- копируются `dist/js/index.js`, `dist/js/filters.js`, `dist/js/accordion.js`
+- копируется `dist/js/vendor/nouislider.min.js`
+- копируются картинки в `dist/img`
 
 ## Примечания
-- SCSS компилируется в CSS (без минификации).
-- JS собирается в один бандл (без минификации).
-- Изображения хранятся прямо в `dist/img` и не копируются сборкой.
-- Для Bitrix позже можно направить сборку сразу в папку шаблона и добавить минификацию отдельной командой.
+- Бандла нет, все скрипты — отдельные файлы.
+- Минификация и объединение можно добавить позже.

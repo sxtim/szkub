@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const navBtn = document.querySelector(".mobile-nav-btn");
   const nav = document.querySelector(".mobile-nav");
   const menuIcon = document.querySelector(".nav-icon");
-  const extraCards = document.querySelectorAll(".extra-card");
 
   if (navBtn && nav && menuIcon) {
     const toggleNav = () => {
@@ -21,24 +20,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  extraCards.forEach((card) => {
-    const overlay = card.querySelector(".extra-card__overlay");
-    if (!overlay) {
-      return;
-    }
-
-    card.addEventListener("mouseenter", () => {
-      card.classList.remove("extra-card--reset");
-    });
-
-    card.addEventListener("mouseleave", () => {
-      card.classList.remove("extra-card--reset");
-      void overlay.offsetWidth;
-      card.classList.add("extra-card--reset");
-    });
-
-    overlay.addEventListener("animationend", () => {
-      card.classList.remove("extra-card--reset");
-    });
-  });
 });

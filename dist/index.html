@@ -348,8 +348,8 @@
           src="img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png"
           alt="Коммерческая недвижимость"
         />
+        <h3 class="extra-card__title">Коммерческая  <br> недвижимость</h3>
         <div class="extra-card__overlay">
-          <h3>Коммерческая недвижимость</h3>
           <div class="extra-card__link">
             Подробнее
             <img
@@ -365,8 +365,8 @@
           src="img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
           alt="Паркинг"
         />
+        <h3 class="extra-card__title">Паркинг</h3>
         <div class="extra-card__overlay">
-          <h3>Паркинг</h3>
           <div class="extra-card__link">
             Подробнее
             <img
@@ -382,8 +382,8 @@
           src="img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png"
           alt="Кладовые"
         />
+        <h3 class="extra-card__title">Кладовые</h3>
         <div class="extra-card__overlay">
-          <h3>Кладовые</h3>
           <div class="extra-card__link">
             Подробнее
             <img
@@ -533,26 +533,23 @@
 </section>
 
         <section class="contacts" id="contacts">
+  <div class="contacts__map">
+    <img src="img/figma-ad5135d5-8953-486d-9f15-a18fed7d5c84.png" alt="Карта" />
+  </div>
   <div class="container contacts__inner">
     <h2 class="section-title">Контакты</h2>
-    <div class="contacts__map">
-      <img
-        src="img/figma-ad5135d5-8953-486d-9f15-a18fed7d5c84.png"
-        alt="Карта"
-      />
-    </div>
     <div class="contacts__card">
       <ul>
         <li>
-          <span class="contacts__icon"></span>
+          <img class="contacts__icon" src="img/ic-loc.svg" alt="" />
           ул. апппппппппп
         </li>
         <li>
-          <span class="contacts__icon"></span>
+          <img class="contacts__icon" src="img/ic-watch.svg" alt="" />
           Пн-пт: 9:00-19:00<br />Сб: 10:00 - 16:00<br />Вс: выходной
         </li>
         <li>
-          <span class="contacts__icon"></span>
+          <img class="contacts__icon" src="img/ic-phone.svg" alt="" />
           +7 (473) 000-00-00
         </li>
       </ul>
@@ -564,18 +561,13 @@
 
       <footer class="footer">
   <div class="container footer__top">
-    <div class="footer__nav">
-      <a href="#projects">Проекты</a>
-      <a href="#apartments">Квартиры</a>
-      <a href="#tenders">Тендеры</a>
-      <a href="#promo">Акции</a>
-      <a href="#news">Новости</a>
-      <a href="#mortgage">Ипотека</a>
-      <a href="#company">О компании</a>
-      <a href="#commerce">Коммерция</a>
-    </div>
-
-    <div class="footer__contacts">
+    <div class="footer__main">
+      <div class="footer__logo">
+        <img
+          src="img/figma-c9c9ef2d-69bd-4f4c-b48c-1419b9401f81.svg"
+          alt="КУБ"
+        />
+      </div>
       <div class="footer__phone">
         <img
           src="img/figma-5ce40d0d-8a0e-4c43-b274-c7aeeb5d600e.svg"
@@ -583,30 +575,70 @@
         />
         8-800 000-00-00
       </div>
-      <div class="footer__address">ул. апппппппппп</div>
-      <div class="footer__address">ул. апппппппппп</div>
+      <p class="footer__legal">
+        Показатели и характеристики комплекса, представленные на данном сайте,
+        являются плановыми (проектными) и могут быть изменены.
+        <br /><br />
+        Застройщик: ООО СЗ «КУБ».
+        <br /><br />
+        Долевое строительство по адресам: Воронежская область, г Воронеж, ул.
+        Жилина 7,9
+      </p>
+      <a class="footer__policy" href="#">Политика конфиденциальности</a>
+      <button class="btn btn--light footer__callback" type="button">
+        Перезвоните мне
+      </button>
+      <div class="footer__social">
+        <img
+          src="img/footer-social-1.svg"
+          alt="VK"
+        />
+        <img
+          src="img/footer-social-2.svg"
+          alt="Telegram"
+        />
+      </div>
+    </div>
+
+    <div class="footer__columns">
+      <div class="footer__col">
+        <div class="footer__title">Новостройки</div>
+        <a class="footer__link" href="#">ЖК Коллекция</a>
+        <a class="footer__link" href="#">ЖК Вертикаль</a>
+        <a class="footer__link" href="#">ЖК Краснознаменная</a>
+      </div>
+      <div class="footer__col">
+        <div class="footer__title">Недвижимость</div>
+        <a class="footer__link" href="#">Студии</a>
+        <a class="footer__link" href="#">1-комнатные</a>
+        <a class="footer__link" href="#">2-комнатные</a>
+        <a class="footer__link" href="#">3-комнатные</a>
+        <a class="footer__link" href="#">Еврооднушка</a>
+        <a class="footer__link" href="#">Евродвушка</a>
+        <a class="footer__link" href="#">Евротрешка</a>
+        <a class="footer__link" href="#">Кладовые</a>
+        <a class="footer__link" href="#">Парковки</a>
+      </div>
+      <div class="footer__col">
+        <div class="footer__title">Способы покупки</div>
+        <a class="footer__link" href="#">Ипотека</a>
+        <a class="footer__link" href="#">Рассрочка</a>
+        <a class="footer__link" href="#">Материнский капитал</a>
+      </div>
+      <div class="footer__col">
+        <div class="footer__title">Клиентам</div>
+        <a class="footer__link" href="#projects">Проекты</a>
+        <a class="footer__link" href="#apartments">Квартиры</a>
+        <a class="footer__link" href="#tenders">Тендеры</a>
+        <a class="footer__link" href="#promo">Акции</a>
+        <a class="footer__link" href="#news">Новости</a>
+        <a class="footer__link" href="#mortgage">Ипотека</a>
+        <a class="footer__link" href="#company">О компании</a>
+        <a class="footer__link" href="#commerce">Коммерция</a>
+      </div>
     </div>
   </div>
 
-  <div class="container footer__bottom">
-    <div class="footer__logo">
-      <img
-        src="img/figma-c9c9ef2d-69bd-4f4c-b48c-1419b9401f81.svg"
-        alt="КУБ"
-      />
-    </div>
-    <a class="footer__policy" href="#">Политика конфиденциальности</a>
-    <div class="footer__social">
-      <img
-        src="img/figma-c1f76e58-1dff-410f-bb61-2a3589523612.svg"
-        alt=""
-      />
-      <img
-        src="img/figma-50e65cad-8079-4c51-9c27-e2c3ea20b134.svg"
-        alt=""
-      />
-    </div>
-  </div>
 </footer>
 
     </div>
