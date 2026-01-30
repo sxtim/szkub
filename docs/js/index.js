@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const navBtn = document.querySelector(".mobile-nav-btn");
   const nav = document.querySelector(".mobile-nav");
   const menuIcon = document.querySelector(".nav-icon");
+  const navMore = document.querySelector(".nav__more");
+  const navMoreBtn = document.querySelector(".nav__more-btn");
 
   if (navBtn && nav && menuIcon) {
     const toggleNav = () => {
@@ -20,4 +22,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (navMore && navMoreBtn) {
+    const closeDropdown = () => {
+      navMore.classList.remove("is-open");
+      navMoreBtn.setAttribute("aria-expanded", "false");
+    };
+
+    navMoreBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      const isOpen = navMore.classList.toggle("is-open");
+      navMoreBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!navMore.contains(event.target)) {
+        closeDropdown();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeDropdown();
+      }
+    });
+  }
 });
