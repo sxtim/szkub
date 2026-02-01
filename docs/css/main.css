@@ -191,7 +191,7 @@ a {
 }
 .btn {
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 2px;
   font-family: var(--font-main);
   font-size: 15px;
   font-weight: 700;
@@ -484,12 +484,13 @@ a {
 .hero-main__overlay {
   position: absolute;
   left: 0;
-  top: 169px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 70%;
   max-width: 442px;
   height: 99px;
   background: rgba(255, 255, 255, 0.75);
-  border-radius: 0 5px 5px 0;
+  border-radius: 2px;
   padding: 26px 22px;
 }
 .hero-main__title {
@@ -524,13 +525,14 @@ a {
   top: 67px;
   width: 303px;
   height: 94px;
-  background: rgba(26, 59, 136, 0.75);
+  background: rgba(26, 59, 136, 0.53);
   color: var(--white);
-  border-radius: 0 5px 5px 0;
+  border-radius: 2px;
   padding: 18px 28px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 28px;
+  backdrop-filter: blur(3.6px);
 }
 .hero-card__label--tall {
   top: 56px;
@@ -554,7 +556,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 28px;
   text-align: left;
@@ -640,13 +642,13 @@ a {
 .filters__actions .btn--primary {
   width: 189px;
   height: 46px;
-  border-radius: 4.12px;
+  border-radius: 2px;
 }
 .filters__actions .btn--outline {
   width: 187px;
   height: 46px;
   border-width: 0.824px;
-  border-radius: 4.12px;
+  border-radius: 2px;
 }
 .filters__actions img {
   width: 22px;
@@ -971,7 +973,7 @@ a {
 }
 .tag {
   height: 34px;
-  border-radius: 5px;
+  border-radius: 2px;
   font-size: 15px;
   font-weight: 700;
   display: inline-flex;
@@ -1085,7 +1087,7 @@ a {
   position: absolute;
   left: 0;
   color: var(--white);
-  padding: 10px 10px 10px 36px;
+  padding: 20px 36px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1101,29 +1103,23 @@ a {
 }
 .promo-card__overlay--full {
   top: 0;
-  height: 205px;
-  width: 349px;
+  height: 105px;
+  width: 50%;
   background: rgba(26, 59, 136, 0.53);
   backdrop-filter: blur(3.6px);
 }
-.promo-card__overlay--full .btn {
-  margin-top: 30px;
-}
+
 .promo-card__overlay--split {
   top: 105px;
-  left: 2px;
-  width: 391px;
+  width: 50%;
   height: 100px;
-  border-radius: 5px;
-  padding: 20px 22px;
+  border-radius: 2px;
+  padding: 20px 36px;
   background: rgba(26, 59, 136, 0.53);
   backdrop-filter: blur(3.6px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-.promo-card__button {
-  align-self: flex-start;
 }
 
 .promo-card__overlay--split {
@@ -1136,11 +1132,6 @@ a {
   bottom: 12px;
 }
 
-.promo-card .btn {
-  width: 141px;
-  height: 46px;
-  border-radius: 4.12px;
-}
 
 @media (max-width: 768px) {
   .promo {
@@ -1280,7 +1271,7 @@ a {
 .faq__form input[type=tel] {
   height: 52px;
   border: 1px solid rgba(64, 64, 64, 0.25);
-  border-radius: 5px;
+  border-radius: 2px;
   padding: 0 16px;
   font-size: 15px;
   color: var(--gray-800);
@@ -1288,6 +1279,7 @@ a {
 .faq__form .btn--primary {
   width: 100%;
   height: 46px;
+  border-radius: 2px;
 }
 
 .faq__form .faq__checkbox {
@@ -1323,6 +1315,10 @@ a {
   width: 100%;
   height: 500px;
   overflow: hidden;
+  filter: grayscale(1) saturate(0);
+}
+.contacts__map iframe {
+  filter: grayscale(1) saturate(0);
 }
 .contacts__map img {
   width: 100%;
@@ -1403,9 +1399,9 @@ a {
 /* Правая грань куба */
 .footer__main::after {
   top: -36px;
-  right: -36px;
+  right: -36px; 
   width: 36px;
-  height: calc(45% + 20px);
+  height: calc(45% + 12px);
   background: #183175;
   clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 100%);
 }
@@ -1502,6 +1498,16 @@ a {
   .footer__top {
     grid-template-columns: 1fr;
   }
+  .footer__main {
+    --footer-overlap: 0px;
+    top: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+  .footer__main::before,
+  .footer__main::after {
+    display: none;
+  }
 }
 @media (max-width: 768px) {
   .footer {
@@ -1510,5 +1516,23 @@ a {
   .footer__columns {
     grid-template-columns: 1fr;
     row-gap: 18px;
+    justify-items: center;
+    text-align: center;
+  }
+  .footer__col {
+    align-items: center;
+    text-align: center;
+  }
+  .footer__main-bottom {
+    align-items: center;
+    text-align: center;
+  }
+  .footer__contacts {
+    justify-items: center;
+    text-align: center;
+  }
+  .footer__contacts li {
+    justify-content: center;
+    text-align: center;
   }
 }
