@@ -175,7 +175,7 @@ a {
   font-size: 30px;
   font-weight: 400;
   color: var(--gray-800);
-  margin: 0;
+  margin: 0 0 40px;
 }
 
 .container {
@@ -617,9 +617,6 @@ a {
 .projects {
   padding-bottom: 117px;
 }
-.projects .section-title {
-  margin-bottom: 57px;
-}
 
 .filters {
   display: flex;
@@ -997,9 +994,6 @@ a {
 .extra {
   padding-bottom: 101px;
 }
-.extra .section-title {
-  margin-bottom: 80px;
-}
 .extra__cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1067,9 +1061,6 @@ a {
   .extra {
     padding-bottom: 70px;
   }
-  .extra .section-title {
-    margin-bottom: 40px;
-  }
   .extra-card__overlay {
     --overlay-width: 70%;
     width: 100%;
@@ -1077,9 +1068,6 @@ a {
 }
 .promo {
   padding-bottom: 115px;
-}
-.promo .section-title {
-  margin-bottom: 62px;
 }
 .promo__cards {
   display: grid;
@@ -1178,9 +1166,6 @@ a {
 .news {
   padding-bottom: 97px;
 }
-.news .section-title {
-  margin-bottom: 60px;
-}
 .news__cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -1219,9 +1204,6 @@ a {
 }
 .faq {
   padding-bottom: 159px;
-}
-.faq .section-title {
-  margin-bottom: 60px;
 }
 .faq__grid {
   display: grid;
@@ -1334,7 +1316,7 @@ a {
   pointer-events: none;
 }
 .contacts .section-title {
-  margin: 36px 0 20px;
+  margin: 0 0 40px;
   pointer-events: auto;
 }
 .contacts__map {
@@ -1423,7 +1405,7 @@ a {
   top: -36px;
   right: -36px;
   width: 36px;
-  height: calc(47% + 12px);
+  height: calc(45% + 20px);
   background: #183175;
   clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 100%);
 }
