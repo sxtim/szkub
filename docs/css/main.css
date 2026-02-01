@@ -1406,9 +1406,9 @@ a {
   top: -36px;
   right: -36px;
   width: 36px;
-  height: calc(100% + 36px);
+  height: calc(50% + 12px);
   background: #183175;
-  clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 calc(100% - 36px));
+  clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 100%);
 }
 .footer__contacts {
   list-style: none;
@@ -1435,9 +1435,9 @@ a {
 .footer__callback {
   width: 186px;
   height: 46px;
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 0;
-  margin-top: 6px;
+  margin: 28px auto 0;
 }
 .footer__main-bottom {
   margin-top: auto;
@@ -1452,6 +1452,7 @@ a {
 }
 .footer__columns {
   display: grid;
+  margin-top: -40px;
   grid-template-columns: repeat(4, minmax(140px, 1fr));
   column-gap: 64px;
   row-gap: 26px;
