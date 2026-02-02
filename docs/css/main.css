@@ -1092,12 +1092,14 @@ a {
   flex-direction: column;
   gap: 6px;
 }
-.promo-card__overlay p {
+.promo-card__overlay p,
+.promo-card__text p {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
 }
-.promo-card__overlay strong {
+.promo-card__overlay strong,
+.promo-card__text strong {
   font-size: 24px;
   font-weight: 700;
 }
@@ -1107,29 +1109,44 @@ a {
   width: 50%;
   background: rgba(26, 59, 136, 0.53);
   backdrop-filter: blur(3.6px);
+  transition: height 0.4s ease, width 0.4s ease 0.4s;
 }
 
 .promo-card__overlay--split {
-  top: 105px;
+  bottom: 0;
+  height: 105px;
   width: 50%;
-  height: 100px;
-  border-radius: 2px;
-  padding: 20px 36px;
   background: rgba(26, 59, 136, 0.53);
   backdrop-filter: blur(3.6px);
+  transition: height 0.4s ease, width 0.4s ease 0.4s;
+  z-index: 1;
+}
+
+.promo-card__text {
+  position: absolute;
+  left: 36px;
+  top: calc(100% - 105px + 20px);
+  width: 50%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 6px;
+  color: var(--white);
+  z-index: 2;
+  pointer-events: none;
 }
 
-.promo-card__overlay--split {
-  position: absolute;
+.promo-card--left:hover .promo-card__overlay--full {
+  height: 100%;
+  width: 100%;
+  transition-delay: 0s, 0.4s;
 }
 
-.promo-card__overlay--split .promo-card__button {
-  position: absolute;
-  left: 160px;
-  bottom: 12px;
+
+
+.promo-card--right:hover .promo-card__overlay--split {
+  height: 100%;
+  width: 100%;
+  transition-delay: 0s, 0.4s;
 }
 
 
@@ -1401,7 +1418,7 @@ a {
   top: -36px;
   right: -36px; 
   width: 36px;
-  height: calc(45% + 12px);
+  height: calc(43% + 12px);
   background: #183175;
   clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 100%);
 }
@@ -1440,6 +1457,7 @@ a {
   gap: 12px;
 }
 .footer__legal {
+ margin-top: 50px;
   font-size: 10px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.53);
