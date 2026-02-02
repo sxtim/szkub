@@ -960,6 +960,17 @@ a {
   .projects {
     padding-bottom: 80px;
   }
+  .project-card__image {
+    aspect-ratio: auto;
+    height: 400px;
+  }
+  .project-card__content {
+    margin-top: 0;
+  }
+  .project-card__details {
+    transform: none;
+    padding-top: 12px;
+  }
   .filters {
     margin-bottom: 48px;
   }
@@ -1066,6 +1077,13 @@ a {
   .extra-card__overlay {
     --overlay-width: 70%;
     width: 100%;
+    background: rgba(75, 75, 75, 0.15);
+    backdrop-filter: blur(1.5px);
+    transform: translateX(0);
+    transition: none;
+  }
+  .extra-card:hover .extra-card__overlay {
+    transform: translateX(0);
   }
 }
 .promo {
