@@ -16,3 +16,20 @@ Thumbs.db
 .idea/
 
 sync_config.jsonc
+
+# Bitrix core & runtime
+/bitrix/
+/upload/
+/cache/
+/managed_cache/
+/upload/tmp/
+/upload/resize_cache/
+/upload/iblock/
+/upload/medialibrary/
+
+# Bitrix secrets
+**/php_interface/dbconn.php
+**/php_interface/.settings.php
+
+# Logs
+*.log
