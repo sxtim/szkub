@@ -11,13 +11,16 @@
             <ul class="footer__contacts">
               <li>
                 <img class="footer__icon" src="<?=SITE_TEMPLATE_PATH?>/img/ic-loc.svg" alt="" />
-                Воронеж, Фридриха Энгельса улица,<br> дом 7а офис 201
+                Воронеж, ул. Фридриха Энгельса,<br> дом 7а офис 201
               </li>
               <li>
                 <img class="footer__icon" src="<?=SITE_TEMPLATE_PATH?>/img/ic-watch.svg" alt="" />
-                Пн‑пт: 9:00‑19:00<br />
-                Сб: 10:00‑16:00<br />
-                Вс: выходной
+                пн‑пт: 9:00‑19:00<br />
+                сб-вс: выходной <br />
+              </li>
+              <li>
+                <img class="footer__icon" src="<?=SITE_TEMPLATE_PATH?>/img/mail.svg" alt="" />
+                cube-develop@yandex.ru<br />
               </li>
               <li>
                 <img class="footer__icon" src="<?=SITE_TEMPLATE_PATH?>/img/ic-phone.svg" alt="" />

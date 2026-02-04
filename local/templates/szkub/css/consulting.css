@@ -12,13 +12,20 @@
 .consulting-hero__card {
   background: #1a3b88;
   color: #fff;
-  padding: 48px 56px;
+  padding: 8px 56px 48px;
   border-radius: 2px;
   min-height: 360px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 20px;
+}
+
+.consulting-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: -170px;
 }
 
 .consulting-hero__title {
@@ -121,23 +128,32 @@
 }
 
 .consulting-form {
-  padding: 40px 0 80px;
+  padding: 40px 0 0px;
+  position: relative;
+  z-index: 0;
+}
+
+.consulting-form .container {
+ height: 500px;
+  position: relative;
+  z-index: 1;
 }
 
 .consulting-form__box {
   position: relative;
-  border-radius: 4px;
-  overflow: hidden;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: 40px;
   padding: 48px 56px;
-  background: #f5f6f8;
 }
 
 .consulting-form__bg {
   position: absolute;
-  inset: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  bottom: 0;
+  width: 100vw;
   background: rgba(26, 59, 136, 0.1);
   z-index: 0;
 }

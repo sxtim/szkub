@@ -8,13 +8,15 @@ $APPLICATION->SetTitle("Консалтинг — КУБ");
   <div class="container">
     <div class="consulting-hero__grid">
       <div class="consulting-hero__card">
-        <h1 class="consulting-hero__title">Строительный<br>консалтинг</h1>
-        <p class="consulting-hero__text">
-          Контроль строительного объекта требует опоры на факты и независимую экспертизу.
-          «КУБ» обеспечивает прозрачность строительных процессов, помогая выявить риски,
-          исключить перерасход бюджета и соблюсти сроки. Наш системный подход — защита качества актива.
-        </p>
-        <button class="consulting-hero__btn" type="button">Оставить заявку</button>
+        <div class="consulting-hero__content">
+          <h1 class="consulting-hero__title">Строительный<br>консалтинг</h1>
+          <p class="consulting-hero__text">
+            Контроль строительного объекта требует опоры на факты и независимую экспертизу.
+            «КУБ» обеспечивает прозрачность строительных процессов, помогая выявить риски,
+            исключить перерасход бюджета и соблюсти сроки. Наш системный подход — защита качества актива.
+          </p>
+          <button class="consulting-hero__btn" type="button">Оставить заявку</button>
+        </div>
       </div>
       <div class="consulting-hero__image">
         <img src="<?=SITE_TEMPLATE_PATH?>/img/consulting/hero.webp" alt="Строительный консалтинг">
@@ -82,10 +84,10 @@ $APPLICATION->SetTitle("Консалтинг — КУБ");
 
 <section class="consulting-form">
   <div class="container">
+    <div class="consulting-form__bg">
+      <img src="<?=SITE_TEMPLATE_PATH?>/img/consulting/consult-bg.webp" alt="">
+    </div>
     <div class="consulting-form__box">
-      <div class="consulting-form__bg">
-        <img src="<?=SITE_TEMPLATE_PATH?>/img/consulting/consult-bg.webp" alt="">
-      </div>
       <div class="consulting-form__content">
         <h2 class="consulting-form__title">Получить консультацию</h2>
         <p class="consulting-form__text">
