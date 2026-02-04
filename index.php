@@ -436,24 +436,7 @@ $APPLICATION->SetTitle("КУБ — сайт");
         </details>
       </div>
 
-      <form class="faq__form" id="contact-form">
-        <h3>Остались вопросы?</h3>
-        <label>
-          Ваше имя
-          <input type="text" placeholder="Имя" />
-        </label>
-        <label>
-          Телефон
-          <input type="tel" placeholder="+7 999 999 99 99" />
-        </label>
-        <button class="btn btn--primary" type="button">Отправить</button>
-        <label class="faq__checkbox">
-          <input type="checkbox" checked />
-          Отправляя обращение, я принимаю условия Пользовательского соглашения и даю свое
-          согласие на обработку моих персональных данных в соответствии с Политикой
-          конфиденциальности
-        </label>
-      </form>
+      <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szkub/parts/contact-form.php"; ?>
     </div>
   </div>
 </section>

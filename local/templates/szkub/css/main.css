@@ -1285,25 +1285,25 @@ a {
   height: 25px;
 }
 
-.faq__form {
+.contact-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  max-width: 400px;
 }
-.faq__form h3 {
+.contact-form__title {
   margin: 0 0 12px;
   font-size: 23px;
   font-weight: 700;
 }
-.faq__form label {
+.contact-form__field {
   display: flex;
   flex-direction: column;
   gap: 6px;
   font-size: 15px;
   color: var(--gray-800);
 }
-.faq__form input[type=text],
-.faq__form input[type=tel] {
+.contact-form__input {
   height: 52px;
   border: 1px solid rgba(64, 64, 64, 0.25);
   border-radius: 2px;
@@ -1311,13 +1311,13 @@ a {
   font-size: 15px;
   color: var(--gray-800);
 }
-.faq__form .btn--primary {
+.contact-form__submit {
   width: 100%;
   height: 46px;
   border-radius: 2px;
 }
 
-.faq__form .faq__checkbox {
+.contact-form__agree {
   font-size: 12px;
   line-height: 1.3;
   display: flex;
@@ -1325,7 +1325,7 @@ a {
   gap: 10px;
   align-items: flex-start;
 }
-.faq__form .faq__checkbox input {
+.contact-form__agree input {
   margin-top: 3px;
   flex: 0 0 auto;
 }

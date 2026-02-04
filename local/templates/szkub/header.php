@@ -8,6 +8,9 @@ use Bitrix\Main\Page\Asset;
 $asset = Asset::getInstance();
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/main.css");
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/accordion.css");
+if (defined("CONSULTING_PAGE") && CONSULTING_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
+}
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");
