@@ -134,7 +134,7 @@ $APPLICATION->SetTitle("КУБ — сайт");
       </div>
 
       <div class="filters__actions">
-        <button class="btn btn--outline" type="button">
+        <button class="btn btn--outline" type="button" data-filters-open>
           <img
             src="<?=SITE_TEMPLATE_PATH?>/img/figma-79c1f9fd-6c0a-4f8c-b28d-1eb500e82390.svg"
             alt=""
@@ -142,6 +142,181 @@ $APPLICATION->SetTitle("КУБ — сайт");
           Все фильтры
         </button>
         <button class="btn btn--primary" type="button">Выбрать квартиру</button>
+      </div>
+    </div>
+
+    <div class="filters-popup" aria-hidden="true">
+      <div class="filters-popup__overlay" data-filters-close></div>
+      <div class="filters-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="filters-title">
+        <div class="filters-popup__header">
+          <h3 class="filters-popup__title" id="filters-title">Все фильтры</h3>
+          <button class="filters-popup__close" type="button" aria-label="Закрыть" data-filters-close>×</button>
+        </div>
+        <div class="filters-popup__grid">
+          <div class="filters-popup__col">
+            <div class="filter filter--select">
+              <span class="filter__label">Город и ЖК</span>
+              <div class="filter__dropdown">
+                <div class="filter__dropdown-menu-btn" type="button">Выберите город и ЖК</div>
+                <div class="filter__dropdown-content">
+                  <div class="input_field">
+                    <input class="custom-checkbox" type="checkbox" id="city-1">
+                    <label for="city-1">ЖК Вертикаль</label>
+                  </div>
+                  <div class="input_field">
+                    <input class="custom-checkbox" type="checkbox" id="city-2">
+                    <label for="city-2">ЖК Коллекция</label>
+                  </div>
+                  <div class="input_field">
+                    <input class="custom-checkbox" type="checkbox" id="city-3">
+                    <label for="city-3">ЖК Краснознаменная</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter filter--rooms">
+              <span class="filter__label">Кол-во комнат</span>
+              <div class="filter__rooms">
+                <span class="filter__room">Студия</span>
+                <span class="filter__room">1</span>
+                <span class="filter__room">2</span>
+                <span class="filter__room">3</span>
+                <span class="filter__room">4+</span>
+              </div>
+            </div>
+
+            <div class="filter filter--range filter--price">
+              <span class="filter__label">Укажите стоимость, р</span>
+              <div class="filter__range">
+                <div class="filter__range-text">
+                  <span>От</span>
+                  <span class="filter__muted">4 251 780</span>
+                </div>
+                <div class="filter__range-text">
+                  <span>До</span>
+                  <span class="filter__muted">44 825 780</span>
+                </div>
+                <div class="filter__range-track">
+                  <div class="range-slider"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter filter--range filter--square">
+              <span class="filter__label">Укажите площадь, м²</span>
+              <div class="filter__range">
+                <div class="filter__range-text">
+                  <span>От</span>
+                  <span class="filter__muted">17.63</span>
+                </div>
+                <div class="filter__range-text">
+                  <span>До</span>
+                  <span class="filter__muted">222.4</span>
+                </div>
+                <div class="filter__range-track">
+                  <div class="range-slider"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-popup__col">
+            <div class="filter filter--range filter--height">
+              <span class="filter__label">Высота потолков, м</span>
+              <div class="filter__range">
+                <div class="filter__range-text">
+                  <span>От</span>
+                  <span class="filter__muted">0</span>
+                </div>
+                <div class="filter__range-text">
+                  <span>До</span>
+                  <span class="filter__muted">3.3</span>
+                </div>
+                <div class="filter__range-track">
+                  <div class="range-slider"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="filter filter--balcony">
+              <span class="filter__label">Балкон</span>
+              <div class="filter__rooms">
+                <span class="filter__room">Балкон</span>
+                <span class="filter__room">Лоджия</span>
+                <span class="filter__room">Терраса</span>
+                <span class="filter__room">Без балкона/лоджии</span>
+              </div>
+            </div>
+
+            <div class="filter filter--range filter--floor">
+              <span class="filter__label">Этаж</span>
+              <div class="filter__range">
+                <div class="filter__range-text">
+                  <span>От</span>
+                  <span class="filter__muted">1</span>
+                </div>
+                <div class="filter__range-text">
+                  <span>До</span>
+                  <span class="filter__muted">25</span>
+                </div>
+                <div class="filter__range-track">
+                  <div class="range-slider"></div>
+                </div>
+              </div>
+              <div class="filter__rooms">
+                <span class="filter__room">Не первый</span>
+                <span class="filter__room">Не последний</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="filters-popup__col">
+            <div class="filter filter--planning">
+              <span class="filter__label">Планировочные решения</span>
+              <div class="filter__checkboxes">
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Мастер спальня</span>
+                </label>
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Гардероб</span>
+                </label>
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Витражное остекление</span>
+                </label>
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Кухонный гарнитур</span>
+                </label>
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Высокие потолки</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="filter filter--finish">
+              <span class="filter__label">Отделка</span>
+              <div class="filter__checkboxes">
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Предчистовая</span>
+                </label>
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Черновая</span>
+                </label>
+                <label class="filter__checkbox">
+                  <input class="custom-checkbox" type="checkbox">
+                  <span>Чистовая</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

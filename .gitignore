@@ -33,3 +33,6 @@ sync_config.jsonc
 
 # Logs
 *.log
+
+# ignore docs filters
+docs/filters/
