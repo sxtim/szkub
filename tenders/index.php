@@ -16,7 +16,7 @@ $APPLICATION->SetTitle("Тендеры — КУБ");
         </div>
       </div>
       <div class="tenders-intro__media">
-        <img src="<?=SITE_TEMPLATE_PATH?>/img/tenders/tenders-intro.webp" alt="">
+        <img src="<?=SITE_TEMPLATE_PATH?>/img/tenders/people-working2.jpg" alt="">
       </div>
     </div>
   </div>
@@ -25,7 +25,7 @@ $APPLICATION->SetTitle("Тендеры — КУБ");
 <section class="consulting-form">
   <div class="container">
     <div class="consulting-form__bg">
-      <img src="<?=SITE_TEMPLATE_PATH?>/img/consulting/consult-bg.webp" alt="">
+      <img src="<?=SITE_TEMPLATE_PATH?>/img/consulting/Frame_444800.png" alt="">
     </div>
     <div class="consulting-form__box">
       <div class="consulting-form__content">

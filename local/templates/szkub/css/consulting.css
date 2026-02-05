@@ -30,7 +30,7 @@
 
 .consulting-hero__title {
   font-family: "Benzin", sans-serif;
-  font-size: 40px;
+  font-size: 30px;
   line-height: 1.2;
   font-weight: 500;
   margin: 0;
@@ -76,12 +76,12 @@
   font-family: "Benzin", sans-serif;
   font-size: 30px;
   font-weight: 400;
-  margin: 0 0 30px;
+  margin: 0 0 60px;
 }
 
 .consulting-service {
   display: grid;
-  grid-template-columns: minmax(260px, 430px) minmax(200px, 1fr) minmax(200px, 1fr);
+  grid-template-columns: minmax(260px, 482px) minmax(200px, 1fr) minmax(200px, 1fr);
   column-gap: 80px;
   row-gap: 14px;
   padding: 20px 0 30px;
@@ -89,7 +89,7 @@
 
 .consulting-service__label {
   font-family: "Benzin", sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 400;
   margin: -20px 0 0 12px;
 }
@@ -123,8 +123,8 @@
   margin: 0;
   padding-left: 0;
   list-style: none;
-  font-size: 16px;
-  line-height: 40px;
+  font-size: 18px;
+  line-height: 30px;
 }
 
 .consulting-form {
@@ -145,7 +145,7 @@
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: 40px;
-  padding-top: 140px;
+  padding-top: 80px;
 }
 
 .consulting-form__bg {
@@ -155,7 +155,7 @@
   top: 0;
   bottom: 0;
   width: 100vw;
-  background: rgba(26, 59, 136, 0.2);
+  /* background: rgba(26, 59, 136, 0.2); */
   z-index: 0;
 }
 
@@ -185,7 +185,7 @@
 }
 
 .consulting-form__text {
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1.2;
   font-weight: 300;
   margin: 0;
@@ -244,7 +244,7 @@
 @media (max-width: 640px) {
   .consulting-hero__title,
   .consulting-form__title {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .consulting-form__text {
