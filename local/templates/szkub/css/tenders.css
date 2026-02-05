@@ -1,0 +1,76 @@
+.tenders-intro {
+  padding: 40px 0 30px;
+}
+
+.tenders-intro__grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 674px);
+  gap: 40px;
+  align-items: start;
+}
+
+.tenders-intro__title {
+  font-family: "Benzin", sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  margin: 0 0 18px;
+}
+
+.tenders-intro__text {
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 300;
+  margin: 0;
+  max-width: 632px;
+}
+
+.tenders-intro__text p {
+  margin: 0 0 18px;
+}
+
+.tenders-intro__text p:last-child {
+  margin-bottom: 0;
+}
+
+.tenders-intro__media {
+  position: relative;
+  border-radius: 2px;
+  overflow: hidden;
+  height: 449px;
+}
+
+.tenders-intro__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 59, 136, 0.1);
+}
+
+.tenders-intro__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0.9;
+}
+
+@media (max-width: 1024px) {
+  .tenders-intro__grid {
+    grid-template-columns: 1fr;
+  }
+  .tenders-intro__media {
+    height: 360px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tenders-intro__title {
+    font-size: 32px;
+  }
+  .tenders-intro__text {
+    font-size: 16px;
+  }
+  .tenders-intro__media {
+    height: 300px;
+  }
+}

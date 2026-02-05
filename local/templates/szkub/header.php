@@ -7,9 +7,14 @@ use Bitrix\Main\Page\Asset;
 
 $asset = Asset::getInstance();
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/main.css");
+$asset->addCss(SITE_TEMPLATE_PATH . "/css/contact-form.css");
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/accordion.css");
 if (defined("CONSULTING_PAGE") && CONSULTING_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
+}
+if (defined("TENDERS_PAGE") && TENDERS_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/tenders.css");
 }
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
@@ -44,7 +49,7 @@ $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserr
               <li><a href="#apartments">Квартиры</a></li>
               <li><a href="#commerce">Коммерция</a></li>
               <li><a href="/consulting/">Консалтинг</a></li>
-              <li><a href="#tenders">Тендеры</a></li>
+              <li><a href="/tenders/">Тендеры</a></li>
               <li><a href="#company">О компании</a></li>
               <li><a href="#contacts">Контакты</a></li>
               <li class="nav__more">
@@ -84,7 +89,7 @@ $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserr
             <li><a href="#apartments">Квартиры</a></li>
             <li><a href="#commerce">Коммерция</a></li>
             <li><a href="/consulting/">Консалтинг</a></li>
-            <li><a href="#tenders">Тендеры</a></li>
+            <li><a href="/tenders/">Тендеры</a></li>
             <li><a href="#promo">Акции</a></li>
             <li><a href="#company">О компании</a></li>
             <li><a href="#mortgage">Ипотека</a></li>
