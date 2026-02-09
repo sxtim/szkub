@@ -208,19 +208,114 @@ a {
   background: var(--blue);
   color: var(--white);
   width: 141px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(26, 59, 136, 0.35);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn--primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  filter: blur(6px);
+  transition: left 0.4s ease-in-out;
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(26, 59, 136, 0.6);
+}
+
+.btn--primary:hover::after {
+  left: 120%;
 }
 .btn--light {
   background: var(--white);
   color: var(--blue);
   height: 37px;
   width: 175px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.btn--light::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  filter: blur(6px);
+  transition: left 0.4s ease-in-out;
+}
+
+.btn--light:hover {
+  background: var(--blue);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 12px 36px rgba(26, 59, 136, 0.6);
+}
+
+.btn--light:hover::after {
+  left: 120%;
 }
 .btn--outline {
   background: transparent;
   color: var(--blue);
   border: 1px solid var(--blue);
   width: 187px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
+
+.btn--outline::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  filter: blur(6px);
+  transition: left 0.4s ease-in-out;
+}
+
+.btn--outline:hover {
+  background: var(--blue);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(26, 59, 136, 0.6);
+}
+
+.btn--outline:hover::after {
+  left: 120%;
+}
+
 
 .header {
   height: 115px;
