@@ -799,9 +799,23 @@ a {
   font-size: 15px;
   color: var(--gray-800);
   width: 42px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .filter__room:first-child {
   width: 88px;
+}
+
+.filter__room.is-active {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--blue);
+}
+
+.filter__room:hover {
+  background: rgba(26, 59, 136, 0.08);
+  border-color: rgba(26, 59, 136, 0.25);
 }
 .filter__range {
   display: grid;
@@ -817,7 +831,7 @@ a {
   line-height: 1;
 }
 .filter__muted {
-  color: rgba(64, 64, 64, 0.25);
+  color:  rgba(26, 59, 136, 0.8);
 }
 .filter__range-track {
   grid-column: 1/-1;
@@ -862,7 +876,7 @@ a {
   content: "";
   width: 12px;
   height: 8px;
-  background-image: url("../img/figma-79c1f9fd-6c0a-4f8c-b28d-1eb500e82390.svg");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A3B88' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   position: absolute;
@@ -908,6 +922,10 @@ a {
 }
 
 .filter__dropdown-content .input_field.selected {
+  background: rgba(26, 59, 136, 0.08);
+}
+
+.filter__dropdown-content .input_field:hover {
   background: rgba(26, 59, 136, 0.08);
 }
 
@@ -1009,10 +1027,14 @@ a {
   gap: 24px 28px;
 }
 
+.filters-popup .filter__range-track {
+  width: 100%;
+}
+
 .filters-popup__col {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 55px;
 }
 
 .filters-popup .filter__room {
@@ -1083,6 +1105,7 @@ a {
   box-shadow: none;
   height: 2.5px;
   margin-top: 8.5px;
+  cursor: pointer;
 }
 
 .range-slider .noUi-connect {
@@ -1098,6 +1121,7 @@ a {
   box-shadow: none;
   right: -9.9px;
   top: -8.7px;
+  cursor: pointer;
 }
 
 .range-slider .noUi-handle::before,

@@ -5,8 +5,12 @@ const formatNumber = (value, step) => {
 
 const initRangeSliders = () => {
   const sliders = document.querySelectorAll(".range-slider");
+  const syncingRanges = new Set();
 
   sliders.forEach((slider) => {
+    if (slider.noUiSlider) {
+      return;
+    }
     const min = Number(slider.dataset.min);
     const max = Number(slider.dataset.max);
     const start = Number(slider.dataset.start);
@@ -28,27 +32,54 @@ const initRangeSliders = () => {
       range: { min, max },
     });
 
-    const fromEl = document.querySelector(`[data-range-value="${slider.dataset.range}-from"]`);
-    const toEl = document.querySelector(`[data-range-value="${slider.dataset.range}-to"]`);
-    const fromInput = document.querySelector(`[data-range-input="${slider.dataset.range}-from"]`);
-    const toInput = document.querySelector(`[data-range-input="${slider.dataset.range}-to"]`);
+    const fromEls = document.querySelectorAll(
+      `[data-range-value="${slider.dataset.range}-from"]`
+    );
+    const toEls = document.querySelectorAll(
+      `[data-range-value="${slider.dataset.range}-to"]`
+    );
+    const fromInputs = document.querySelectorAll(
+      `[data-range-input="${slider.dataset.range}-from"]`
+    );
+    const toInputs = document.querySelectorAll(
+      `[data-range-input="${slider.dataset.range}-to"]`
+    );
 
     slider.noUiSlider.on("update", (values) => {
+      const rangeKey = slider.dataset.range;
+      if (syncingRanges.has(rangeKey)) {
+        return;
+      }
+      syncingRanges.add(rangeKey);
+
       const fromVal = Number(values[0]);
       const toVal = Number(values[1]);
 
-      if (fromEl) {
-        fromEl.textContent = formatNumber(fromVal, step);
-      }
-      if (toEl) {
-        toEl.textContent = formatNumber(toVal, step);
-      }
-      if (fromInput) {
-        fromInput.value = Math.round(fromVal).toString();
-      }
-      if (toInput) {
-        toInput.value = Math.round(toVal).toString();
-      }
+      fromEls.forEach((el) => {
+        el.textContent = formatNumber(fromVal, step);
+      });
+      toEls.forEach((el) => {
+        el.textContent = formatNumber(toVal, step);
+      });
+      fromInputs.forEach((input) => {
+        input.value = fromVal.toString();
+      });
+      toInputs.forEach((input) => {
+        input.value = toVal.toString();
+      });
+
+      document
+        .querySelectorAll(`.range-slider[data-range="${rangeKey}"]`)
+        .forEach((target) => {
+          if (target === slider || !target.noUiSlider) return;
+          const current = target.noUiSlider.get();
+          if (Array.isArray(current) && current.join() === values.join()) {
+            return;
+          }
+          target.noUiSlider.set(values);
+        });
+
+      syncingRanges.delete(rangeKey);
     });
   });
 };
@@ -64,6 +95,7 @@ const initFiltersPopup = () => {
     popup.classList.add("is-open");
     popup.setAttribute("aria-hidden", "false");
     document.body.classList.add("no-scroll");
+    initRangeSliders();
   };
 
   const closePopup = () => {
@@ -129,11 +161,14 @@ const initFilterDropdowns = () => {
     btn.addEventListener("click", (event) => {
       event.stopPropagation();
       const isOpen = content.classList.contains("active");
-      closeAll(content);
-      if (!isOpen) {
-        content.classList.add("active");
-        btn.classList.add("open");
+      if (isOpen) {
+        content.classList.remove("active");
+        btn.classList.remove("open");
+        return;
       }
+      closeAll(content);
+      content.classList.add("active");
+      btn.classList.add("open");
     });
 
     content.addEventListener("click", (event) => {
@@ -156,8 +191,19 @@ const initFilterDropdowns = () => {
   document.addEventListener("click", () => closeAll());
 };
 
+const initFilterPills = () => {
+  document.querySelectorAll(".filter__rooms").forEach((container) => {
+    container.addEventListener("click", (event) => {
+      const pill = event.target.closest(".filter__room");
+      if (!pill || !container.contains(pill)) return;
+      pill.classList.toggle("is-active");
+    });
+  });
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initRangeSliders();
   initFiltersPopup();
   initFilterDropdowns();
+  initFilterPills();
 });

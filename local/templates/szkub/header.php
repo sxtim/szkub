@@ -16,6 +16,10 @@ if (defined("TENDERS_PAGE") && TENDERS_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/tenders.css");
 }
+if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
+}
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");
