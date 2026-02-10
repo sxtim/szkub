@@ -210,7 +210,6 @@ a {
   width: 141px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(26, 59, 136, 0.35);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -233,7 +232,7 @@ a {
 
 .btn--primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 36px rgba(26, 59, 136, 0.6);
+  box-shadow: 0 3px 9px rgba(26, 59, 136, 0.6);
 }
 
 .btn--primary:hover::after {
@@ -271,7 +270,7 @@ a {
   color: var(--white);
   border: 1px solid rgba(255, 255, 255, 0.6);
   transform: translateY(-2px);
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 12px 36px rgba(26, 59, 136, 0.6);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 3px 9px rgba(26, 59, 136, 0.6);
 }
 
 .btn--light:hover::after {
@@ -309,7 +308,7 @@ a {
   color: var(--white);
   border: 1px solid rgba(255, 255, 255, 0.6);
   transform: translateY(-2px);
-  box-shadow: 0 12px 36px rgba(26, 59, 136, 0.6);
+  box-shadow: 0 3px 9px rgba(26, 59, 136, 0.6);
 }
 
 .btn--outline:hover::after {
@@ -1719,7 +1718,7 @@ a {
   top: -36px;
   right: -36px; 
   width: 36px;
-  height: calc(43% + 12px);
+  height: calc(42% + 12px);
   background: #183175;
   clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 100%);
 }
