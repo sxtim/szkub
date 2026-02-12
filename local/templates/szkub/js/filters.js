@@ -158,6 +158,41 @@ const initFilterDropdowns = () => {
       btn.textContent = selected.length ? selected.join(", ") : defaultText;
     };
 
+    const syncCheckboxes = (sourceCheckbox) => {
+      const syncGroup = sourceCheckbox.dataset.syncGroup;
+      const syncValue = sourceCheckbox.dataset.syncValue;
+      if (!syncGroup || !syncValue) return;
+
+      document
+        .querySelectorAll(
+          `.filter__dropdown .custom-checkbox[data-sync-group="${syncGroup}"][data-sync-value="${syncValue}"]`
+        )
+        .forEach((checkbox) => {
+          checkbox.checked = sourceCheckbox.checked;
+          const field = checkbox.closest(".input_field");
+          if (field) {
+            field.classList.toggle("selected", checkbox.checked);
+          }
+        });
+
+      dropdowns.forEach((item) => {
+        const itemBtn = item.querySelector(".filter__dropdown-menu-btn");
+        const itemContent = item.querySelector(".filter__dropdown-content");
+        if (!itemBtn || !itemContent) return;
+
+        const itemDefaultText = itemBtn.dataset.defaultText || itemBtn.textContent.trim();
+        itemBtn.dataset.defaultText = itemDefaultText;
+
+        const selected = Array.from(itemContent.querySelectorAll('input[type="checkbox"]:checked'))
+          .map((checkbox) =>
+            checkbox.closest(".input_field")?.querySelector("label")?.textContent.trim()
+          )
+          .filter(Boolean);
+
+        itemBtn.textContent = selected.length ? selected.join(", ") : itemDefaultText;
+      });
+    };
+
     btn.addEventListener("click", (event) => {
       event.stopPropagation();
       const isOpen = content.classList.contains("active");
@@ -183,8 +218,10 @@ const initFilterDropdowns = () => {
       }
       field.classList.toggle("selected", checkbox.checked);
       updateButtonText();
+      syncCheckboxes(checkbox);
     });
 
+    btn.dataset.defaultText = defaultText;
     updateButtonText();
   });
 
@@ -196,7 +233,18 @@ const initFilterPills = () => {
     container.addEventListener("click", (event) => {
       const pill = event.target.closest(".filter__room");
       if (!pill || !container.contains(pill)) return;
-      pill.classList.toggle("is-active");
+      const nextState = !pill.classList.contains("is-active");
+      pill.classList.toggle("is-active", nextState);
+
+      const syncGroup = pill.dataset.syncGroup;
+      const syncValue = pill.dataset.syncValue;
+      if (!syncGroup || !syncValue) return;
+
+      document
+        .querySelectorAll(`.filter__room[data-sync-group="${syncGroup}"][data-sync-value="${syncValue}"]`)
+        .forEach((item) => {
+          item.classList.toggle("is-active", nextState);
+        });
     });
   });
 };

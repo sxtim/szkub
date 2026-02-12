@@ -342,6 +342,16 @@ a {
 .header .logo {
   width: 139px;
   height: 36px;
+  cursor: pointer;
+}
+.header .logo img {
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+.header .logo:hover img,
+.header .logo:focus-visible img {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 18px rgba(255, 255, 255, 0.75));
+  transform: translateY(-1px);
 }
 .header .nav {
   flex: 1;
@@ -356,6 +366,26 @@ a {
   padding: 0;
   font-size: 15px;
   color: var(--white);
+}
+.header .nav__list a,
+.nav__more-btn,
+.nav__dropdown a,
+.header__phone a,
+.mobile-nav a {
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.header .nav__list a:hover,
+.header .nav__list a:focus-visible,
+.nav__more-btn:hover,
+.nav__more-btn:focus-visible,
+.nav__dropdown a:hover,
+.nav__dropdown a:focus-visible,
+.header__phone a:hover,
+.header__phone a:focus-visible,
+.mobile-nav a:hover,
+.mobile-nav a:focus-visible {
+  color: #ffffff;
+  text-shadow: 0 0 16px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 0.98), 0 0 48px rgba(255, 255, 255, 0.78);
 }
 .nav__more {
   position: relative;
@@ -736,7 +766,7 @@ a {
 }
 .filters__controls {
   display: grid;
-  grid-template-columns: 215px 280px 312px 220px;
+  grid-template-columns: 280px 280px 312px 220px;
   gap: 28px;
 }
 .filters__actions {
@@ -818,7 +848,9 @@ a {
 }
 
 .filter__room.is-active:hover {
-  color: #000;
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--blue);
 }
 .filter__range {
   display: grid;
@@ -874,6 +906,9 @@ a {
   cursor: pointer;
   position: relative;
   background: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .filter__dropdown-menu-btn::after {
@@ -1802,6 +1837,20 @@ a {
   font-size: 15px;
   color: var(--white);
 }
+.footer__link,
+.footer__policy,
+.footer__contacts a {
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.footer__link:hover,
+.footer__link:focus-visible,
+.footer__policy:hover,
+.footer__policy:focus-visible,
+.footer__contacts a:hover,
+.footer__contacts a:focus-visible {
+  color: #ffffff;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 1), 0 0 26px rgba(255, 255, 255, 0.96), 0 0 42px rgba(255, 255, 255, 0.72);
+}
 .footer__logo {
   width: 260px;
   height: 60px;
@@ -1829,6 +1878,13 @@ a {
   width: 22px;
   height: 18px;
   object-fit: contain;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+.footer__social img:hover {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.98))
+    drop-shadow(0 0 18px rgba(255, 255, 255, 0.82));
+  transform: translateY(-1px);
 }
 
 @media (max-width: 1024px) {

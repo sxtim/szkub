@@ -63,7 +63,7 @@ $APPLICATION->SetTitle("КУБ — сайт");
     <?php
     $APPLICATION->IncludeComponent(
       "bitrix:catalog.smart.filter",
-      "projects",
+      "filters",
       array(
         "IBLOCK_TYPE" => "",
         "IBLOCK_ID" => "",
