@@ -816,6 +816,10 @@ a {
   background: rgba(26, 59, 136, 0.08);
   border-color: rgba(26, 59, 136, 0.25);
 }
+
+.filter__room.is-active:hover {
+  color: #000;
+}
 .filter__range {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -865,7 +869,8 @@ a {
   align-items: center;
   padding: 0 36px 0 16px;
   font-size: 15px;
-  color: rgba(64, 64, 64, 0.6);
+  font-weight: 600;
+  color: rgba(64, 64, 64, 0.85);
   cursor: pointer;
   position: relative;
   background: #fff;
@@ -1250,6 +1255,20 @@ a {
 @media (hover: hover) and (pointer: fine) {
   .project-card:hover .project-card__details {
     transform: translateY(-1px);
+  }
+}
+@media (max-width: 1280px) {
+  .filters {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .filters__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .filters__controls {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
 @media (max-width: 1200px) {

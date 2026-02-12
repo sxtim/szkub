@@ -26,16 +26,52 @@
   margin-bottom: 28px;
 }
 
+.catalog__sort {
+  position: relative;
+  width: 280px;
+  z-index: 6;
+}
+
 .catalog__sort-btn {
-  background: none;
-  border: none;
+  width: 100%;
+}
+
+.catalog__sort .filter__dropdown-menu-btn {
+  width: 100%;
+}
+
+.catalog__sort-menu.filter__dropdown-content {
+  padding: 0;
+  max-height: 0;
+}
+
+.catalog__sort-menu.filter__dropdown-content.active {
+  max-height: 320px;
+}
+
+.catalog__sort-option {
+  width: 100%;
+  min-height: 40px;
+  border: 0;
+  border-top: 0.522px solid rgba(64, 64, 64, 0.15);
+  background: #fff;
+  text-align: left;
+  padding: 10px 16px;
   font-size: 14px;
-  font-weight: 600;
-  color: rgba(64, 64, 64, 0.8);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  color: var(--gray-800);
   cursor: pointer;
+}
+
+.catalog__sort-option:first-child {
+  border-top: 0;
+}
+
+.catalog__sort-option:hover {
+  background: rgba(26, 59, 136, 0.08);
+}
+
+.catalog__sort-option.is-active {
+  background: rgba(64, 64, 64, 0.08);
 }
 
 .catalog__count {

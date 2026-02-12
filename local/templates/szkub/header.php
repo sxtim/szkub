@@ -20,6 +20,9 @@ if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
+if (defined("FOOTER_FLAT") && FOOTER_FLAT === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/footer-flat.css");
+}
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
 $asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");

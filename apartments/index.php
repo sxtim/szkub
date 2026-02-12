@@ -1,5 +1,6 @@
 <?php
 define("CATALOG_PAGE", true);
+define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Выбор квартиры");
 ?>
@@ -38,9 +39,18 @@ $APPLICATION->SetTitle("Выбор квартиры");
     <div class="container">
       <div class="catalog__count catalog__count--center">Нашлось 222 квартиры</div>
       <div class="catalog__toolbar">
-        <button class="catalog__sort-btn" type="button">
-          По умолчанию
-        </button>
+        <div class="catalog__sort" data-sort-dropdown>
+          <button class="catalog__sort-btn filter__dropdown-menu-btn" type="button" data-sort-toggle>
+            По умолчанию
+          </button>
+          <div class="catalog__sort-menu filter__dropdown-content" data-sort-menu>
+            <button class="catalog__sort-option is-active" type="button" data-sort-value="default">По умолчанию</button>
+            <button class="catalog__sort-option" type="button" data-sort-value="price_asc">Стоимость по возрастанию</button>
+            <button class="catalog__sort-option" type="button" data-sort-value="price_desc">Стоимость по убыванию</button>
+            <button class="catalog__sort-option" type="button" data-sort-value="delivery_asc">Срок сдачи по возрастанию</button>
+            <button class="catalog__sort-option" type="button" data-sort-value="delivery_desc">Срок сдачи по убыванию</button>
+          </div>
+        </div>
       <div class="catalog__view">
         <button class="btn btn--primary btn--sm catalog__view-btn is-active" type="button" data-view="grid">Плиткой</button>
         <button class="btn btn--outline btn--sm catalog__view-btn" type="button" data-view="list">Списком</button>
