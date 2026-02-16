@@ -1036,6 +1036,8 @@ a {
   padding: 32px;
   border-radius: 4px;
   z-index: 1;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
 }
 
 .filters-popup__header {

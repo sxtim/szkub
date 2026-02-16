@@ -147,6 +147,28 @@
             <span class="filter__room">Не последний</span>
           </div>
         </div>
+
+        <div class="filter filter--delivery">
+          <span class="filter__label">Срок сдачи</span>
+          <div class="filter__checkboxes">
+            <label class="filter__checkbox">
+              <input class="custom-checkbox" type="checkbox">
+              <span>Сдан</span>
+            </label>
+            <label class="filter__checkbox">
+              <input class="custom-checkbox" type="checkbox">
+              <span>II кв. 2026</span>
+            </label>
+            <label class="filter__checkbox">
+              <input class="custom-checkbox" type="checkbox">
+              <span>II кв. 2027</span>
+            </label>
+            <label class="filter__checkbox">
+              <input class="custom-checkbox" type="checkbox">
+              <span>II кв. 2028</span>
+            </label>
+          </div>
+        </div>
       </div>
 
       <div class="filters-popup__col">
@@ -164,10 +186,6 @@
             <label class="filter__checkbox">
               <input class="custom-checkbox" type="checkbox">
               <span>Витражное остекление</span>
-            </label>
-            <label class="filter__checkbox">
-              <input class="custom-checkbox" type="checkbox">
-              <span>Кухонный гарнитур</span>
             </label>
             <label class="filter__checkbox">
               <input class="custom-checkbox" type="checkbox">
@@ -191,6 +209,60 @@
               <input class="custom-checkbox" type="checkbox">
               <span>Чистовая</span>
             </label>
+          </div>
+        </div>
+
+        <div class="filter filter--windows-view">
+          <span class="filter__label">Вид из окна</span>
+          <div class="filter__dropdown">
+            <button class="filter__dropdown-menu-btn" type="button">Выберите опции</button>
+            <div class="filter__dropdown-content">
+              <div class="input_field">
+                <input class="custom-checkbox" type="checkbox" id="popup-view-yard">
+                <label for="popup-view-yard">Во двор</label>
+              </div>
+              <div class="input_field">
+                <input class="custom-checkbox" type="checkbox" id="popup-view-street">
+                <label for="popup-view-street">На улицу</label>
+              </div>
+              <div class="input_field">
+                <input class="custom-checkbox" type="checkbox" id="popup-view-park">
+                <label for="popup-view-park">На парк</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter filter--windows-side">
+          <span class="filter__label">Окна по сторонам</span>
+          <div class="filter__dropdown">
+            <button class="filter__dropdown-menu-btn" type="button">Выберите опции</button>
+            <div class="filter__dropdown-content">
+              <div class="input_field">
+                <input class="custom-checkbox" type="checkbox" id="popup-side-n">
+                <label for="popup-side-n">Север</label>
+              </div>
+              <div class="input_field">
+                <input class="custom-checkbox" type="checkbox" id="popup-side-s">
+                <label for="popup-side-s">Юг</label>
+              </div>
+              <div class="input_field">
+                <input class="custom-checkbox" type="checkbox" id="popup-side-e">
+                <label for="popup-side-e">Восток</label>
+              </div>
+              <div class="input_field">
+                <input class="custom-checkbox" type="checkbox" id="popup-side-w">
+                <label for="popup-side-w">Запад</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter filter--status">
+          <span class="filter__label">Статус</span>
+          <div class="filter__rooms">
+            <span class="filter__room">Свободна</span>
+            <span class="filter__room">Бронь</span>
           </div>
         </div>
       </div>
