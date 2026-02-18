@@ -374,7 +374,7 @@ $APPLICATION->SetTitle("КУБ — сайт");
         </details>
       </div>
 
-      <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php"; ?>
+      <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szkub/parts/contact-form.php"; ?>
     </div>
   </div>
 </section>
