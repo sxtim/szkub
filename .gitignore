@@ -20,12 +20,20 @@ sync_config.jsonc
 # Bitrix core & runtime
 /bitrix/
 /upload/
+/cgi-bin/
 /cache/
 /managed_cache/
 /upload/tmp/
 /upload/resize_cache/
 /upload/iblock/
 /upload/medialibrary/
+
+# Bitrix restore / backups (не коммитить)
+/restore.php
+/*.tar.gz
+/*.tar.gz.*
+/*.sql
+/*.sql.gz
 
 # Bitrix secrets
 **/php_interface/dbconn.php

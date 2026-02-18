@@ -1,6 +1,6 @@
 # szkub
 
-Краткая инструкция по работе с вёрсткой.
+Bitrix-проект: код в Git, локальная разработка в Docker (env-docker), прод обновляется из GitHub.
 
 ## Структура
 - `docs/` — исходная верстка
@@ -11,36 +11,48 @@
 ## Примечания
 - Бандла нет, все скрипты — отдельные файлы.
 
-## Flow (правка → заливка → проверка → коммит)
-### Один раз на сервере
+## Локальная разработка (env-docker)
+env-docker лежит рядом: `/home/sxtim/dev/env-docker`, сайт доступен на `http://127.0.0.1:8588/`.
+
+Запуск/остановка:
 ```bash
-cd /home/c/cf144342/bitrix_d7dca/public_html
-git remote add origin git@github.com:sxtim/szkub.git
-git fetch origin
+cd /home/sxtim/dev/env-docker
+docker compose up -d        # старт
+docker compose stop         # стоп
+docker compose down         # стоп + удалить контейнеры (тома не трогает)
+docker compose logs -f nginx php
 ```
 
-### Каждый раз
-1) Локально: правки.
-2) Заливка на сервер (FTP/SFTP): `local/`, `index.php`, `consulting/`.
-3) Проверка на сервере.
-4) Если всё ок: `git add -A` → `git commit -m "..."` → `git push`.
-
-### Если не ок
-1) Локально: откатить изменения (`git checkout -- .` или `git reset --hard <commit>`).
-2) Сервер: вернуть файлы к последней рабочей версии (перезалить по FTP нужные файлы).
-
-## Git-деплой (гибридный режим)
-Можно обновлять сервер из GitHub, если удобно.
-
-Обновить сервер:
+Восстановление из бэкапа делай без override (чтобы случайно не перетереть код из Git):
 ```bash
-cd /home/c/cf144342/bitrix_d7dca/public_html
-git pull origin main
+cd /home/sxtim/dev/env-docker
+docker compose -f docker-compose.yml up -d
+```
+Дальше открывай `http://127.0.0.1:8588/restore.php` и восстанавливай архив.
+
+### Новые страницы/папки в корне сайта
+Сейчас в `docker-compose.override.yml` прокинуты не весь репозиторий, а только выбранные пути (`local/`, `apartments/`, `consulting/`, `tenders/`, `index.php`).
+
+Если создал новую папку в корне сайта (например `newpage/`) и хочешь видеть её в локалке — добавь её в `/home/sxtim/dev/env-docker/docker-compose.override.yml` в секции `php.volumes` и `nginx.volumes`:
+```yml
+- ../szkub/newpage:/opt/www/newpage
+```
+И примени:
+```bash
+cd /home/sxtim/dev/env-docker
+docker compose up -d
 ```
 
-Откатить сервер к коммиту:
+## Прод: деплой из Git
+Прод обновляется без merge (предсказуемо) — трогаются только tracked файлы.
+
+```bash
+cd /home/c/cf144342/bitrix_d7dca/public_html
+git fetch origin --prune
+git reset --hard origin/main
+```
+
+Откат:
 ```bash
 git reset --hard <commit>
 ```
-
-Важно: гибридный режим требует дисциплины — после ручной FTP-заливки делай `git commit` и `git push`, иначе `git pull` может перезатереть изменения.
