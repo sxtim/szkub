@@ -1,5 +1,5 @@
 <?php
 $arTemplate = [
-    "NAME" => "szkub",
+    "NAME" => "szcube",
     "DESCRIPTION" => "Основной шаблон сайта",
 ];

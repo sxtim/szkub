@@ -95,7 +95,7 @@ $APPLICATION->SetTitle("Консалтинг — КУБ");
         </p>
       </div>
       <div class="consulting-form__fields consulting-form__fields--no-title">
-        <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szkub/parts/contact-form.php"; ?>
+        <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php"; ?>
       </div>
     </div>
   </div>

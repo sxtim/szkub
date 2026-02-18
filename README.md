@@ -4,7 +4,7 @@
 
 ## Структура
 - `docs/` — исходная верстка
-- `local/templates/szkub/` — шаблон Bitrix (css/js/img/fonts + header/footer)
+- `local/templates/szcube/` — шаблон Bitrix (css/js/img/fonts + header/footer)
 - `index.php` — главная
 - `consulting/` — страница консалтинга
 
