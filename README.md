@@ -50,6 +50,7 @@ docker compose up -d
 cd /home/c/cf144342/bitrix_d7dca/public_html
 git fetch origin --prune
 git reset --hard origin/main
+git diff --name-status HEAD..origin/main - посмотреть, что изменится
 ```
 
 Откат:

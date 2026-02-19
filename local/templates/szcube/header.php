@@ -20,6 +20,9 @@ if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
+if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/projects.css");
+}
 if (defined("FOOTER_FLAT") && FOOTER_FLAT === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/footer-flat.css");
 }
