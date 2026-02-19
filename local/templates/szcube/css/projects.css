@@ -293,3 +293,461 @@
     right: 18px;
   }
 }
+
+.projects-benefits {
+  margin-top: 96px;
+}
+
+.projects-benefits__title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-title);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--gray-900);
+  text-align: center;
+}
+
+.projects-benefits__tabs {
+  margin: 32px auto 0;
+  width: 100%;
+  background: #f6f6f6;
+  border-radius: 4px;
+  padding: 2px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.projects-benefits__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.projects-benefits__tab {
+  flex: 0 0 auto;
+  height: 60px;
+  width: auto;
+  padding: 0 28px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--gray-900);
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: none;
+  transform: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.projects-benefits__tab::after {
+  display: none;
+}
+
+.projects-benefits__tab:hover {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(64, 64, 64, 0.15);
+}
+
+.projects-benefits__tab.is-active {
+  background: #fff;
+  border-color: rgba(64, 64, 64, 0.15);
+  cursor: default;
+  pointer-events: none;
+  color: var(--blue);
+}
+
+.projects-benefits__body {
+  margin-top: 32px;
+}
+
+.projects-benefits__list {
+  margin: 0 0 64px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.projects-benefit-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.projects-benefit-card__tags {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1;
+}
+
+.projects-benefit-card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--gray-900);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.projects-benefit-card__image {
+  width: 100%;
+  aspect-ratio: 506.65625 / 432;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-color: #e9eef3;
+}
+
+.projects-benefit-card__info {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 16px;
+  min-height: 176px;
+  background: #f6f6f6;
+}
+
+.projects-benefit-card__text {
+  min-width: 0;
+}
+
+.projects-benefit-card__title {
+  margin: 0 0 32px;
+  font-family: var(--font-title);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+  text-transform: uppercase;
+  color: var(--gray-900);
+}
+
+.projects-benefit-card__description {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: #606060;
+}
+
+.projects-benefit-card__more {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--blue);
+  background: var(--blue);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.projects-benefit-card__more:hover {
+  background: rgba(26, 59, 136, 0.9);
+  border-color: rgba(26, 59, 136, 0.9);
+}
+
+.projects-benefit-card__more:focus-visible {
+  outline: 2px solid rgba(26, 59, 136, 0.35);
+  outline-offset: 2px;
+}
+
+.projects-benefit-card__more-icon {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .projects-benefits {
+    margin-top: 64px;
+  }
+  .projects-benefits__title {
+    font-size: 28px;
+  }
+  .projects-benefits__tab {
+    padding: 0 22px;
+  }
+  .projects-benefits__list {
+    grid-template-columns: 1fr;
+    margin-bottom: 48px;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 641px) {
+  .projects-benefits__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+body.scroll-lock {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+
+.projects-modal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 24px;
+  background: rgba(33, 33, 33, 0.6);
+}
+
+.projects-modal-wrap[hidden] {
+  display: none;
+}
+
+.projects-modal {
+  position: relative;
+  width: 580px;
+  height: calc(100vh - 48px);
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: visible;
+  box-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.projects-modal__close {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 16px);
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  color: var(--gray-900);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: rgba(0, 0, 0, 0.08) 0 4px 12px;
+}
+
+.projects-modal__close:hover {
+  background: #f6f6f6;
+}
+
+.projects-modal__close:focus-visible {
+  outline: 2px solid rgba(26, 59, 136, 0.35);
+  outline-offset: 2px;
+}
+
+.projects-modal__close svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.projects-benefit-modal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.projects-benefit-modal__header {
+  height: 0;
+  overflow: hidden;
+}
+
+.projects-benefit-modal__category {
+  display: none;
+}
+
+.projects-benefit-modal__slider {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  padding: 24px 0 0;
+}
+
+.projects-benefit-modal__slide {
+  height: calc(100% - 84px);
+  max-height: calc(100% - 84px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.projects-benefit-modal__title {
+  margin: 0;
+  font-family: var(--font-title);
+  color: var(--gray-900);
+  text-transform: uppercase;
+}
+
+.projects-benefit-modal__title--mobile {
+  display: none;
+}
+
+.projects-benefit-modal__imageWrap {
+  padding: 0 24px;
+  margin: 0 0 32px;
+}
+
+.projects-benefit-modal__image {
+  width: 100%;
+  height: 319px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-color: #e9eef3;
+  box-shadow: none;
+}
+
+.projects-benefit-modal__descriptionWrapper {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.projects-benefit-modal__title--desktop {
+  font-weight: 700;
+  line-height: 26px;
+  font-size: 16px;
+  margin: 0 0 16px;
+}
+
+.projects-benefit-modal__text {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #606060;
+}
+
+.projects-benefit-modal__text p {
+  margin: 0 0 12px;
+}
+
+.projects-benefit-modal__text p:last-child {
+  margin-bottom: 0;
+}
+
+.projects-benefit-modal__text ul {
+  margin: 14px 0 0;
+  padding-left: 20px;
+}
+
+.projects-benefit-modal__text li {
+  margin: 0 0 8px;
+}
+
+.projects-benefit-modal__text li:last-child {
+  margin-bottom: 0;
+}
+
+.projects-benefit-modal__nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 68px;
+  padding: 0 24px 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.projects-benefit-modal__pagination {
+  width: 89px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: #f6f6f6;
+  font-size: 14px;
+  line-height: 16.1px;
+  color: var(--gray-900);
+}
+
+.projects-benefit-modal__controls {
+  width: 89px;
+  height: 44px;
+  display: flex;
+  border-radius: 4px;
+  background: #f6f6f6;
+  overflow: hidden;
+}
+
+.projects-benefit-modal__navBtn {
+  flex: 1 1 0;
+  border: 0;
+  background: transparent;
+  color: #606060;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.projects-benefit-modal__navBtn:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.projects-benefit-modal__navBtn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.projects-benefit-modal__navBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 640px) {
+  .projects-modal-wrap {
+    padding: 12px;
+  }
+
+  .projects-modal__close {
+    right: 12px;
+    top: 12px;
+  }
+
+  .projects-modal {
+    width: 100%;
+    height: calc(100vh - 24px);
+  }
+
+  .projects-benefit-modal__imageWrap {
+    padding: 0 16px;
+    margin-bottom: 20px;
+  }
+
+  .projects-benefit-modal__image {
+    height: 240px;
+  }
+
+  .projects-benefit-modal__descriptionWrapper {
+    padding: 0 16px;
+  }
+
+  .projects-benefit-modal__nav {
+    padding: 0 16px 16px;
+  }
+}
