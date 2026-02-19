@@ -132,9 +132,6 @@
   --gp-accent: rgba(255, 255, 255, 0.7);
   --gp-accent-strong: rgba(56, 173, 194, 0.9);
   --gp-pin-bg: rgb(0, 158, 174);
-  --gp-overlay-left: 50%;
-  --gp-overlay-top: 58%;
-  --gp-overlay-width: 62%;
 }
 
 .projects-genplan__viewport {
@@ -188,10 +185,10 @@
 
 .projects-genplan__overlay-inner {
   position: absolute;
-  left: var(--gp-overlay-left, 50%);
-  top: var(--gp-overlay-top, 56%);
-  width: var(--gp-overlay-width, 60%);
-  transform: translate(-50%, -50%);
+  left: 7%;
+  top: 1%;
+  width: 68%;
+  transform: translate(0px, 0px);
 }
 
 .projects-genplan__overlay svg {
@@ -231,6 +228,9 @@
   padding: 0;
   color: var(--gp-accent-strong);
   border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .projects-genplan__pin-label {
@@ -249,12 +249,9 @@
 }
 
 .projects-genplan__pin-icon {
-  position: absolute;
-  left: 50%;
-  bottom: -14px;
   width: 10px;
   height: 8px;
-  transform: translateX(-50%);
+  margin-top: -2px;
 }
 
 .projects-genplan__filter {
