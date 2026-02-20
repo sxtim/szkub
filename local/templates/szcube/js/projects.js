@@ -28,18 +28,20 @@ const initBenefitsModal = () => {
   const modalWrap = document.querySelector("[data-benefit-modal]");
   if (!modalWrap) return;
 
-  const titleEl = modalWrap.querySelector("[data-modal-title]");
-  const titleMobileEl = modalWrap.querySelector("[data-modal-title-mobile]");
-  const textEl = modalWrap.querySelector("[data-modal-text]");
-  const imageEl = modalWrap.querySelector("[data-modal-image]");
-  const slideEl = modalWrap.querySelector(".projects-benefit-modal__slide");
+  const modalEl = modalWrap.querySelector(".projects-modal");
+  const swiperEl = modalWrap.querySelector("[data-modal-swiper]");
+  const swiperWrapperEl = modalWrap.querySelector("[data-modal-wrapper]");
   const paginationEl = modalWrap.querySelector("[data-modal-pagination]");
   const prevBtn = modalWrap.querySelector("[data-modal-prev]");
   const nextBtn = modalWrap.querySelector("[data-modal-next]");
 
+  if (!modalEl || !swiperEl || !swiperWrapperEl) return;
+
   let lastActiveElement = null;
   let benefitList = [];
-  let currentIndex = 0;
+  let swiper = null;
+  let isClosing = false;
+  let openCleanupTimer = null;
 
   const getScrollbarWidth = () =>
     window.innerWidth - document.documentElement.clientWidth;
@@ -65,6 +67,84 @@ const initBenefitsModal = () => {
     window.scrollTo(0, savedScrollY);
   };
 
+  const clearTransitionClasses = () => {
+    if (openCleanupTimer) {
+      window.clearTimeout(openCleanupTimer);
+      openCleanupTimer = null;
+    }
+
+    modalWrap.classList.remove(
+      "overlay-appear-enter",
+      "overlay-appear-enter-active",
+      "overlay-appear-enter-to",
+      "overlay-appear-leave",
+      "overlay-appear-leave-active",
+      "overlay-appear-leave-to"
+    );
+    modalEl.classList.remove(
+      "modal-enter",
+      "modal-enter-active",
+      "modal-enter-to",
+      "modal-leave",
+      "modal-leave-active",
+      "modal-leave-to"
+    );
+    swiperEl.classList.remove(
+      "fade-content-enter",
+      "fade-content-enter-active",
+      "fade-content-enter-to",
+      "fade-content-leave",
+      "fade-content-leave-active",
+      "fade-content-leave-to"
+    );
+  };
+
+  const playOpenTransition = () => {
+    clearTransitionClasses();
+    modalWrap.classList.add("overlay-appear-enter");
+    modalEl.classList.add("modal-enter");
+    swiperEl.classList.add("fade-content-enter");
+
+    modalWrap.hidden = false;
+
+    void modalWrap.offsetHeight;
+
+    requestAnimationFrame(() => {
+      modalWrap.classList.add("overlay-appear-enter-active");
+      modalEl.classList.add("modal-enter-active");
+      swiperEl.classList.add("fade-content-enter-active");
+
+      modalWrap.classList.remove("overlay-appear-enter");
+      modalWrap.classList.add("overlay-appear-enter-to");
+      modalEl.classList.remove("modal-enter");
+      modalEl.classList.add("modal-enter-to");
+      swiperEl.classList.remove("fade-content-enter");
+      swiperEl.classList.add("fade-content-enter-to");
+    });
+
+    openCleanupTimer = window.setTimeout(() => {
+      modalWrap.classList.remove("overlay-appear-enter-active", "overlay-appear-enter-to");
+      modalEl.classList.remove("modal-enter-active", "modal-enter-to");
+      swiperEl.classList.remove("fade-content-enter-active", "fade-content-enter-to");
+      openCleanupTimer = null;
+    }, 450);
+  };
+
+  const playCloseTransition = () => {
+    clearTransitionClasses();
+    modalWrap.classList.add("overlay-appear-leave", "overlay-appear-leave-active");
+    modalEl.classList.add("modal-leave", "modal-leave-active");
+    swiperEl.classList.add("fade-content-leave", "fade-content-leave-active");
+
+    void modalWrap.offsetHeight;
+
+    requestAnimationFrame(() => {
+      modalWrap.classList.add("overlay-appear-leave-to");
+      modalEl.classList.add("modal-leave-to");
+      swiperEl.classList.add("fade-content-leave-to");
+    });
+  };
+
   const getVisibleBenefits = () => {
     const cards = document.querySelectorAll(
       ".projects-benefits__item:not([hidden]) .projects-benefit-card[data-benefit]"
@@ -82,67 +162,151 @@ const initBenefitsModal = () => {
     return list;
   };
 
+  const destroySwiper = () => {
+    if (swiper) {
+      swiper.destroy(true, true);
+      swiper = null;
+    }
+  };
+
   const updateNav = () => {
-    const total = benefitList.length || 1;
-    const index = Math.min(Math.max(currentIndex, 0), total - 1);
-    currentIndex = index;
+    const total = swiper?.slides?.length || benefitList.length || 1;
+    const index = swiper?.activeIndex ?? 0;
 
     if (paginationEl) paginationEl.textContent = `${index + 1} / ${total}`;
-
-    const isPrevDisabled = index <= 0;
-    const isNextDisabled = index >= total - 1;
-
-    if (prevBtn instanceof HTMLButtonElement) prevBtn.disabled = isPrevDisabled;
-    if (nextBtn instanceof HTMLButtonElement) nextBtn.disabled = isNextDisabled;
+    if (prevBtn instanceof HTMLButtonElement) prevBtn.disabled = index <= 0;
+    if (nextBtn instanceof HTMLButtonElement) nextBtn.disabled = index >= total - 1;
   };
 
-  const fillModal = (benefit) => {
-    if (titleEl) titleEl.textContent = benefit.title || "";
-    if (titleMobileEl) titleMobileEl.textContent = benefit.title || "";
-    if (textEl) {
-      const content = benefit.content || "";
-      if (content) {
-        textEl.innerHTML = content;
-      } else {
-        textEl.textContent = benefit.description || "";
-      }
-    }
-    if (imageEl) {
-      imageEl.style.backgroundImage = benefit.image ? `url('${benefit.image}')` : "";
-    }
+  const resetActiveScroll = () => {
+    const activeScroll = modalWrap.querySelector(
+      ".swiper-slide-active .projects-benefit-modal__scroll"
+    );
+    if (activeScroll instanceof HTMLElement) activeScroll.scrollTop = 0;
   };
 
-  const renderByIndex = (index) => {
-    currentIndex = index;
-    const benefit = benefitList[currentIndex];
-    if (benefit) fillModal(benefit);
-    if (slideEl instanceof HTMLElement) slideEl.scrollTop = 0;
-    updateNav();
+  const createSlide = (benefit) => {
+    const slide = document.createElement("div");
+    slide.className = "swiper-slide projects-benefit-modal__slide";
+    if (benefit?.id != null) slide.dataset.benefitId = String(benefit.id);
+
+    const scroll = document.createElement("div");
+    scroll.className = "projects-benefit-modal__scroll";
+    slide.append(scroll);
+
+    const mobileTitle = document.createElement("h4");
+    mobileTitle.className =
+      "projects-benefit-modal__title projects-benefit-modal__title--mobile";
+    mobileTitle.textContent = benefit?.title || "";
+    scroll.append(mobileTitle);
+
+    const imageWrap = document.createElement("div");
+    imageWrap.className = "projects-benefit-modal__imageWrap";
+    const image = document.createElement("div");
+    image.className = "projects-benefit-modal__image";
+    if (benefit?.image) {
+      image.style.backgroundImage = `url('${benefit.image}')`;
+    }
+    imageWrap.append(image);
+    scroll.append(imageWrap);
+
+    const descriptionWrap = document.createElement("div");
+    descriptionWrap.className = "projects-benefit-modal__descriptionWrapper";
+
+    const desktopTitle = document.createElement("h6");
+    desktopTitle.className =
+      "projects-benefit-modal__title projects-benefit-modal__title--desktop";
+    desktopTitle.textContent = benefit?.title || "";
+    descriptionWrap.append(desktopTitle);
+
+    const text = document.createElement("div");
+    text.className = "projects-benefit-modal__text";
+    const content = benefit?.content || "";
+    if (content) {
+      text.innerHTML = content;
+    } else {
+      text.textContent = benefit?.description || "";
+    }
+    descriptionWrap.append(text);
+    scroll.append(descriptionWrap);
+
+    return slide;
+  };
+
+  const mountSlides = (list) => {
+    swiperWrapperEl.textContent = "";
+    list.forEach((benefit) => {
+      swiperWrapperEl.append(createSlide(benefit));
+    });
+  };
+
+  const initSwiper = (initialIndex = 0) => {
+    destroySwiper();
+
+    if (typeof window.Swiper !== "function") return null;
+
+    swiper = new window.Swiper(swiperEl, {
+      initialSlide: initialIndex,
+      speed: 500,
+      slidesPerView: 1,
+      spaceBetween: 0,
+      allowTouchMove: true,
+      resistanceRatio: 0,
+      watchOverflow: true,
+      on: {
+        init: () => {
+          updateNav();
+          resetActiveScroll();
+        },
+        slideChangeTransitionStart: () => {
+          updateNav();
+          resetActiveScroll();
+        },
+      },
+    });
+
+    return swiper;
   };
 
   const openModal = (benefit, list) => {
+    if (isClosing) return;
+
     lastActiveElement =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
     benefitList = Array.isArray(list) && list.length ? list : [benefit];
 
-    const foundIndex = benefitList.findIndex((b) => b?.id === benefit?.id);
-    currentIndex = foundIndex >= 0 ? foundIndex : 0;
+    const initialIndex = Math.max(
+      0,
+      benefitList.findIndex((b) => b?.id === benefit?.id)
+    );
 
-    renderByIndex(currentIndex);
-    modalWrap.hidden = false;
+    mountSlides(benefitList);
     lockBodyScroll();
+    playOpenTransition();
+    initSwiper(initialIndex);
 
     const closeBtn = modalWrap.querySelector("[data-modal-close]");
     if (closeBtn instanceof HTMLElement) closeBtn.focus();
   };
 
   const closeModal = () => {
-    if (modalWrap.hidden) return;
-    modalWrap.hidden = true;
-    unlockBodyScroll();
+    if (modalWrap.hidden || isClosing) return;
+    isClosing = true;
 
-    if (lastActiveElement) lastActiveElement.focus();
-    lastActiveElement = null;
+    playCloseTransition();
+
+    window.setTimeout(() => {
+      modalWrap.hidden = true;
+      clearTransitionClasses();
+      destroySwiper();
+      swiperWrapperEl.textContent = "";
+      benefitList = [];
+      unlockBodyScroll();
+
+      if (lastActiveElement) lastActiveElement.focus();
+      lastActiveElement = null;
+      isClosing = false;
+    }, 350);
   };
 
   document.addEventListener("click", (event) => {
@@ -161,14 +325,14 @@ const initBenefitsModal = () => {
     const prev = event.target.closest("[data-modal-prev]");
     if (prev && !modalWrap.hidden) {
       event.preventDefault();
-      if (currentIndex > 0) renderByIndex(currentIndex - 1);
+      swiper?.slidePrev();
       return;
     }
 
     const next = event.target.closest("[data-modal-next]");
     if (next && !modalWrap.hidden) {
       event.preventDefault();
-      if (currentIndex < benefitList.length - 1) renderByIndex(currentIndex + 1);
+      swiper?.slideNext();
       return;
     }
 
@@ -193,11 +357,11 @@ const initBenefitsModal = () => {
     }
     if (event.key === "ArrowLeft" && !modalWrap.hidden) {
       event.preventDefault();
-      if (currentIndex > 0) renderByIndex(currentIndex - 1);
+      swiper?.slidePrev();
     }
     if (event.key === "ArrowRight" && !modalWrap.hidden) {
       event.preventDefault();
-      if (currentIndex < benefitList.length - 1) renderByIndex(currentIndex + 1);
+      swiper?.slideNext();
     }
   });
 };

@@ -518,6 +518,19 @@ body.scroll-lock {
   display: none;
 }
 
+.projects-modal-wrap.overlay-appear-enter {
+  opacity: 0;
+}
+
+.projects-modal-wrap.overlay-appear-enter-active {
+  transition: opacity 0.2s ease;
+}
+
+.projects-modal-wrap.overlay-appear-leave-active {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
 .projects-modal {
   position: relative;
   width: 580px;
@@ -527,6 +540,20 @@ body.scroll-lock {
   overflow: visible;
   box-shadow: none;
   border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+.projects-modal.modal-enter-active {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.projects-modal.modal-leave-active {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.projects-modal.modal-enter,
+.projects-modal.modal-leave-to {
+  opacity: 0;
+  transform: translateY(80px);
 }
 
 .projects-modal__close {
@@ -584,9 +611,35 @@ body.scroll-lock {
   padding: 24px 0 0;
 }
 
-.projects-benefit-modal__slide {
+.projects-benefit-modal__swiper {
   height: calc(100% - 84px);
   max-height: calc(100% - 84px);
+}
+
+.projects-benefit-modal__swiper.fade-content-enter-active {
+  transition: opacity 0.2s ease;
+}
+
+.projects-benefit-modal__swiper.fade-content-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.projects-benefit-modal__swiper.fade-content-enter,
+.projects-benefit-modal__swiper.fade-content-leave-active {
+  opacity: 0;
+}
+
+.projects-benefit-modal__swiper .swiper-wrapper {
+  height: 100%;
+}
+
+.projects-benefit-modal__slide {
+  height: 100%;
+  max-height: 100%;
+}
+
+.projects-benefit-modal__scroll {
+  height: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }

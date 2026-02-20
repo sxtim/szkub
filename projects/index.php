@@ -244,17 +244,8 @@ $APPLICATION->SetTitle("Проекты — КУБ");
           <h4 class="projects-benefit-modal__category" data-modal-category></h4>
         </header>
 
-        <div class="projects-benefit-modal__slide">
-          <h4 class="projects-benefit-modal__title projects-benefit-modal__title--mobile" data-modal-title-mobile></h4>
-
-          <div class="projects-benefit-modal__imageWrap">
-            <div class="projects-benefit-modal__image" data-modal-image></div>
-          </div>
-
-          <div class="projects-benefit-modal__descriptionWrapper">
-            <h6 class="projects-benefit-modal__title projects-benefit-modal__title--desktop" data-modal-title></h6>
-            <div class="projects-benefit-modal__text" data-modal-text></div>
-          </div>
+        <div class="projects-benefit-modal__swiper swiper" data-modal-swiper>
+          <div class="swiper-wrapper" data-modal-wrapper></div>
         </div>
 
         <div class="projects-benefit-modal__nav" aria-label="Навигация по преимуществам">

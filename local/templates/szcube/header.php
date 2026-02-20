@@ -21,7 +21,9 @@ if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
 if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/projects.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/swiper-bundle.min.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/projects.js");
 }
 if (defined("FOOTER_FLAT") && FOOTER_FLAT === true) {
