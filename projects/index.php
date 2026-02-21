@@ -464,6 +464,103 @@ $APPLICATION->SetTitle("Проекты — КУБ");
   </div>
 </section>
 
+<section class="projects-docs" aria-label="Документация">
+  <div class="container">
+    <ul class="projects-docs__list">
+      <li class="projects-docs__card">
+        <div class="projects-docs__cardText">
+          <h3 class="projects-docs__cardTitle">Документы</h3>
+          <p class="projects-docs__cardSubtitle">Земельный участок</p>
+        </div>
+        <div class="projects-docs__cardIcon" aria-hidden="true">
+          <svg class="projects-docs__iconItem" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.66667 4.00016V2.00016C4.66667 1.82335 4.7369 1.65378 4.86193 1.52876C4.98695 1.40373 5.15652 1.3335 5.33333 1.3335H13.3333C13.5101 1.3335 13.6797 1.40373 13.8047 1.52876C13.9298 1.65378 14 1.82335 14 2.00016V11.3335C14 11.5103 13.9298 11.6799 13.8047 11.8049C13.6797 11.9299 13.5101 12.0002 13.3333 12.0002H11.3333V14.0002C11.3333 14.3682 11.0333 14.6668 10.662 14.6668H2.67133C2.58342 14.6674 2.49626 14.6505 2.41488 14.6172C2.3335 14.584 2.25949 14.535 2.19711 14.473C2.13472 14.4111 2.0852 14.3374 2.05137 14.2563C2.01754 14.1751 2.00009 14.0881 2 14.0002L2.002 4.66683C2.002 4.29883 2.302 4.00016 2.67333 4.00016H4.66667ZM6 4.00016H11.3333V10.6668H12.6667V2.66683H6V4.00016ZM4.66667 7.3335V8.66683H8.66667V7.3335H4.66667ZM4.66667 10.0002V11.3335H8.66667V10.0002H4.66667Z" fill="currentColor"></path>
+          </svg>
+          <svg class="projects-docs__iconItem projects-docs__iconItemMobile" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
+          </svg>
+        </div>
+      </li>
+      <li class="projects-docs__card">
+        <div class="projects-docs__cardText">
+          <h3 class="projects-docs__cardTitle">Документы</h3>
+          <p class="projects-docs__cardSubtitle">Проектные</p>
+        </div>
+        <div class="projects-docs__cardIcon" aria-hidden="true">
+          <svg class="projects-docs__iconItem" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.66667 4.00016V2.00016C4.66667 1.82335 4.7369 1.65378 4.86193 1.52876C4.98695 1.40373 5.15652 1.3335 5.33333 1.3335H13.3333C13.5101 1.3335 13.6797 1.40373 13.8047 1.52876C13.9298 1.65378 14 1.82335 14 2.00016V11.3335C14 11.5103 13.9298 11.6799 13.8047 11.8049C13.6797 11.9299 13.5101 12.0002 13.3333 12.0002H11.3333V14.0002C11.3333 14.3682 11.0333 14.6668 10.662 14.6668H2.67133C2.58342 14.6674 2.49626 14.6505 2.41488 14.6172C2.3335 14.584 2.25949 14.535 2.19711 14.473C2.13472 14.4111 2.0852 14.3374 2.05137 14.2563C2.01754 14.1751 2.00009 14.0881 2 14.0002L2.002 4.66683C2.002 4.29883 2.302 4.00016 2.67333 4.00016H4.66667ZM6 4.00016H11.3333V10.6668H12.6667V2.66683H6V4.00016ZM4.66667 7.3335V8.66683H8.66667V7.3335H4.66667ZM4.66667 10.0002V11.3335H8.66667V10.0002H4.66667Z" fill="currentColor"></path>
+          </svg>
+          <svg class="projects-docs__iconItem projects-docs__iconItemMobile" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
+          </svg>
+        </div>
+      </li>
+      <li class="projects-docs__card">
+        <div class="projects-docs__cardText">
+          <h3 class="projects-docs__cardTitle">Документы</h3>
+          <p class="projects-docs__cardSubtitle">Разрешительные</p>
+        </div>
+        <div class="projects-docs__cardIcon" aria-hidden="true">
+          <svg class="projects-docs__iconItem" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.66667 4.00016V2.00016C4.66667 1.82335 4.7369 1.65378 4.86193 1.52876C4.98695 1.40373 5.15652 1.3335 5.33333 1.3335H13.3333C13.5101 1.3335 13.6797 1.40373 13.8047 1.52876C13.9298 1.65378 14 1.82335 14 2.00016V11.3335C14 11.5103 13.9298 11.6799 13.8047 11.8049C13.6797 11.9299 13.5101 12.0002 13.3333 12.0002H11.3333V14.0002C11.3333 14.3682 11.0333 14.6668 10.662 14.6668H2.67133C2.58342 14.6674 2.49626 14.6505 2.41488 14.6172C2.3335 14.584 2.25949 14.535 2.19711 14.473C2.13472 14.4111 2.0852 14.3374 2.05137 14.2563C2.01754 14.1751 2.00009 14.0881 2 14.0002L2.002 4.66683C2.002 4.29883 2.302 4.00016 2.67333 4.00016H4.66667ZM6 4.00016H11.3333V10.6668H12.6667V2.66683H6V4.00016ZM4.66667 7.3335V8.66683H8.66667V7.3335H4.66667ZM4.66667 10.0002V11.3335H8.66667V10.0002H4.66667Z" fill="currentColor"></path>
+          </svg>
+          <svg class="projects-docs__iconItem projects-docs__iconItemMobile" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
+          </svg>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="projects-call" aria-label="Связаться">
+  <div class="container">
+    <div class="projects-call__panel">
+      <div class="projects-call__col">
+        <div class="projects-call__tile projects-call__tile--dark">
+          <div class="projects-call__text">
+            <div class="projects-call__title">Получите консультацию</div>
+            <div class="projects-call__subtitle">Заказать обратный звонок</div>
+          </div>
+          <div class="projects-call__btn projects-call__btn--white" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8.9 11.1c1.3 2.5 3.5 4.7 6 6l2-2c.3-.3.8-.4 1.2-.2 1 .4 2.1.7 3.2.8.5.1.8.5.8 1v3.2c0 .5-.4 1-.9 1-10.1 0-18.3-8.2-18.3-18.3 0-.5.4-.9 1-.9H7c.5 0 .9.3 1 .8.1 1.1.4 2.2.8 3.2.2.4.1.9-.2 1.2l-2 2z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="projects-call__col">
+        <div class="projects-call__grid">
+          <div class="projects-call__tile projects-call__tile--light">
+            <div class="projects-call__text">
+              <div class="projects-call__title">Напишите нам</div>
+              <div class="projects-call__subtitle">в Telegram</div>
+            </div>
+            <div class="projects-call__btn projects-call__btn--light" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.9 4.3L2.9 11.4c-.8.3-.8 1.4.1 1.7l4.6 1.5 1.8 5.7c.2.7 1.1.8 1.5.2l2.7-3.6 4.9 3.6c.5.4 1.2.1 1.3-.6l3.1-15.1c.2-.9-.7-1.6-1.6-1.2zm-3 3.8l-8.6 7.7c-.2.2-.3.4-.3.7l-.2 1.8-.9-2.9 10.5-8c.3-.2.6.2.3.7z" fill="currentColor"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="projects-call__tile projects-call__tile--light">
+            <div class="projects-call__text">
+              <div class="projects-call__title">Напишите нам</div>
+              <div class="projects-call__subtitle">в MAX</div>
+            </div>
+            <div class="projects-call__btn projects-call__btn--light" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 6.5C6 5.1 7.1 4 8.5 4h7C17.9 4 19 5.1 19 6.5v6.2c0 1.4-1.1 2.5-2.5 2.5H12l-4.5 3v-3H8.5C7.1 15.2 6 14.1 6 12.7V6.5z" fill="currentColor"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="construction-modal-wrap" data-construction-modal hidden>
   <div class="construction-modal" role="dialog" aria-modal="true" aria-label="Ход строительства">
     <button class="construction-modal__close" type="button" aria-label="Закрыть" data-construction-modal-close>
