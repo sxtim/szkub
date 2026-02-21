@@ -13,10 +13,40 @@ $arUrlRewrite = array(
 		"PATH"	=>	"/products/index.php",
 	),
 	array(
+		"CONDITION"	=>	"#^/news/([^/]+?)/?$#",
+		"RULE"	=>	"code=$1",
+		"ID"	=>	"",
+		"PATH"	=>	"/news/detail.php",
+	),
+	array(
 		"CONDITION"	=>	"#^/news/#",
 		"RULE"	=>	"",
-		"ID"	=>	"bitrix:news",
+		"ID"	=>	"",
 		"PATH"	=>	"/news/index.php",
+	),
+	array(
+		"CONDITION"	=>	"#^/projects/([^/]+?)/?$#",
+		"RULE"	=>	"code=$1",
+		"ID"	=>	"",
+		"PATH"	=>	"/projects/detail.php",
+	),
+	array(
+		"CONDITION"	=>	"#^/projects/#",
+		"RULE"	=>	"",
+		"ID"	=>	"",
+		"PATH"	=>	"/projects/index.php",
+	),
+	array(
+		"CONDITION"	=>	"#^/promotions/([^/]+?)/?$#",
+		"RULE"	=>	"code=$1",
+		"ID"	=>	"",
+		"PATH"	=>	"/promotions/detail.php",
+	),
+	array(
+		"CONDITION"	=>	"#^/promotions/#",
+		"RULE"	=>	"",
+		"ID"	=>	"",
+		"PATH"	=>	"/promotions/index.php",
 	),
 );
 

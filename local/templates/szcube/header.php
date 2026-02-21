@@ -26,6 +26,12 @@ if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/swiper-bundle.min.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/projects.js");
 }
+if (
+    (defined("NEWS_PAGE") && NEWS_PAGE === true)
+    || (defined("PROMOTIONS_PAGE") && PROMOTIONS_PAGE === true)
+) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/article.css");
+}
 if (defined("FOOTER_FLAT") && FOOTER_FLAT === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/footer-flat.css");
 }
@@ -58,8 +64,8 @@ $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserr
           </a>
           <nav class="nav">
             <ul class="nav__list">
-              <li><a href="#projects">Проекты</a></li>
-              <li><a href="#apartments">Квартиры</a></li>
+              <li><a href="/projects/">Проекты</a></li>
+              <li><a href="/apartments/">Квартиры</a></li>
               <li><a href="#commerce">Коммерция</a></li>
               <li><a href="/consulting/">Консалтинг</a></li>
               <li><a href="/tenders/">Тендеры</a></li>
@@ -98,8 +104,8 @@ $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserr
         </div>
         <div class="mobile-nav">
           <ul class="mobile-nav__list">
-            <li><a href="#projects">Проекты</a></li>
-            <li><a href="#apartments">Квартиры</a></li>
+            <li><a href="/projects/">Проекты</a></li>
+            <li><a href="/apartments/">Квартиры</a></li>
             <li><a href="#commerce">Коммерция</a></li>
             <li><a href="/consulting/">Консалтинг</a></li>
             <li><a href="/tenders/">Тендеры</a></li>

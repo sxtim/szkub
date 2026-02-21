@@ -1,8 +1,15 @@
 <?php
 define("TENDERS_PAGE", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
-$APPLICATION->SetTitle("Тендеры — КУБ");
+$APPLICATION->SetTitle("Тендеры");
+$APPLICATION->SetPageProperty("title", "Тендеры — КУБ");
 ?>
+
+<div class="breadcrumbs-wrap">
+  <div class="container">
+    <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/breadcrumbs.php"; ?>
+  </div>
+</div>
 
 <section class="tenders-intro">
   <div class="container">

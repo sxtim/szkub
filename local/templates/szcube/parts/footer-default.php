@@ -72,8 +72,8 @@
             </div>
             <div class="footer__col">
               <div class="footer__title">Клиентам</div>
-              <a class="footer__link" href="#projects">Проекты</a>
-              <a class="footer__link" href="#apartments">Квартиры</a>
+              <a class="footer__link" href="/projects/">Проекты</a>
+              <a class="footer__link" href="/apartments/">Квартиры</a>
               <a class="footer__link" href="#tenders">Тендеры</a>
               <a class="footer__link" href="#promo">Акции</a>
               <a class="footer__link" href="#news">Новости</a>

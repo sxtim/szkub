@@ -1,7 +1,14 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
-$APPLICATION->SetTitle("КУБ — сайт");
+$APPLICATION->SetTitle("Главная");
+$APPLICATION->SetPageProperty("title", "КУБ — сайт");
 ?>
+
+<div class="breadcrumbs-wrap">
+  <div class="container">
+    <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/breadcrumbs.php"; ?>
+  </div>
+</div>
         <section class="hero">
   <div class="container">
     <div class="hero__top">

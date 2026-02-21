@@ -5,6 +5,12 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Выбор квартиры");
 ?>
 
+<div class="breadcrumbs-wrap">
+  <div class="container">
+    <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/breadcrumbs.php"; ?>
+  </div>
+</div>
+
 <section class="catalog">
   <div class="container">
     <h1 class="catalog__title">Выбор квартиры</h1>

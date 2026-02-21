@@ -1,8 +1,15 @@
 <?php
 define("CONSULTING_PAGE", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
-$APPLICATION->SetTitle("Консалтинг — КУБ");
+$APPLICATION->SetTitle("Консалтинг");
+$APPLICATION->SetPageProperty("title", "Консалтинг — КУБ");
 ?>
+
+<div class="breadcrumbs-wrap">
+  <div class="container">
+    <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/breadcrumbs.php"; ?>
+  </div>
+</div>
 
 <section class="consulting-hero">
   <div class="container">
