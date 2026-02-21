@@ -227,6 +227,295 @@ $APPLICATION->SetTitle("Проекты — КУБ");
   </div>
 </section>
 
+<section class="extra" id="apartments">
+  <div class="container">
+    <h2 class="section-title">Кроме квартир</h2>
+    <div class="extra__cards">
+      <article class="extra-card">
+        <img
+          src="<?=SITE_TEMPLATE_PATH?>/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png"
+          alt="Коммерция"
+        />
+        <h3 class="extra-card__title">Коммерция</h3>
+        <div class="extra-card__overlay">
+          <div class="extra-card__link">
+            <img
+              src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+              alt=""
+            />
+          </div>
+        </div>
+      </article>
+
+      <article class="extra-card">
+        <img
+          src="<?=SITE_TEMPLATE_PATH?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
+          alt="Паркинг"
+        />
+        <h3 class="extra-card__title">Паркинг</h3>
+        <div class="extra-card__overlay">
+          <div class="extra-card__link">
+            <img
+              src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+              alt=""
+            />
+          </div>
+        </div>
+      </article>
+
+      <article class="extra-card">
+        <img
+          src="<?=SITE_TEMPLATE_PATH?>/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png"
+          alt="Кладовые"
+        />
+        <h3 class="extra-card__title">Кладовые</h3>
+        <div class="extra-card__overlay">
+          <div class="extra-card__link">
+            <img
+              src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+              alt=""
+            />
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="promo" id="promo">
+  <div class="container">
+    <h2 class="section-title">Акции</h2>
+    <div class="promo__cards">
+      <article class="promo-card promo-card--left">
+        <img
+          src="<?=SITE_TEMPLATE_PATH?>/img/figma-8964cdee-e9c9-4b1f-9979-9cd074589984.png"
+          alt="Новогодние скидки"
+        />
+        <div class="promo-card__overlay promo-card__overlay--full">
+          <p>Выгодные скидки</p>
+          <strong>до 15%</strong>
+        </div>
+      </article>
+
+      <article class="promo-card promo-card--right">
+        <img
+          src="<?=SITE_TEMPLATE_PATH?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
+          alt="Рассрочка"
+        />
+        <div class="promo-card__overlay promo-card__overlay--split"></div>
+        <div class="promo-card__text promo-card__text--right">
+          <p>Рассрочка</p>
+          <strong>на 1 год</strong>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="purchase" id="mortgage">
+  <div class="container">
+    <h2 class="section-title">Способы покупки</h2>
+
+    <div class="purchase__grid" role="list">
+      <div class="purchase-card" role="listitem">
+        <h3 class="purchase-card__title">Ипотека</h3>
+        <div class="purchase-card__icon" aria-hidden="true">
+          <?=file_get_contents($_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/img/purchase/mortgage.svg")?>
+        </div>
+      </div>
+
+      <div class="purchase-card" role="listitem">
+        <h3 class="purchase-card__title">Наличные</h3>
+        <div class="purchase-card__icon" aria-hidden="true">
+          <?=file_get_contents($_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/img/purchase/cash.svg")?>
+        </div>
+      </div>
+
+      <div class="purchase-card" role="listitem">
+        <h3 class="purchase-card__title">Рассрочка</h3>
+        <div class="purchase-card__icon" aria-hidden="true">
+          <?=file_get_contents($_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/img/purchase/installment.svg")?>
+        </div>
+      </div>
+
+      <div class="purchase-card" role="listitem">
+        <h3 class="purchase-card__title">Трейд-ин</h3>
+        <div class="purchase-card__icon" aria-hidden="true">
+          <?=file_get_contents($_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/img/purchase/tradein.svg")?>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="construction" id="construction" aria-label="Ход строительства">
+  <div class="container">
+    <header class="construction__header">
+      <h2 class="construction__title">Ход строительства</h2>
+      <p class="construction__subtitle">Сдача в IV кв. 2026</p>
+    </header>
+
+	    <?php
+	      $constructionImage = SITE_TEMPLATE_PATH . "/img/projects/image_15.jpg";
+	      $constructionItems = array(
+	        array(
+	          "month" => "Октябрь 2025",
+	          "date" => "октябрь 2025",
+	          "description" => "Подготовка площадки и старт ключевых этапов. Публикуем реальные кадры без ретуши, чтобы видеть динамику работ.",
+	          "images" => array_fill(0, 46, $constructionImage),
+	          "image" => $constructionImage,
+	        ),
+	        array(
+	          "month" => "Ноябрь 2025",
+	          "date" => "ноябрь 2025",
+	          "description" => "Продолжаем строительство: фиксируем прогресс на объекте и показываем ход работ с разных ракурсов.",
+	          "images" => array_fill(0, 22, $constructionImage),
+	          "image" => $constructionImage,
+	        ),
+	        array(
+	          "month" => "Декабрь 2025",
+	          "date" => "декабрь 2025",
+	          "description" => "Итоги месяца: основные работы на площадке и общий прогресс. В галерее — серия свежих фотографий.",
+	          "images" => array_fill(0, 58, $constructionImage),
+	          "image" => $constructionImage,
+	        ),
+	        array(
+	          "month" => "Январь 2026",
+	          "date" => "январь 2026",
+	          "description" => "Новый этап строительства: показываем текущее состояние и детали, которые важно видеть в динамике.",
+	          "images" => array_fill(0, 37, $constructionImage),
+	          "image" => $constructionImage,
+	        ),
+	        array(
+	          "month" => "Февраль 2026",
+	          "date" => "февраль 2026",
+	          "description" => "Промежуточный фотоотчет: новые кадры с площадки и обновления по текущим работам.",
+	          "images" => array_fill(0, 19, $constructionImage),
+	          "image" => $constructionImage,
+	        ),
+	        array(
+	          "month" => "Март 2026",
+	          "date" => "март 2026",
+	          "description" => "Ежемесячный отчет о ходе строительства. Внутри — фотографии с натуральных ракурсов и текущий прогресс.",
+	          "images" => array_fill(0, 28, $constructionImage),
+	          "image" => $constructionImage,
+	        ),
+	      );
+	    ?>
+
+    <div class="construction__slider">
+      <div class="construction__swiper swiper" data-construction-swiper>
+        <div class="swiper-wrapper">
+          <?php foreach ($constructionItems as $item): ?>
+            <div class="swiper-slide">
+              <?php
+                $constructionPayload = array(
+                  "month" => $item["month"],
+                  "date" => $item["date"],
+                  "description" => $item["description"],
+                  "images" => $item["images"],
+                );
+              ?>
+              <article
+                class="construction-card"
+                data-construction="<?=htmlspecialchars(json_encode($constructionPayload, JSON_UNESCAPED_UNICODE), ENT_QUOTES)?>"
+              >
+                <div
+                  class="construction-card__image"
+                  style="background-image: url('<?=htmlspecialchars($item["image"], ENT_QUOTES)?>');"
+                  aria-hidden="true"
+                ></div>
+
+	                <div class="construction-card__info">
+	                  <div class="construction-card__meta">
+	                    <h3 class="construction-card__month"><?=htmlspecialchars($item["month"])?></h3>
+	                    <p class="construction-card__count"><?=htmlspecialchars(count($item["images"]) . " фото")?></p>
+	                  </div>
+
+                  <button class="construction-card__more" type="button" aria-label="Открыть фото">
+                    <svg class="construction-card__more-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
+                    </svg>
+                  </button>
+                </div>
+              </article>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <div class="construction__nav" aria-label="Навигация по ходу строительства">
+        <div class="construction__controls" role="group" aria-label="Переключение месяцев">
+          <button class="construction__navBtn" type="button" aria-label="Предыдущее" data-construction-prev>
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M4.00049 6.00024L7.00049 3.00024V9.00024L4.00049 6.00024Z" fill="currentColor"></path>
+            </svg>
+          </button>
+          <button class="construction__navBtn" type="button" aria-label="Следующее" data-construction-next>
+            <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="construction__pagination" data-construction-pagination>1 / 6</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="construction-modal-wrap" data-construction-modal hidden>
+  <div class="construction-modal" role="dialog" aria-modal="true" aria-label="Ход строительства">
+    <button class="construction-modal__close" type="button" aria-label="Закрыть" data-construction-modal-close>
+      <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M1 1L9 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+        <path d="M9 1L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+      </svg>
+    </button>
+
+	    <div class="construction-modal__left">
+	      <div class="construction-modal__heading">
+	        <h4 class="construction-modal__title">
+	          Ход строительства<br />
+	          <span class="construction-modal__title-muted">ЖК «Название»</span>
+	        </h4>
+
+	        <p class="construction-modal__date" data-construction-modal-date></p>
+	      </div>
+
+	      <p class="construction-modal__text" data-construction-modal-text></p>
+	    </div>
+
+	    <div class="construction-modal__right">
+	      <div class="construction-modal__swiper swiper" data-construction-modal-swiper>
+	        <div class="swiper-wrapper" data-construction-modal-wrapper></div>
+
+        <div class="construction-modal__controls" aria-label="Управление галереей">
+          <div class="construction-modal__nav" role="group" aria-label="Переключение фотографий">
+            <button class="construction-modal__navBtn" type="button" aria-label="Предыдущее фото" data-construction-modal-prev>
+              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M4.00049 6.00024L7.00049 3.00024V9.00024L4.00049 6.00024Z" fill="currentColor"></path>
+              </svg>
+            </button>
+            <span class="construction-modal__navSep" aria-hidden="true"></span>
+            <button class="construction-modal__navBtn" type="button" aria-label="Следующее фото" data-construction-modal-next>
+              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="construction-modal__pagination" aria-label="Счётчик фотографий">
+            <span class="construction-modal__pagination-num" data-construction-modal-current>1</span>
+            <span class="construction-modal__pagination-sep" aria-hidden="true"></span>
+            <span class="construction-modal__pagination-num" data-construction-modal-total>1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="projects-modal-wrap modal-wrap-custom" data-benefit-modal hidden>
   <div class="projects-modal modal-wrap-container" role="dialog" aria-modal="true" aria-label="Преимущество проекта">
     <button class="projects-modal__close" type="button" aria-label="Закрыть" data-modal-close>
