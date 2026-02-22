@@ -208,6 +208,66 @@ a {
   color: rgba(27, 27, 27, 0.35);
 }
 
+.contact-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.contact-modal.is-open {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+.contact-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.contact-modal.is-open .contact-modal__overlay {
+  opacity: 1;
+}
+.contact-modal__dialog {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(720px, calc(100% - 32px));
+  height: fit-content;
+  max-height: calc(100% - 32px);
+  background: var(--white);
+  border-radius: 12px;
+  padding: 28px;
+  overflow: auto;
+  transform: translateY(10px) scale(0.98);
+  opacity: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.contact-modal.is-open .contact-modal__dialog {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+.contact-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--gray-900);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+.contact-modal__content {
+  padding-top: 8px;
+}
+
 .footer {
   margin-top: auto;
 }

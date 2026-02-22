@@ -31,7 +31,7 @@ $showCta = isset($articleHeroShowCta) ? (bool)$articleHeroShowCta : false;
 
                 <? if ($showCta): ?>
                     <div class="article-hero__cta">
-                        <button class="btn btn--primary" type="button">Получить консультацию</button>
+                        <button class="btn btn--primary" type="button" data-contact-open="contact" data-contact-title="Получить консультацию">Получить консультацию</button>
                     </div>
                 <? endif; ?>
             </div>
@@ -44,4 +44,3 @@ $showCta = isset($articleHeroShowCta) ? (bool)$articleHeroShowCta : false;
         </div>
     </div>
 </section>
-

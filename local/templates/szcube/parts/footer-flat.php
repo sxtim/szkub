@@ -27,7 +27,7 @@
               </li>
             </ul>
             <div class="footer__main-bottom">
-              <button class="btn btn--light footer__callback" type="button">
+              <button class="btn btn--light footer__callback" type="button" data-contact-open="contact" data-contact-title="Заказать обратный звонок">
                 Перезвоните мне
               </button>
             </div>

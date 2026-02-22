@@ -1,5 +1,12 @@
-<form class="contact-form" id="contact-form">
-  <h3 class="contact-form__title">Остались вопросы?</h3>
+<?php
+$contactFormId = isset($contactFormId) && is_string($contactFormId) && $contactFormId !== "" ? $contactFormId : "contact-form";
+$contactFormTitle = isset($contactFormTitle) && is_string($contactFormTitle) && $contactFormTitle !== "" ? $contactFormTitle : "Остались вопросы?";
+$contactFormTitleAttr = isset($contactFormTitleAttr) && is_string($contactFormTitleAttr) ? trim($contactFormTitleAttr) : "";
+?>
+<form class="contact-form" id="<?= htmlspecialcharsbx($contactFormId) ?>">
+  <h3 class="contact-form__title" <?= $contactFormTitleAttr !== "" ? htmlspecialcharsbx($contactFormTitleAttr) : "" ?>>
+    <?= htmlspecialcharsbx($contactFormTitle) ?>
+  </h3>
   <label class="contact-form__field">
     <span class="contact-form__label">Ваше имя</span>
     <input class="contact-form__input" type="text" placeholder="Имя" />

@@ -96,7 +96,7 @@ $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserr
               />
               <a href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>
             </div>
-            <button class="btn btn--light" type="button">Заказать звонок</button>
+            <button class="btn btn--light" type="button" data-contact-open="contact" data-contact-title="Заказать обратный звонок">Заказать звонок</button>
           </div>
           <button class="mobile-nav-btn" type="button" aria-label="Открыть меню">
             <span class="nav-icon"></span>
@@ -117,7 +117,7 @@ $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserr
               <a class="mobile-nav__phone" href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>
             </li>
             <li>
-              <button class="btn btn--light" type="button">Заказать звонок</button>
+              <button class="btn btn--light" type="button" data-contact-open="contact" data-contact-title="Заказать обратный звонок">Заказать звонок</button>
             </li>
           </ul>
         </div>
