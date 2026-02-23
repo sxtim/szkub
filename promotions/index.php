@@ -1,5 +1,6 @@
 <?
 define("PROMOTIONS_PAGE", true);
+define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 
 $APPLICATION->SetTitle("Акции");
@@ -52,21 +53,35 @@ if ($activeZhk !== "") {
 			</div>
 		<? endif; ?>
 
-		<!-- TODO: сюда вставим верстку списка акций -->
-		<ul class="promotions-list">
-			<? foreach ($promotions as $promo): ?>
-				<li class="promo-card">
-					<a class="promo-card__link" href="/promotions/<?= htmlspecialcharsbx($promo["code"]) ?>/">
-						<div class="promo-card__title"><?= htmlspecialcharsbx($promo["title"]) ?></div>
-						<div class="promo-card__preview"><?= htmlspecialcharsbx($promo["preview"]) ?></div>
-					</a>
-				</li>
+		<div class="promo__cards">
+			<? foreach ($promotions as $index => $promo): ?>
+				<?php
+				$isRight = ($index % 3) === 1;
+				$cardClass = $isRight ? "promo-card promo-card--right" : "promo-card promo-card--left";
+				$image = $isRight
+					? SITE_TEMPLATE_PATH . "/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
+					: SITE_TEMPLATE_PATH . "/img/figma-8964cdee-e9c9-4b1f-9979-9cd074589984.png";
+				?>
+				<a class="<?= $cardClass ?>" href="/promotions/<?= htmlspecialcharsbx($promo["code"]) ?>/">
+					<img src="<?= htmlspecialcharsbx($image) ?>" alt="<?= htmlspecialcharsbx($promo["title"]) ?>" />
+
+					<? if ($isRight): ?>
+						<div class="promo-card__overlay promo-card__overlay--split"></div>
+						<div class="promo-card__text promo-card__text--right">
+							<p><?= htmlspecialcharsbx($promo["title"]) ?></p>
+						</div>
+					<? else: ?>
+						<div class="promo-card__overlay promo-card__overlay--full">
+							<p><?= htmlspecialcharsbx($promo["title"]) ?></p>
+						</div>
+					<? endif; ?>
+				</a>
 			<? endforeach; ?>
 
 			<? if (count($promotions) === 0): ?>
-				<li class="promo-empty">Акции не найдены.</li>
+				<div class="promo-empty">Акции не найдены.</div>
 			<? endif; ?>
-		</ul>
+		</div>
 	</div>
 </section>
 

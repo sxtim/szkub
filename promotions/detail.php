@@ -1,5 +1,6 @@
 <?
 define("PROMOTIONS_PAGE", true);
+define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 
 $promotions = array(

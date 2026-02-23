@@ -1564,15 +1564,18 @@ a {
 }
 .promo__cards {
   display: grid;
-  grid-template-columns: repeat(2, 664px);
-  gap: 27px;
+  grid-template-columns: repeat(auto-fit, 440px);
+  gap: 20px;
+  justify-content: space-between;
 }
 
 .promo-card {
+  display: block;
   position: relative;
-  height: 205px;
-  width: 664px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
   overflow: hidden;
+  --promo-overlay-height: 52%;
 }
 .promo-card__overlay {
   position: absolute;
@@ -1596,27 +1599,27 @@ a {
 }
 .promo-card__overlay--full {
   top: 0;
-  height: 105px;
+  height: var(--promo-overlay-height);
   width: 50%;
   background: rgba(26, 59, 136, 0.53);
   backdrop-filter: blur(3.6px);
-  transition: height 0.4s ease, width 0.4s ease 0.4s;
+  transition: height 0.4s ease, width 0.4s ease;
 }
 
 .promo-card__overlay--split {
   bottom: 0;
-  height: 105px;
+  height: var(--promo-overlay-height);
   width: 50%;
   background: rgba(26, 59, 136, 0.53);
   backdrop-filter: blur(3.6px);
-  transition: height 0.4s ease, width 0.4s ease 0.4s;
+  transition: height 0.4s ease, width 0.4s ease;
   z-index: 1;
 }
 
 .promo-card__text {
   position: absolute;
   left: 36px;
-  top: calc(100% - 105px + 20px);
+  top: calc(100% - var(--promo-overlay-height) + 20px);
   width: 50%;
   display: flex;
   flex-direction: column;
@@ -1629,7 +1632,6 @@ a {
 .promo-card--left:hover .promo-card__overlay--full {
   height: 100%;
   width: 100%;
-  transition-delay: 0s, 0.4s;
 }
 
 
@@ -1637,28 +1639,40 @@ a {
 .promo-card--right:hover .promo-card__overlay--split {
   height: 100%;
   width: 100%;
-  transition-delay: 0s, 0.4s;
 }
 
 
+@media (max-width: 1400px) {
+  .promo__cards {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    justify-content: stretch;
+  }
+  .promo-card {
+    width: 100%;
+  }
+  .promo-card--right .promo-card__overlay--split {
+    top: 0;
+    bottom: auto;
+  }
+  .promo-card--right .promo-card__text {
+    left: 0;
+    top: 0;
+    width: 50%;
+    padding: 20px 36px;
+  }
+}
 @media (max-width: 768px) {
   .promo {
     padding-bottom: 70px;
   }
   .promo-card {
-    height: 180px;
     width: 100%;
   }
   .promo-card__overlay--full,
   .promo-card__overlay--split {
     width: 100%;
   }
-}
-@media (max-width: 1400px) {
-  .promo__cards {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-  .promo-card {
+  .promo-card--right .promo-card__text {
     width: 100%;
   }
 }
