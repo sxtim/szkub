@@ -84,17 +84,17 @@ if (empty($chain)) {
 
 <nav class="breadcrumbs" aria-label="Навигация">
     <ol class="breadcrumbs__list">
-        <?php foreach ($chain as $index => $item): ?>
+        <?php foreach ($chain as $index => $crumb): ?>
             <?php
-            $title = isset($item["TITLE"]) ? (string)$item["TITLE"] : "";
-            $link = isset($item["LINK"]) ? (string)$item["LINK"] : "";
+            $crumbTitle = isset($crumb["TITLE"]) ? (string)$crumb["TITLE"] : "";
+            $crumbLink = isset($crumb["LINK"]) ? (string)$crumb["LINK"] : "";
             $isLast = $index === (count($chain) - 1);
             ?>
             <li class="breadcrumbs__item">
-                <?php if ($link !== "" && !$isLast): ?>
-                    <a class="breadcrumbs__link" href="<?= htmlspecialcharsbx($link) ?>"><?= htmlspecialcharsbx($title) ?></a>
+                <?php if ($crumbLink !== "" && !$isLast): ?>
+                    <a class="breadcrumbs__link" href="<?= htmlspecialcharsbx($crumbLink) ?>"><?= htmlspecialcharsbx($crumbTitle) ?></a>
                 <?php else: ?>
-                    <span class="breadcrumbs__current" aria-current="page"><?= htmlspecialcharsbx($title) ?></span>
+                    <span class="breadcrumbs__current" aria-current="page"><?= htmlspecialcharsbx($crumbTitle) ?></span>
                 <?php endif; ?>
 
                 <?php if (!$isLast): ?>

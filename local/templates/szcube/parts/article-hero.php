@@ -7,6 +7,7 @@ $title = isset($articleHero["title"]) ? (string)$articleHero["title"] : "";
 $text = isset($articleHero["text"]) && is_array($articleHero["text"]) ? $articleHero["text"] : array();
 $list = isset($articleHero["list"]) && is_array($articleHero["list"]) ? $articleHero["list"] : array();
 $image = isset($articleHero["image"]) ? (string)$articleHero["image"] : "";
+$extra = isset($articleHeroExtra) ? (string)$articleHeroExtra : "";
 
 $showCta = isset($articleHeroShowCta) ? (bool)$articleHeroShowCta : false;
 ?>
@@ -33,6 +34,10 @@ $showCta = isset($articleHeroShowCta) ? (bool)$articleHeroShowCta : false;
                     <div class="article-hero__cta">
                         <button class="btn btn--primary" type="button" data-contact-open="contact" data-contact-title="Получить консультацию">Получить консультацию</button>
                     </div>
+                <? endif; ?>
+
+                <? if ($extra !== ""): ?>
+                    <?= $extra ?>
                 <? endif; ?>
             </div>
 

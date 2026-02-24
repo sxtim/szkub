@@ -302,43 +302,26 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
         <section class="news" id="news">
   <div class="container">
     <h2 class="section-title">Новости</h2>
+    <?php
+    $newsItems = require $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/news-data.php";
+    usort($newsItems, function ($a, $b) {
+      return strcmp((string)$b["date"], (string)$a["date"]);
+    });
+    $newsItems = array_slice($newsItems, 0, 3);
+    ?>
     <div class="news__cards">
-      <article class="news-card">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-2a4f429a-dd52-4323-ae0a-3f1bc0404ebc.png"
-          alt="Новость"
-        />
-        <time datetime="2024-05-10">10.05.2024</time>
-        <h3>Lorem ipsum dolor sit amet consectetur.</h3>
-        <p>
-          Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-          consectetur.
-        </p>
-      </article>
-      <article class="news-card">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png"
-          alt="Новость"
-        />
-        <time datetime="2024-05-10">10.05.2024</time>
-        <h3>Lorem ipsum dolor sit amet consectetur.</h3>
-        <p>
-          Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-          consectetur.
-        </p>
-      </article>
-      <article class="news-card">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-00c913e7-155b-407c-b698-3a6167b5fba3.png"
-          alt="Новость"
-        />
-        <time datetime="2024-05-10">10.05.2024</time>
-        <h3>Lorem ipsum dolor sit amet consectetur.</h3>
-        <p>
-          Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-          consectetur.
-        </p>
-      </article>
+      <? foreach ($newsItems as $item): ?>
+        <?
+        $dateIso = isset($item["date"]) ? (string)$item["date"] : "";
+        $dateText = $dateIso !== "" ? date("d.m.Y", strtotime($dateIso)) : "";
+        ?>
+        <a class="news-card" href="/news/<?= htmlspecialcharsbx($item["code"]) ?>/">
+          <img src="<?= htmlspecialcharsbx($item["image"]) ?>" alt="<?= htmlspecialcharsbx($item["title"]) ?>" loading="lazy" />
+          <time datetime="<?= htmlspecialcharsbx($dateIso) ?>"><?= htmlspecialcharsbx($dateText) ?></time>
+          <h3><?= htmlspecialcharsbx($item["title"]) ?></h3>
+          <p><?= htmlspecialcharsbx($item["preview"]) ?></p>
+        </a>
+      <? endforeach; ?>
     </div>
   </div>
 </section>
