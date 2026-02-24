@@ -13,15 +13,9 @@ $arUrlRewrite = array(
 		"PATH"	=>	"/products/index.php",
 	),
 	array(
-		"CONDITION"	=>	"#^/news/([^/]+?)/?$#",
-		"RULE"	=>	"code=$1",
-		"ID"	=>	"",
-		"PATH"	=>	"/news/detail.php",
-	),
-	array(
 		"CONDITION"	=>	"#^/news/#",
 		"RULE"	=>	"",
-		"ID"	=>	"",
+		"ID"	=>	"bitrix:news",
 		"PATH"	=>	"/news/index.php",
 	),
 	array(

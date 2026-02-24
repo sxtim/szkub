@@ -299,32 +299,81 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
   </div>
 </section>
 
-        <section class="news" id="news">
-  <div class="container">
-    <h2 class="section-title">Новости</h2>
-    <?php
-    $newsItems = require $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/news-data.php";
-    usort($newsItems, function ($a, $b) {
-      return strcmp((string)$b["date"], (string)$a["date"]);
-    });
-    $newsItems = array_slice($newsItems, 0, 3);
-    ?>
-    <div class="news__cards">
-      <? foreach ($newsItems as $item): ?>
-        <?
-        $dateIso = isset($item["date"]) ? (string)$item["date"] : "";
-        $dateText = $dateIso !== "" ? date("d.m.Y", strtotime($dateIso)) : "";
-        ?>
-        <a class="news-card" href="/news/<?= htmlspecialcharsbx($item["code"]) ?>/">
-          <img src="<?= htmlspecialcharsbx($item["image"]) ?>" alt="<?= htmlspecialcharsbx($item["title"]) ?>" loading="lazy" />
-          <time datetime="<?= htmlspecialcharsbx($dateIso) ?>"><?= htmlspecialcharsbx($dateText) ?></time>
-          <h3><?= htmlspecialcharsbx($item["title"]) ?></h3>
-          <p><?= htmlspecialcharsbx($item["preview"]) ?></p>
-        </a>
-      <? endforeach; ?>
-    </div>
-  </div>
-</section>
+	        <?php
+	        $homeNewsIblockType = "content";
+	        $homeNewsIblockCode = "news";
+	        $homeNewsIblockId = 0;
+	        if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
+	          $iblockRes = CIBlock::GetList(
+	            array(),
+	            array(
+	              "TYPE" => $homeNewsIblockType,
+	              "=CODE" => $homeNewsIblockCode,
+	              "ACTIVE" => "Y",
+	            ),
+	            false
+	          );
+	          if ($iblock = $iblockRes->Fetch()) {
+	            $homeNewsIblockId = (int)$iblock["ID"];
+	          }
+	        }
+	        ?>
+	        <? if ($homeNewsIblockId > 0): ?>
+	          <?$APPLICATION->IncludeComponent(
+	            "bitrix:news.list",
+	            "home_news",
+	            array(
+	              "IBLOCK_TYPE" => $homeNewsIblockType,
+	              "IBLOCK_ID" => $homeNewsIblockId,
+	              "NEWS_COUNT" => "3",
+	              "SORT_BY1" => "ACTIVE_FROM",
+	              "SORT_ORDER1" => "DESC",
+	              "SORT_BY2" => "SORT",
+	              "SORT_ORDER2" => "ASC",
+	              "FIELD_CODE" => array(
+	                0 => "NAME",
+	                1 => "PREVIEW_TEXT",
+	                2 => "PREVIEW_PICTURE",
+	                3 => "DATE_ACTIVE_FROM",
+	                4 => "",
+	              ),
+	              "PROPERTY_CODE" => array(),
+	              "CHECK_DATES" => "Y",
+	              "DETAIL_URL" => "/news/#ELEMENT_CODE#/",
+	              "ACTIVE_DATE_FORMAT" => "d.m.Y",
+	              "CACHE_TYPE" => "A",
+	              "CACHE_TIME" => "36000000",
+	              "CACHE_FILTER" => "N",
+	              "CACHE_GROUPS" => "Y",
+	              "SET_TITLE" => "N",
+	              "SET_BROWSER_TITLE" => "N",
+	              "SET_META_KEYWORDS" => "N",
+	              "SET_META_DESCRIPTION" => "N",
+	              "SET_LAST_MODIFIED" => "N",
+	              "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+	              "ADD_SECTIONS_CHAIN" => "N",
+	              "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+	              "DISPLAY_DATE" => "Y",
+	              "DISPLAY_NAME" => "Y",
+	              "DISPLAY_PICTURE" => "Y",
+	              "DISPLAY_PREVIEW_TEXT" => "Y",
+	              "PARENT_SECTION" => "",
+	              "PARENT_SECTION_CODE" => "",
+	              "STRICT_SECTION_CHECK" => "N",
+	              "DISPLAY_TOP_PAGER" => "N",
+	              "DISPLAY_BOTTOM_PAGER" => "N",
+	              "PAGER_SHOW_ALWAYS" => "N",
+	              "PAGER_TEMPLATE" => "",
+	            ),
+	            false
+	          );?>
+	        <? else: ?>
+	          <section class="news" id="news">
+	            <div class="container">
+	              <h2 class="section-title">Новости</h2>
+	            </div>
+	          </section>
+	        <? endif; ?>
 
         <section class="faq" id="company">
   <div class="container">

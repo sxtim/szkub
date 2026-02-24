@@ -1,4 +1,5 @@
 <?
+// Временный источник для миграции новостей в инфоблок (локалка/прод через import_news_from_hardcode.php).
 
 return array(
 	array(

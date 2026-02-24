@@ -183,6 +183,9 @@ a {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .breadcrumbs__item {
@@ -1681,7 +1684,7 @@ a {
 }
 .news__cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
 
@@ -1691,7 +1694,10 @@ a {
   gap: 16px;
 }
 .news-card img {
+  width: 100%;
+  display: block;
   height: 314px;
+  object-fit: cover;
 }
 .news-card time {
   font-size: 12px;
@@ -1705,14 +1711,55 @@ a {
 .news-card p {
   margin: 0;
   font-size: 14px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.news__more {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.news__more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.news__more-link:hover {
+  text-decoration: underline;
+}
+
+.news__more-arrow {
+  font-size: 18px;
+  line-height: 1;
 }
 
 @media (max-width: 768px) {
+  .news__cards {
+    grid-template-columns: 1fr;
+  }
   .news {
     padding-bottom: 70px;
   }
   .news-card img {
     height: 240px;
+  }
+  .news__more {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+  .news__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .faq {
