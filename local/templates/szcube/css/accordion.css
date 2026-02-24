@@ -73,6 +73,24 @@
   color: var(--gray-800);
 }
 
+.details__content p {
+  margin: 0 0 12px;
+}
+.details__content p:last-child {
+  margin-bottom: 0;
+}
+.details__content ul,
+.details__content ol {
+  margin: 8px 0 12px;
+  padding-left: 18px;
+}
+.details__content li {
+  margin: 0 0 6px;
+}
+.details__content li:last-child {
+  margin-bottom: 0;
+}
+
 @media (max-width: 768px) {
   .details__summary {
     font-size: 16px;

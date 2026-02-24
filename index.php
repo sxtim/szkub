@@ -346,37 +346,102 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
         <section class="faq" id="company">
   <div class="container">
     <h2 class="section-title">Вопрос-ответ</h2>
-    <div class="faq__grid">
+      <div class="faq__grid">
       <div class="faq__list details-group">
         <details class="details" open>
-          <summary class="details__summary">
-            Lorem ipsum dolor sit amet consectetur.
-          </summary>
+          <summary class="details__summary">Что такое ДДУ и почему это безопасно для покупателя?</summary>
           <div class="details__content">
             <p>
-              Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-              consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit
-              amet consectetur.Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor
-              sit amet consectetur.Lorem ipsum dolor sit amet consectetur.
+              ДДУ — это договор долевого участия, который регулируется 214‑ФЗ. Покупатель приобретает квартиру на этапе
+              строительства, а его средства размещаются на эскроу‑счёте в банке.
+            </p>
+            <p>Это означает:</p>
+            <ul>
+              <li>деньги хранятся в банке до ввода дома в эксплуатацию;</li>
+              <li>застройщик получает их только после сдачи объекта;</li>
+              <li>в случае форс‑мажора средства возвращаются покупателю.</li>
+            </ul>
+            <p>Таким образом, покупка по ДДУ — это законный и защищённый способ приобрести квартиру в новостройке.</p>
+          </div>
+        </details>
+        <details class="details">
+          <summary class="details__summary">Когда выгоднее покупать квартиру — на старте продаж или ближе к сдаче дома?</summary>
+          <div class="details__content">
+            <p>На старте продаж стоимость квадратного метра обычно минимальна. По мере готовности дома цена растёт.</p>
+            <p>Преимущества покупки на раннем этапе:</p>
+            <ul>
+              <li>более выгодная цена;</li>
+              <li>широкий выбор планировок и этажей;</li>
+              <li>возможность заработать на росте стоимости недвижимости.</li>
+            </ul>
+            <p>Если же важен быстрый переезд, можно рассмотреть квартиры высокой степени готовности.</p>
+          </div>
+        </details>
+        <details class="details">
+          <summary class="details__summary">Можно ли купить квартиру в новостройке в ипотеку?</summary>
+          <div class="details__content">
+            <p>Да. Большинство банков сотрудничают с застройщиками и предлагают ипотечные программы на покупку по ДДУ.</p>
+            <p>Доступны:</p>
+            <ul>
+              <li>семейная ипотека;</li>
+              <li>льготные государственные программы;</li>
+              <li>стандартные ипотечные продукты;</li>
+              <li>рассрочка от застройщика.</li>
+            </ul>
+            <p>Специалисты отдела продаж помогают подобрать оптимальный вариант и сопровождают клиента на всех этапах сделки.</p>
+          </div>
+        </details>
+        <details class="details">
+          <summary class="details__summary">Как проходит процесс покупки квартиры по ДДУ?</summary>
+          <div class="details__content">
+            <p>Процесс состоит из нескольких этапов:</p>
+            <ol>
+              <li>Выбор квартиры и бронирование.</li>
+              <li>Подготовка и подписание ДДУ.</li>
+              <li>Открытие эскроу‑счёта в банке.</li>
+              <li>Регистрация договора в Росреестре.</li>
+              <li>Ожидание завершения строительства.</li>
+              <li>Получение ключей и подписание акта приёма‑передачи.</li>
+            </ol>
+            <p>Весь процесс прозрачен и юридически защищён.</p>
+          </div>
+        </details>
+        <details class="details">
+          <summary class="details__summary">Застрахованы ли средства покупателя при покупке по ДДУ?</summary>
+          <div class="details__content">
+            <p>
+              Да. Все средства размещаются на эскроу‑счёте в банке. До ввода дома в эксплуатацию застройщик не имеет к ним
+              доступа.
+            </p>
+            <p>
+              Если объект по каким‑либо причинам не будет завершён, банк возвращает деньги покупателю. Это один из ключевых
+              механизмов защиты по 214‑ФЗ.
             </p>
           </div>
         </details>
         <details class="details">
-          <summary class="details__summary">Lorem ipsum dolor sit amet consectetur.</summary>
+          <summary class="details__summary">Можно ли использовать материнский капитал при покупке?</summary>
           <div class="details__content">
-            <p>
-              Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-              consectetur.Lorem ipsum dolor sit amet consectetur.
-            </p>
+            <p>Да. Материнский капитал можно направить:</p>
+            <ul>
+              <li>на первоначальный взнос;</li>
+              <li>на частичное досрочное погашение ипотеки;</li>
+              <li>на оплату части стоимости квартиры.</li>
+            </ul>
+            <p>Специалисты отдела продаж проконсультируют, какой пакет документов нужно подготовить.</p>
           </div>
         </details>
         <details class="details">
-          <summary class="details__summary">Lorem ipsum dolor sit amet consectetur.</summary>
+          <summary class="details__summary">Какие документы получает покупатель после сдачи дома?</summary>
           <div class="details__content">
-            <p>
-              Lorem ipsum dolor sit amet consectetur.Lorem ipsum dolor sit amet
-              consectetur.Lorem ipsum dolor sit amet consectetur.
-            </p>
+            <p>После ввода дома в эксплуатацию покупатель получает:</p>
+            <ul>
+              <li>акт приёма‑передачи квартиры;</li>
+              <li>ключи;</li>
+              <li>техническую документацию;</li>
+              <li>документы для регистрации права собственности.</li>
+            </ul>
+            <p>После регистрации в Росреестре покупатель становится полноценным собственником недвижимости.</p>
           </div>
         </details>
       </div>
