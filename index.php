@@ -99,7 +99,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
           />
           <div class="project-card__tags">
             <span class="tag tag--solid">Бизнес</span>
-            <span class="tag tag--outline">Скидки 5%</span>
+            <span class="tag tag--outline">Скидки 10%</span>
           </div>
         </div>
         <div class="project-card__content">
@@ -115,8 +115,9 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
               <div class="project-card__rooms">
                 <span class="project-card__room">Студия</span>
                 <span class="project-card__room">1к</span>
-                <span class="project-card__room">2к</span>
-                <span class="project-card__room">3к</span>
+                <span class="project-card__room">2е</span>
+                <span class="project-card__room">3е</span>
+                <span class="project-card__room">4к</span>
               </div>
               
             </div>
@@ -124,7 +125,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
           </div>
           <div class="project-card__footer">
           <span class="project-card__sale-count">173 квартиры</span>
-            <span class="project-card__price">от 6 538 000 р.</span>
+            <span class="project-card__price">от 6 756 809 р.</span>
           </div>
         </div>
       </article>
@@ -168,7 +169,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
         </div>
       </article>
 
-      <article class="project-card">
+      <!-- <article class="project-card">
         <div class="project-card__image">
           <img
             src="<?=SITE_TEMPLATE_PATH?>/img/figma-6c3f203f-be9a-4001-ab97-edc7f3b4a9e3.png"
@@ -203,9 +204,9 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
           <div class="project-card__footer">
            <span class="project-card__sale-count">В проекте</span>
             <!-- <span class="project-card__price">от 8 000 000 р.</span> -->
-          </div>
-        </div>
-      </article>
+          <!-- </div> -->
+        <!-- </div> -->
+      <!-- </article> --> 
       
     </div>
   </div>
@@ -266,38 +267,84 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
   </div>
 </section>
 
-        <section class="promo" id="promo">
-  <div class="container">
-    <h2 class="section-title">Акции</h2>
-    <div class="promo__cards">
-      <article class="promo-card promo-card--left">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-8964cdee-e9c9-4b1f-9979-9cd074589984.png"
-          alt="Новогодние скидки"
-        />
-        <div class="promo-card__overlay promo-card__overlay--full">
-          <p>Выгодные скидки</p>
-          <strong>до 15%</strong>
-        </div>
-      </article>
-
-      <article class="promo-card promo-card--right">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
-          alt="Рассрочка"
-        />
-        <div class="promo-card__overlay promo-card__overlay--split"></div>
-        <div class="promo-card__text promo-card__text--right">
-          <p>Рассрочка</p>
-          <strong>на 1 год</strong>
-        </div>
-       
-          
-        
-      </article>
-    </div>
-  </div>
-</section>
+	        <?php
+	        $homePromotionsIblockType = "content";
+	        $homePromotionsIblockCode = "promotions";
+	        $homePromotionsIblockId = 0;
+	        if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
+	          $iblockRes = CIBlock::GetList(
+	            array(),
+	            array(
+	              "TYPE" => $homePromotionsIblockType,
+	              "=CODE" => $homePromotionsIblockCode,
+	              "ACTIVE" => "Y",
+	            ),
+	            false
+	          );
+	          if ($iblock = $iblockRes->Fetch()) {
+	            $homePromotionsIblockId = (int)$iblock["ID"];
+	          }
+	        }
+	        ?>
+	        <? if ($homePromotionsIblockId > 0): ?>
+	          <?$APPLICATION->IncludeComponent(
+	            "bitrix:news.list",
+	            "home_promotions",
+	            array(
+	              "IBLOCK_TYPE" => $homePromotionsIblockType,
+	              "IBLOCK_ID" => $homePromotionsIblockId,
+	              "NEWS_COUNT" => "3",
+	              "SORT_BY1" => "ACTIVE_FROM",
+	              "SORT_ORDER1" => "DESC",
+	              "SORT_BY2" => "SORT",
+	              "SORT_ORDER2" => "ASC",
+	              "FIELD_CODE" => array(
+	                0 => "NAME",
+	                1 => "PREVIEW_PICTURE",
+	                2 => "DATE_ACTIVE_TO",
+	                3 => "",
+	              ),
+	              "PROPERTY_CODE" => array(
+	                0 => "ZHK_CODE",
+	                1 => "ZHK_LABEL",
+	                2 => "",
+	              ),
+	              "CHECK_DATES" => "Y",
+	              "DETAIL_URL" => "/promotions/#ELEMENT_CODE#/",
+	              "ACTIVE_DATE_FORMAT" => "d.m.Y",
+	              "CACHE_TYPE" => "A",
+	              "CACHE_TIME" => "36000000",
+	              "CACHE_FILTER" => "N",
+	              "CACHE_GROUPS" => "Y",
+	              "SET_TITLE" => "N",
+	              "SET_BROWSER_TITLE" => "N",
+	              "SET_META_KEYWORDS" => "N",
+	              "SET_META_DESCRIPTION" => "N",
+	              "SET_LAST_MODIFIED" => "N",
+	              "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+	              "ADD_SECTIONS_CHAIN" => "N",
+	              "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+	              "DISPLAY_DATE" => "N",
+	              "DISPLAY_NAME" => "Y",
+	              "DISPLAY_PICTURE" => "Y",
+	              "DISPLAY_PREVIEW_TEXT" => "N",
+	              "PARENT_SECTION" => "",
+	              "PARENT_SECTION_CODE" => "",
+	              "STRICT_SECTION_CHECK" => "N",
+	              "DISPLAY_TOP_PAGER" => "N",
+	              "DISPLAY_BOTTOM_PAGER" => "N",
+	              "PAGER_SHOW_ALWAYS" => "N",
+	              "PAGER_TEMPLATE" => "",
+	            ),
+	            false
+	          );?>
+	        <? else: ?>
+	          <section class="promo" id="promo">
+	            <div class="container">
+	              <h2 class="section-title">Акции</h2>
+	            </div>
+	          </section>
+	        <? endif; ?>
 
 	        <?php
 	        $homeNewsIblockType = "content";
