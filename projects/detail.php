@@ -59,20 +59,20 @@ if (!$project) {
 
         <h2 class="projects-about__title">
           <span class="projects-about__title-accent">ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»</span>
-          Ваша суперсила у моря
+          Ваша суперсила
         </h2>
 
         <div class="projects-about__content">
           <div class="projects-about__text">
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quis
-              nemo explicabo, perferendis dignissimos reprehenderit dolorum
-              accusamus provident, doloribus vero eum, aliquid tempore.
+              ЖК «Коллекция» на ул. Жилина – это эксклюзивный комплекс из 52 квартир в самом сердце Воронежа.
+Проект отличает приватность и комфорт, низкая плотность застройки, эффектные виды на водохранилище, исторический центр города, а также на закаты и рассветы.
             </p>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga
-              possimus eveniet laudantium, porro tempora repellendus. Nisi
-              accusamus, nobis eos sunt eaque aspernatur.
+              В доме всего 5 этажей.Рядом находятся школы, детские сады и магазины, а в 20 минутах ходьбы – набережная, главные парки Воронежа (Орленок, Центральный Парк Динамо) и зоны отдыха.
+Инфраструктура центра города делает жизнь в комплексе максимально удобной и насыщенной.
+            </p><p>
+              За 5 минут на машине можно добраться до общественно-деловых и торговых центров, кафе и ресторанов, спортивных клубов, культурных и развлекательных заведений.
             </p>
           </div>
 
@@ -115,15 +115,15 @@ if (!$project) {
           </div>
 
           <div class="projects-genplan__pins">
-            <button class="projects-genplan__pin" type="button" style="top:26%;left:73%;">
-              <span class="projects-genplan__pin-label">1 литер | 1 очередь</span>
+            <button class="projects-genplan__pin" type="button" style="top:16%;left:35%;">
+              <span class="projects-genplan__pin-label">1 подъезд</span>
               <svg class="projects-genplan__pin-icon" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M5.43301 7.25C5.24056 7.58333 4.75944 7.58333 4.56699 7.25L1.10289 1.25C0.910436 0.916669 1.151 0.500001 1.5359 0.500001L8.4641 0.5C8.849 0.5 9.08956 0.916666 8.89711 1.25L5.43301 7.25Z" fill="#009EAE" stroke="currentColor"></path>
               </svg>
             </button>
           </div>
 
-          <button class="projects-genplan__filter" type="button">Фильтр</button>
+          <button class="projects-genplan__filter" type="button">На карте</button>
         </div>
       </div>
     </section>
@@ -147,7 +147,7 @@ if (!$project) {
         array(
           "category" => "location",
           "label" => "Локация",
-          "title" => "Кудепста — жизнь в уникальном природном окружении",
+          "title" => "ЖК «Коллекция» — жизнь в уникальном природном окружении",
           "description" => "До ключевых точек города — быстро, при этом рядом зелёные зоны и тихие улицы.",
           "content" => "<p>До ключевых точек города — быстро, при этом рядом зелёные зоны и тихие улицы.</p><p>Окружение проекта задаёт ритм жизни: больше прогулок, меньше суеты.</p><p>И здесь создана среда для комфорта:</p><ul><li>близость ключевой инфраструктуры</li><li>зелёные зоны и приватные дворы</li><li>тихие улицы без транзитного трафика</li></ul>",
           "image" => $benefitImage,
@@ -155,33 +155,33 @@ if (!$project) {
         array(
           "category" => "landscape",
           "label" => "Благоустройство",
-          "title" => "Двор‑парк и зоны отдыха для всех возрастов",
-          "description" => "Пространства для прогулок, отдыха и спорта — продумано для ежедневного комфорта.",
-          "content" => "<p>Пространства для прогулок, отдыха и спорта — продумано для ежедневного комфорта.</p><p>Всё устроено так, чтобы во двор хотелось выходить каждый день.</p><p>И здесь создана среда для комфорта:</p><ul><li>зоны тихого отдыха и активностей</li><li>подсветка и навигация</li><li>озеленение и уютные маршруты</li></ul>",
+          "title" => "Закрытая территория и контроль доступа",
+          "description" => "Закрытая территория, контроль доступа, видеонаблюдение и видеодомофоны для безопасности жителей.",
+          "content" => "<p>В ЖК «Коллекция» предусмотрена закрытая территория.</p><p>Современная система контроля доступа во двор, в подъезд и в подземный паркинг обеспечивает защиту от посторонних людей.</p><p>В комплексе предусмотрено видеонаблюдение, а также видеодомофоны на входах в подъезды.</p>",
           "image" => $benefitImage,
         ),
         array(
           "category" => "infrastructure",
           "label" => "Инфраструктура",
-          "title" => "Школы, сад и магазины рядом с домом",
-          "description" => "Всё необходимое для семьи — в пешей доступности или в нескольких минутах на авто.",
-          "content" => "<p>Всё необходимое для семьи — в пешей доступности или в нескольких минутах на авто.</p><p>Повседневные задачи решаются быстрее — остаётся больше времени на себя.</p><p>И здесь создана среда для комфорта:</p><ul><li>сад, школы и секции рядом</li><li>магазины и сервисы у дома</li><li>удобные маршруты и остановки</li></ul>",
+          "title" => "Исторический центр и всё нужное рядом",
+          "description" => "Клубный дом расположен в тихом историческом центре, рядом достопримечательности и повседневная инфраструктура.",
+          "content" => "<p>Клубный дом расположен в тихом историческом центре Воронежа, в окружении памятников архитектуры.</p><p>Неподалеку вы найдете такие достопримечательности, как Дом Кантонистов, здание И.С. Мягкова, Музей И.А. Бунина и одно из самых старинных зданий города — Алексеево-Акатов монастырь.</p><p>В пределах 10 минут пешком находятся:</p><ul><li>Проспект Революции</li><li>Школа</li><li>Детский сад</li><li>Магазины формата «у дома»</li></ul><p>Всего в 5 минутах езды вас ждут:</p><ul><li>Парк «Орлёнок»</li><li>Центральный парк</li><li>Петровская набережная</li><li>ЦУМ</li></ul>",
           "image" => $benefitImage,
         ),
         array(
           "category" => "finish",
           "label" => "Отделка",
-          "title" => "Современные решения отделки и инженерии",
-          "description" => "Материалы и системы подбираются так, чтобы интерьер оставался актуальным годами.",
-          "content" => "<p>Материалы и системы подбираются так, чтобы интерьер оставался актуальным годами.</p><p>Рациональные планировочные решения + комфортные инженерные сценарии.</p><p>И здесь создана среда для комфорта:</p><ul><li>качественные материалы отделки</li><li>инженерные системы для тишины и микроклимата</li><li>решения, упрощающие быт</li></ul>",
+          "title" => "Гибкие решения по отделке квартиры",
+          "description" => "Предчистовая база и дополнительные опции: чистовая отделка, дизайн-проект и шумоизоляция.",
+          "content" => "<p>Квартиры продаются в предчистовой отделке – это идеальное решение для тех, кто мечтает создать уникальный интерьер своими руками.</p><p>За дополнительные деньги можно заказать предчистовую отделку, чистовую отделку, дизайн-проект и шумоизоляцию.</p><p>Предчистовая отделка сэкономит ваше время и средства. В таком формате отделки стены оштукатурены, выполнена стяжка пола, выведены электрические точки. Всё готово для нанесения финишного покрытия. Идеально подойдёт тем, кто хочет добавить личные штрихи в интерьер.</p><p>Чистовая отделка предполагает полную отделку квартиры. У нас Вы можете заказать отделку «стандарт», «комфорт» и «бизнес».</p><p>Для максимального комфорта мы предлагаем воспользоваться нашими дополнительными услугами – разработка дизайн-проекта квартиры, установка системы шумоизоляции.</p>",
           "image" => $benefitImage,
         ),
         array(
           "category" => "facade",
           "label" => "Фасад и материалы",
-          "title" => "Фасады, которые сохраняют эстетику и тепло",
-          "description" => "Долговечные материалы, аккуратные узлы и выразительная архитектурная пластика.",
-          "content" => "<p>Долговечные материалы, аккуратные узлы и выразительная архитектурная пластика.</p><p>Фасад работает на образ проекта и на комфорт внутри дома.</p><p>И здесь создана среда для комфорта:</p><ul><li>сбалансированная архитектура</li><li>материалы с хорошими характеристиками</li><li>внимание к деталям</li></ul>",
+          "title" => "Чистота архитектурных форм",
+          "description" => "Лаконичная архитектура, панорамные окна, подсветка и долговечные материалы фасада.",
+          "content" => "<p>Лаконичная архитектура с панорамными окнами создает ощущение простора и света, подчеркивая изысканность вашего нового жилья. Клубный дом строится по индивидуальному проекту. Архитектурная подсветка здания придает дому особый шарм в вечернее время, делая его заметным и привлекательным.</p><p>Высота потолков 3 метра добавляет воздуха и свободы каждому помещению, создавая идеальные условия для жизни и отдыха. Надежное монолитное строительство гарантирует долговечность и безопасность вашего дома.</p><p>Фасады выполнены из качественных материалов: кирпича, штукатурки, керамогранита и рельефных бетонных панелей. Они эффектно сочетаются между собой, придавая зданию современный и элегантный вид.</p>",
           "image" => $benefitImage,
         ),
         array(
@@ -195,9 +195,9 @@ if (!$project) {
         array(
           "category" => "landscape",
           "label" => "Благоустройство",
-          "title" => "Террасы и общественные пространства для отдыха",
-          "description" => "Места, куда приятно выйти вечером: видовые точки, озеленение и приватные уголки.",
-          "content" => "<p>Места, куда приятно выйти вечером: видовые точки, озеленение и приватные уголки.</p><p>Небольшие сценарии отдыха — прямо у дома.</p><p>И здесь создана среда для комфорта:</p><ul><li>террасы и зоны отдыха</li><li>озеленение и малые формы</li><li>приватные уголки для чтения и общения</li></ul>",
+          "title" => "Подземный паркинг и зоны отдыха",
+          "description" => "Подземный паркинг, детская площадка и продуманные зоны отдыха для жителей всех возрастов.",
+          "content" => "<p>Забудьте о поиске парковочного места – подземный паркинг ждет вас после рабочего дня.</p><p>Для маленьких жителей предусмотрена уютная детская площадка, а взрослые могут насладиться зонами отдыха.</p><p>Территория комплекса станет настоящим оазисом, где каждый уголок продуман до мелочей.</p><p>Уникальный дизайн-проект ландшафта, созданный специально для клубного дома, подарит атмосферу умиротворения и комфорта и учтет потребности как маленьких, так и взрослых жителей.</p>",
           "image" => $benefitImage,
         ),
         array(
@@ -211,9 +211,9 @@ if (!$project) {
         array(
           "category" => "infrastructure",
           "label" => "Инфраструктура",
-          "title" => "Сервисы и бытовые сценарии рядом",
-          "description" => "Кофе, аптека, спорт, доставка — повседневные задачи решаются быстрее.",
-          "content" => "<p>Кофе, аптека, спорт, доставка — повседневные задачи решаются быстрее.</p><p>Всё рядом, чтобы не тратить время на дорогу по мелочам.</p><p>И здесь создана среда для комфорта:</p><ul><li>сервисы в шаговой доступности</li><li>простые маршруты для повседневных дел</li><li>пространства для встреч и ожидания</li></ul>",
+          "title" => "Дизайнерские холлы",
+          "description" => "Индивидуальный проект отделки подъездов, лифты в каждой секции и художественные акценты в парадных.",
+          "content" => "<p>Интерьеры подъездов будут отделаны по индивидуальному проекту.</p><p>В каждой секции предусмотрен лифт, несмотря на невысокую этажность здания.</p><p>На первых этажах в парадных планируется разместить репродукции картин известных художников.</p>",
           "image" => $benefitImage,
         ),
       );
@@ -320,35 +320,86 @@ if (!$project) {
   </div>
 </section>
 
-<section class="promo" id="promo">
-  <div class="container">
-    <h2 class="section-title">Акции</h2>
-    <div class="promo__cards">
-      <article class="promo-card promo-card--left">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-8964cdee-e9c9-4b1f-9979-9cd074589984.png"
-          alt="Новогодние скидки"
-        />
-        <div class="promo-card__overlay promo-card__overlay--full">
-          <p>Выгодные скидки</p>
-          <strong>до 15%</strong>
-        </div>
-      </article>
-
-      <article class="promo-card promo-card--right">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
-          alt="Рассрочка"
-        />
-        <div class="promo-card__overlay promo-card__overlay--split"></div>
-        <div class="promo-card__text promo-card__text--right">
-          <p>Рассрочка</p>
-          <strong>на 1 год</strong>
-        </div>
-      </article>
+<?php
+$homePromotionsIblockType = "content";
+$homePromotionsIblockCode = "promotions";
+$homePromotionsIblockId = 0;
+if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
+  $iblockRes = CIBlock::GetList(
+    array(),
+    array(
+      "TYPE" => $homePromotionsIblockType,
+      "=CODE" => $homePromotionsIblockCode,
+      "ACTIVE" => "Y",
+    ),
+    false
+  );
+  if ($iblock = $iblockRes->Fetch()) {
+    $homePromotionsIblockId = (int)$iblock["ID"];
+  }
+}
+?>
+<?php if ($homePromotionsIblockId > 0): ?>
+  <?php
+  $APPLICATION->IncludeComponent(
+    "bitrix:news.list",
+    "home_promotions",
+    array(
+      "IBLOCK_TYPE" => $homePromotionsIblockType,
+      "IBLOCK_ID" => $homePromotionsIblockId,
+      "NEWS_COUNT" => "3",
+      "SORT_BY1" => "ACTIVE_FROM",
+      "SORT_ORDER1" => "DESC",
+      "SORT_BY2" => "SORT",
+      "SORT_ORDER2" => "ASC",
+      "FIELD_CODE" => array(
+        0 => "NAME",
+        1 => "PREVIEW_PICTURE",
+        2 => "DATE_ACTIVE_TO",
+        3 => "",
+      ),
+      "PROPERTY_CODE" => array(
+        0 => "ZHK_CODE",
+        1 => "ZHK_LABEL",
+        2 => "",
+      ),
+      "CHECK_DATES" => "Y",
+      "DETAIL_URL" => "/promotions/#ELEMENT_CODE#/",
+      "ACTIVE_DATE_FORMAT" => "d.m.Y",
+      "CACHE_TYPE" => "A",
+      "CACHE_TIME" => "36000000",
+      "CACHE_FILTER" => "N",
+      "CACHE_GROUPS" => "Y",
+      "SET_TITLE" => "N",
+      "SET_BROWSER_TITLE" => "N",
+      "SET_META_KEYWORDS" => "N",
+      "SET_META_DESCRIPTION" => "N",
+      "SET_LAST_MODIFIED" => "N",
+      "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+      "ADD_SECTIONS_CHAIN" => "N",
+      "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+      "DISPLAY_DATE" => "N",
+      "DISPLAY_NAME" => "Y",
+      "DISPLAY_PICTURE" => "Y",
+      "DISPLAY_PREVIEW_TEXT" => "N",
+      "PARENT_SECTION" => "",
+      "PARENT_SECTION_CODE" => "",
+      "STRICT_SECTION_CHECK" => "N",
+      "DISPLAY_TOP_PAGER" => "N",
+      "DISPLAY_BOTTOM_PAGER" => "N",
+      "PAGER_SHOW_ALWAYS" => "N",
+      "PAGER_TEMPLATE" => "",
+    ),
+    false
+  );
+  ?>
+<?php else: ?>
+  <section class="promo" id="promo">
+    <div class="container">
+      <h2 class="section-title">Акции</h2>
     </div>
-  </div>
-</section>
+  </section>
+<?php endif; ?>
 
 <section class="purchase" id="mortgage">
   <div class="container">
@@ -569,25 +620,13 @@ if (!$project) {
       </div>
 
       <div class="projects-call__col">
-        <div class="projects-call__grid">
-          <div class="projects-call__tile projects-call__tile--light">
-            <div class="projects-call__text">
-              <div class="projects-call__title">Напишите нам</div>
-              <div class="projects-call__subtitle">в Telegram</div>
-            </div>
-            <div class="projects-call__btn projects-call__btn--light" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20.9 4.3L2.9 11.4c-.8.3-.8 1.4.1 1.7l4.6 1.5 1.8 5.7c.2.7 1.1.8 1.5.2l2.7-3.6 4.9 3.6c.5.4 1.2.1 1.3-.6l3.1-15.1c.2-.9-.7-1.6-1.6-1.2zm-3 3.8l-8.6 7.7c-.2.2-.3.4-.3.7l-.2 1.8-.9-2.9 10.5-8c.3-.2.6.2.3.7z" fill="currentColor"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="projects-call__tile projects-call__tile--light">
+        <div class="projects-call__grid projects-call__grid--single">
+          <div class="projects-call__tile projects-call__tile--light projects-call__tile--gray">
             <div class="projects-call__text">
               <div class="projects-call__title">Напишите нам</div>
               <div class="projects-call__subtitle">в MAX</div>
             </div>
-            <div class="projects-call__btn projects-call__btn--light" aria-hidden="true">
+            <div class="projects-call__btn projects-call__btn--white" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6 6.5C6 5.1 7.1 4 8.5 4h7C17.9 4 19 5.1 19 6.5v6.2c0 1.4-1.1 2.5-2.5 2.5H12l-4.5 3v-3H8.5C7.1 15.2 6 14.1 6 12.7V6.5z" fill="currentColor"/>
               </svg>

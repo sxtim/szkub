@@ -718,9 +718,20 @@ a {
 
 .hero-main {
   position: relative;
+  display: block;
   width: 100%;
   height: 487px;
   overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+.hero-main > img,
+.hero-card > img,
+.hero-banner > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .hero-main__overlay {
   position: absolute;
@@ -756,9 +767,12 @@ a {
 
 .hero-card {
   position: relative;
+  display: block;
   width: 100%;
   overflow: hidden;
   height: 100%;
+  color: inherit;
+  text-decoration: none;
 }
 .hero-card__label {
   position: absolute;
@@ -783,8 +797,11 @@ a {
 
 .hero-banner {
   position: relative;
+  display: block;
   height: 140px;
   overflow: hidden;
+  color: inherit;
+  text-decoration: none;
 }
 .hero-banner__label {
   position: absolute;

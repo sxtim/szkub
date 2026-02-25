@@ -196,19 +196,26 @@
   width: 100%;
   height: auto;
   filter: drop-shadow(0 0 10px rgba(56, 173, 194, 0.35));
+  transition: filter 0.15s ease;
 }
 
 .projects-genplan__overlay path {
   fill: rgba(0, 158, 174, 0.22);
   stroke: var(--gp-accent-strong);
   stroke-width: 4px;
+  stroke-linejoin: round;
   cursor: pointer;
-  transition: fill 0.15s ease, stroke 0.15s ease;
+  transition: fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
 }
 
 .projects-genplan__overlay path:hover {
-  fill: rgba(0, 158, 174, 0.32);
-  stroke: rgba(56, 173, 194, 1);
+  fill: rgba(0, 158, 174, 0.5);
+  stroke: #68f2ff;
+  stroke-width: 5px;
+}
+
+.projects-genplan__scene:has(.projects-genplan__overlay path:hover) .projects-genplan__overlay svg {
+  filter: drop-shadow(0 0 14px rgba(104, 242, 255, 0.7));
 }
 
 .projects-genplan__pins {
@@ -231,6 +238,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: color 0.15s ease;
 }
 
 .projects-genplan__pin-label {
@@ -246,12 +254,27 @@
   font-weight: 500;
   line-height: 16px;
   white-space: nowrap;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .projects-genplan__pin-icon {
   width: 10px;
   height: 8px;
   margin-top: -2px;
+  transition: filter 0.15s ease;
+}
+
+.projects-genplan__scene:has(.projects-genplan__overlay path:hover) .projects-genplan__pin {
+  color: #68f2ff;
+}
+
+.projects-genplan__scene:has(.projects-genplan__overlay path:hover) .projects-genplan__pin-label {
+  border-color: #68f2ff;
+  box-shadow: 0 0 10px rgba(104, 242, 255, 0.45);
+}
+
+.projects-genplan__scene:has(.projects-genplan__overlay path:hover) .projects-genplan__pin-icon {
+  filter: drop-shadow(0 0 6px rgba(104, 242, 255, 0.65));
 }
 
 .projects-genplan__filter {
@@ -1062,7 +1085,7 @@ body.scroll-lock {
   justify-content: space-between;
   padding: 20px 16px 16px;
   height: 144px;
-  border-radius: 8px;
+  border-radius: 2px;
   background: #f6f6f6;
   color: var(--gray-900);
 }
@@ -1135,12 +1158,16 @@ body.scroll-lock {
   gap: 16px;
 }
 
+.projects-call__grid--single {
+  grid-template-columns: 1fr;
+}
+
 .projects-call__tile {
   position: relative;
   display: block;
   height: 136px;
   padding: 20px 16px;
-  border-radius: 8px;
+  border-radius: 2px;
   overflow: hidden;
   cursor: pointer;
 }
@@ -1153,6 +1180,10 @@ body.scroll-lock {
 .projects-call__tile--light {
   background: #fff;
   color: var(--gray-900);
+}
+
+.projects-call__tile--gray {
+  background: #f6f6f6;
 }
 
 .projects-call__text {
