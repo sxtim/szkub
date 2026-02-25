@@ -80,61 +80,6 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
     ),
     false
   );?>
-<? else: ?>
-        <section class="hero">
-  <div class="container">
-    <div class="hero__top">
-      <article class="hero-main">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-2a4f429a-dd52-4323-ae0a-3f1bc0404ebc.png"
-          alt="ЖК Вертикаль"
-        />
-        <div class="hero-main__overlay">
-          <p class="hero-main__title">ЖК Вертикаль старт продаж</p>
-          <p class="hero-main__subtitle">квартиры с видом на водохранилище</p>
-        </div>
-      </article>
-
-      <div class="hero-aside">
-        <article class="hero-card">
-          <img
-            src="<?=SITE_TEMPLATE_PATH?>/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png"
-            alt="Семейная ипотека"
-          />
-          <div class="hero-card__label">
-            Семейная ипотека<br />от 3%
-          </div>
-        </article>
-        <article class="hero-card">
-          <img
-            src="<?=SITE_TEMPLATE_PATH?>/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png"
-            alt="Квартира в рассрочку"
-          />
-          <div class="hero-card__label hero-card__label--tall">
-            Квартира в рассрочку<br />без первоначального взноса
-          </div>
-        </article>
-      </div>
-    </div>
-
-    <div class="hero__bottom">
-      <article class="hero-banner">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-a17e7efd-457c-4226-a2bf-b3322ae1ecbe.png"
-          alt="Варианты отделки"
-        />
-        <div class="hero-banner__label">Варианты отделки</div>
-      </article>
-      <article class="hero-banner">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-e344372e-8660-419b-8537-aa79b5b36e9f.jpg"
-          alt="Спецусловия по коммерции"
-        />
-        <div class="hero-banner__label">Спецусловия по коммерции</div>
-      </article>
-    </div>
-  </div>
-</section>
 <? endif; ?>
 
         <section class="projects" id="projects">

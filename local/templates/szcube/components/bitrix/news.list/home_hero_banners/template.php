@@ -48,8 +48,8 @@ foreach ($arResult["ITEMS"] as $item) {
 		"ID_ATTR" => $this->GetEditAreaId($item["ID"]),
 		"HREF" => $linkUrl,
 		"TARGET" => $linkTarget,
-		"TITLE" => isset($item["NAME"]) ? (string)$item["NAME"] : "",
-		"TEXT" => isset($item["PREVIEW_TEXT"]) ? trim((string)$item["PREVIEW_TEXT"]) : "",
+		"TITLE" => isset($item["~NAME"]) ? (string)$item["~NAME"] : (isset($item["NAME"]) ? (string)$item["NAME"] : ""),
+		"TEXT" => isset($item["~PREVIEW_TEXT"]) ? trim((string)$item["~PREVIEW_TEXT"]) : (isset($item["PREVIEW_TEXT"]) ? trim((string)$item["PREVIEW_TEXT"]) : ""),
 		"IMAGE_SRC" => isset($item["PREVIEW_PICTURE"]["SRC"]) ? (string)$item["PREVIEW_PICTURE"]["SRC"] : "",
 	);
 }
