@@ -6,7 +6,9 @@ CHTTP::SetStatus("404 Not Found");
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 
-$APPLICATION->SetTitle("404 Not Found");
+$APPLICATION->SetPageProperty("robots", "noindex, nofollow");
+$APPLICATION->SetPageProperty("title", "404 — Страница не найдена | КУБ");
+$APPLICATION->SetTitle("Страница не найдена");
 ?>
 
 <div class="breadcrumbs-wrap">
@@ -21,7 +23,7 @@ $APPLICATION->IncludeComponent("bitrix:main.map", ".default", Array(
 	"LEVEL"	=>	"3",
 	"COL_NUM"	=>	"2",
 	"SHOW_DESCRIPTION"	=>	"Y",
-	"SET_TITLE"	=>	"Y",
+	"SET_TITLE"	=>	"N",
 	"CACHE_TIME"	=>	"36000000"
 	)
 );

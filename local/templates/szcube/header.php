@@ -42,6 +42,28 @@ $asset->addJs(SITE_TEMPLATE_PATH . "/js/accordion.js");
 $asset->addString('<link rel="preconnect" href="https://fonts.googleapis.com">');
 $asset->addString('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>');
 $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">');
+
+if (!defined("ERROR_404")) {
+    $canonicalUrl = trim((string)$APPLICATION->GetPageProperty("canonical"));
+    if ($canonicalUrl === "") {
+        $requestUri = (string)($_SERVER["REQUEST_URI"] ?? "/");
+        $canonicalPath = (string)parse_url($requestUri, PHP_URL_PATH);
+        if ($canonicalPath === "") {
+            $canonicalPath = "/";
+        }
+        $canonicalUrl = "https://szcube.ru" . $canonicalPath;
+    } elseif (strpos($canonicalUrl, "http://") !== 0 && strpos($canonicalUrl, "https://") !== 0) {
+        if ($canonicalUrl === "" || $canonicalUrl[0] !== "/") {
+            $canonicalUrl = "/" . ltrim($canonicalUrl, "/");
+        }
+        $canonicalUrl = "https://szcube.ru" . $canonicalUrl;
+    }
+
+    $asset->addString(
+        '<link rel="canonical" href="' . htmlspecialchars($canonicalUrl, ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8") . '">',
+        true
+    );
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">

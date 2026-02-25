@@ -1,7 +1,7 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Главная");
-$APPLICATION->SetPageProperty("title", "КУБ — сайт");
+$APPLICATION->SetPageProperty("title", "СЗ КУБ — застройщик в Воронеже | Официальный сайт");
 ?>
 
 <div class="breadcrumbs-wrap">
@@ -9,6 +9,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
     <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/breadcrumbs.php"; ?>
   </div>
 </div>
+<h1 class="visually-hidden">СЗ КУБ — застройщик в Воронеже</h1>
 <?php
 $homeHeroBannersIblockType = "content";
 $homeHeroBannersIblockCode = "home_banners";

@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /bitrix/*.css
+Allow: /bitrix/*.js
+Allow: /bitrix/cache/
+Allow: /upload/
+
+Disallow: /bitrix/
+Disallow: /search/
+Disallow: /local/tools/
+Disallow: /local/ajax/
+Disallow: /*?*
+
+Host: szcube.ru
+Sitemap: https://szcube.ru/sitemap.xml
