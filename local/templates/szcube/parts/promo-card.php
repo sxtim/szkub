@@ -43,7 +43,8 @@ if ($zhkLabel !== "") {
 			<? endif; ?>
 		</div>
 	<? else: ?>
-		<div class="promo-card__overlay promo-card__overlay--full">
+		<div class="promo-card__overlay promo-card__overlay--full"></div>
+		<div class="promo-card__text promo-card__text--left">
 			<p><?= htmlspecialcharsbx($title) ?></p>
 			<? if (!empty($labels)): ?>
 				<div class="promo-card__labels">
@@ -55,4 +56,3 @@ if ($zhkLabel !== "") {
 		</div>
 	<? endif; ?>
 </a>
-

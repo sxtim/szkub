@@ -32,7 +32,7 @@ $showCta = isset($articleHeroShowCta) ? (bool)$articleHeroShowCta : false;
 
                 <? if ($showCta): ?>
                     <div class="article-hero__cta">
-                        <button class="btn btn--primary" type="button" data-contact-open="contact" data-contact-title="Получить консультацию">Получить консультацию</button>
+                        <button class="btn btn--primary" type="button" data-contact-open="contact" data-contact-title="Получить консультацию" data-contact-type="consulting" data-contact-source="article_hero">Получить консультацию</button>
                     </div>
                 <? endif; ?>
 

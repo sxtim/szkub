@@ -24,10 +24,28 @@
   font-size: 15px;
   color: var(--gray-800);
 }
+.contact-form__input.is-invalid {
+  border-color: #c53333;
+}
+.contact-form__message {
+  margin: -4px 0 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.contact-form__message[data-state="error"] {
+  color: #c53333;
+}
+.contact-form__message[data-state="success"] {
+  color: #1f7a45;
+}
 .contact-form__submit {
   width: 100%;
   height: 46px;
   border-radius: 2px;
+}
+.contact-form__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 .contact-form__agree {
   font-size: 12px;
@@ -40,4 +58,7 @@
 .contact-form__agree input {
   margin-top: 3px;
   flex: 0 0 auto;
+}
+.contact-form__agree.is-invalid {
+  color: #c53333;
 }

@@ -124,7 +124,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
             
           </div>
           <div class="project-card__footer">
-          <span class="project-card__sale-count">173 квартиры</span>
+          <span class="project-card__sale-count">22 квартиры</span>
             <span class="project-card__price">от 6 756 809 р.</span>
           </div>
         </div>
@@ -138,7 +138,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
           />
           <div class="project-card__tags">
             <span class="tag tag--solid">Комфорт +</span>
-            <span class="tag tag--outline">527 квартир</span>
+            <span class="tag tag--outline">110 квартир</span>
           </div>
         </div>
         <div class="project-card__content">
@@ -525,7 +525,12 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
         </details>
       </div>
 
-      <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php"; ?>
+      <?php
+      $contactFormLeadType = "callback";
+      $contactFormLeadSource = "home_inline";
+      include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php";
+      unset($contactFormLeadType, $contactFormLeadSource);
+      ?>
     </div>
   </div>
 </section>

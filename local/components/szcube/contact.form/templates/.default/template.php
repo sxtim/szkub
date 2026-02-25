@@ -9,6 +9,8 @@ $title = isset($arResult["TITLE"]) ? (string)$arResult["TITLE"] : "Остали�
 $contactFormId = "contact-form-modal";
 $contactFormTitle = $title;
 $contactFormTitleAttr = 'data-contact-modal-title';
+$contactFormLeadType = "callback";
+$contactFormLeadSource = "modal";
 ?>
 
 <div class="contact-modal" data-contact-modal="<?= htmlspecialcharsbx($modalId) ?>" aria-hidden="true">

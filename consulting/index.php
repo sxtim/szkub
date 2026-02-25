@@ -102,7 +102,12 @@ $APPLICATION->SetPageProperty("title", "Консалтинг — КУБ");
         </p>
       </div>
       <div class="consulting-form__fields consulting-form__fields--no-title">
-        <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php"; ?>
+        <?php
+        $contactFormLeadType = "consulting";
+        $contactFormLeadSource = "consulting_inline";
+        include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php";
+        unset($contactFormLeadType, $contactFormLeadSource);
+        ?>
       </div>
     </div>
   </div>

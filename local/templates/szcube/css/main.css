@@ -243,7 +243,7 @@ a {
   height: fit-content;
   max-height: calc(100% - 32px);
   background: var(--white);
-  border-radius: 12px;
+  border-radius: 2px;
   padding: 28px;
   overflow: auto;
   transform: translateY(10px) scale(0.98);
@@ -1590,7 +1590,7 @@ a {
   position: absolute;
   left: 0;
   color: var(--white);
-  padding: 20px 36px;
+  padding: 10px 15px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1627,15 +1627,22 @@ a {
 
 .promo-card__text {
   position: absolute;
-  left: 36px;
-  top: calc(100% - var(--promo-overlay-height) + 20px);
+  left: 0;
+  top: calc(100% - var(--promo-overlay-height));
   width: 50%;
+  padding: 10px 15px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 6px;
   color: var(--white);
   z-index: 2;
   pointer-events: none;
+}
+
+.promo-card__text--left {
+  top: 0;
+  width: 50%;
 }
 
 .promo-card__labels {
@@ -1748,7 +1755,7 @@ a {
     left: 0;
     top: 0;
     width: 50%;
-    padding: 20px 36px;
+    padding: 10px 15px;
   }
 }
 @media (max-width: 768px) {
@@ -1763,6 +1770,9 @@ a {
   }
   .promo-card__overlay--full,
   .promo-card__overlay--split {
+    width: 100%;
+  }
+  .promo-card__text--left {
     width: 100%;
   }
   .promo-card--right .promo-card__text {
