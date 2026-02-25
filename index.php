@@ -9,6 +9,78 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
     <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/breadcrumbs.php"; ?>
   </div>
 </div>
+<?php
+$homeHeroBannersIblockType = "content";
+$homeHeroBannersIblockCode = "home_banners";
+$homeHeroBannersIblockId = 0;
+if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
+  $iblockRes = CIBlock::GetList(
+    array(),
+    array(
+      "TYPE" => $homeHeroBannersIblockType,
+      "=CODE" => $homeHeroBannersIblockCode,
+      "ACTIVE" => "Y",
+    ),
+    false
+  );
+  if ($iblock = $iblockRes->Fetch()) {
+    $homeHeroBannersIblockId = (int)$iblock["ID"];
+  }
+}
+?>
+<? if ($homeHeroBannersIblockId > 0): ?>
+  <?$APPLICATION->IncludeComponent(
+    "bitrix:news.list",
+    "home_hero_banners",
+    array(
+      "IBLOCK_TYPE" => $homeHeroBannersIblockType,
+      "IBLOCK_ID" => $homeHeroBannersIblockId,
+      "NEWS_COUNT" => "10",
+      "SORT_BY1" => "SORT",
+      "SORT_ORDER1" => "ASC",
+      "SORT_BY2" => "ACTIVE_FROM",
+      "SORT_ORDER2" => "DESC",
+      "FIELD_CODE" => array(
+        0 => "NAME",
+        1 => "PREVIEW_TEXT",
+        2 => "PREVIEW_PICTURE",
+        3 => "",
+      ),
+      "PROPERTY_CODE" => array(
+        0 => "SLOT",
+        1 => "LINK_URL",
+        2 => "LINK_TARGET",
+        3 => "",
+      ),
+      "CHECK_DATES" => "Y",
+      "CACHE_TYPE" => "A",
+      "CACHE_TIME" => "36000000",
+      "CACHE_FILTER" => "N",
+      "CACHE_GROUPS" => "Y",
+      "SET_TITLE" => "N",
+      "SET_BROWSER_TITLE" => "N",
+      "SET_META_KEYWORDS" => "N",
+      "SET_META_DESCRIPTION" => "N",
+      "SET_LAST_MODIFIED" => "N",
+      "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+      "ADD_SECTIONS_CHAIN" => "N",
+      "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+      "DISPLAY_DATE" => "N",
+      "DISPLAY_NAME" => "N",
+      "DISPLAY_PICTURE" => "N",
+      "DISPLAY_PREVIEW_TEXT" => "N",
+      "PARENT_SECTION" => "",
+      "PARENT_SECTION_CODE" => "",
+      "STRICT_SECTION_CHECK" => "N",
+      "DETAIL_URL" => "",
+      "DISPLAY_TOP_PAGER" => "N",
+      "DISPLAY_BOTTOM_PAGER" => "N",
+      "PAGER_SHOW_ALWAYS" => "N",
+      "PAGER_TEMPLATE" => "",
+    ),
+    false
+  );?>
+<? else: ?>
         <section class="hero">
   <div class="container">
     <div class="hero__top">
@@ -63,6 +135,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
     </div>
   </div>
 </section>
+<? endif; ?>
 
         <section class="projects" id="projects">
   <div class="container">
@@ -91,7 +164,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
     ?>
 
     <div class="projects__cards">
-      <article class="project-card">
+      <a class="project-card" href="https://xn--e1abhgabfaz8fye.xn--p1ai/">
         <div class="project-card__image">
           <img
             src="<?=SITE_TEMPLATE_PATH?>/img/photo_5467741080506797884_y.jpg"
@@ -128,7 +201,7 @@ $APPLICATION->SetPageProperty("title", "КУБ — сайт");
             <span class="project-card__price">от 6 756 809 р.</span>
           </div>
         </div>
-      </article>
+      </a>
 
       <article class="project-card">
         <div class="project-card__image">
