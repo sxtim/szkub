@@ -3,20 +3,71 @@ define("PROJECTS_PAGE", true);
 define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 
-$projects = array(
-  "kollekciya" => array(
-    "name" => "Коллекция",
-  ),
-  "vertical" => array(
-    "name" => "Вертикаль",
-  ),
-  "krasnoznamennaya" => array(
-    "name" => "Краснознаменная",
-  ),
+$projectsIblockType = "content";
+$projectsIblockCode = "projects";
+$projectsIblockId = 0;
+
+$fallbackProjects = array(
+	"kollekciya" => array("name" => "Коллекция"),
+	"vertical" => array("name" => "Вертикаль"),
+	"krasnoznamennaya" => array("name" => "Краснознаменная"),
 );
 
 $code = isset($_REQUEST["code"]) ? trim((string)$_REQUEST["code"]) : "";
-$project = $code !== "" && isset($projects[$code]) ? $projects[$code] : null;
+$code = preg_replace("/[^a-z0-9_-]/i", "", $code);
+$project = null;
+
+if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
+	$iblockRes = CIBlock::GetList(
+		array(),
+		array(
+			"TYPE" => $projectsIblockType,
+			"=CODE" => $projectsIblockCode,
+			"ACTIVE" => "Y",
+		),
+		false
+	);
+	if ($iblock = $iblockRes->Fetch()) {
+		$projectsIblockId = (int)$iblock["ID"];
+	}
+
+	if ($projectsIblockId > 0) {
+		$projectRes = CIBlockElement::GetList(
+			array(),
+			array(
+				"IBLOCK_ID" => $projectsIblockId,
+				"=CODE" => $code,
+				"ACTIVE" => "Y",
+			),
+			false,
+			false,
+			array(
+				"ID",
+				"NAME",
+				"CODE",
+				"PREVIEW_TEXT",
+				"DETAIL_TEXT",
+				"PREVIEW_PICTURE",
+				"DETAIL_PICTURE",
+			)
+		);
+		if ($projectElement = $projectRes->GetNextElement()) {
+			$projectFields = $projectElement->GetFields();
+			$projectProperties = $projectElement->GetProperties();
+			$project = array(
+				"id" => (int)$projectFields["ID"],
+				"name" => (string)$projectFields["NAME"],
+				"code" => (string)$projectFields["CODE"],
+				"fields" => $projectFields,
+				"properties" => $projectProperties,
+			);
+		}
+	}
+}
+
+if ($project === null && $code !== "" && isset($fallbackProjects[$code])) {
+	$project = $fallbackProjects[$code];
+}
 
 if (!$project) {
   CHTTP::SetStatus("404 Not Found");

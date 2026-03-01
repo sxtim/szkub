@@ -1427,6 +1427,7 @@ a {
     transform: translateY(-1px);
   }
 }
+
 @media (max-width: 1280px) {
   .filters {
     flex-direction: column;
