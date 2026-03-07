@@ -3,14 +3,13 @@ define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Проекты");
 
-$projectsIblockType = "content";
+$projectsIblockType = "";
 $projectsIblockCode = "projects";
 $projectsIblockId = 0;
 if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
 	$iblockRes = CIBlock::GetList(
 		array(),
 		array(
-			"TYPE" => $projectsIblockType,
 			"=CODE" => $projectsIblockCode,
 			"ACTIVE" => "Y",
 		),
@@ -18,6 +17,7 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
 	);
 	if ($iblock = $iblockRes->Fetch()) {
 		$projectsIblockId = (int)$iblock["ID"];
+		$projectsIblockType = (string)$iblock["IBLOCK_TYPE_ID"];
 	}
 }
 ?>

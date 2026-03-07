@@ -179,19 +179,26 @@ foreach ($items as $item) {
 		continue;
 	}
 
-	$fields["PROPERTY_VALUES"] = $propertyValues;
-
 	if ($existingId > 0) {
 		if (!$el->Update($existingId, $fields)) {
 			$errors[] = "Update failed for " . $code . ": " . $el->LAST_ERROR;
 			continue;
 		}
+		if (!empty($propertyValues)) {
+			CIBlockElement::SetPropertyValuesEx($existingId, $iblockId, $propertyValues);
+		}
 		$updated++;
 	} else {
+		if (!empty($propertyValues)) {
+			$fields["PROPERTY_VALUES"] = $propertyValues;
+		}
 		$newId = $el->Add($fields);
 		if (!$newId) {
 			$errors[] = "Create failed for " . $code . ": " . $el->LAST_ERROR;
 			continue;
+		}
+		if (!empty($propertyValues)) {
+			CIBlockElement::SetPropertyValuesEx((int)$newId, $iblockId, $propertyValues);
 		}
 		$created++;
 	}
@@ -207,4 +214,3 @@ if (!empty($errors)) {
 }
 
 exit(0);
-

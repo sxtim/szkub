@@ -27,7 +27,7 @@ if (PHP_SAPI === "cli") {
 	));
 
 	if (isset($options["help"])) {
-		echo "Usage: php local/tools/create_projects_iblock.php [--site-id=s1] [--type-id=content] [--iblock-code=projects]\n";
+		echo "Usage: php local/tools/create_projects_iblock.php [--site-id=s1] [--type-id=realty] [--iblock-code=projects]\n";
 		exit(0);
 	}
 
@@ -55,7 +55,7 @@ if (!\Bitrix\Main\Loader::includeModule("iblock")) {
 }
 
 $siteId = isset($_REQUEST["site_id"]) && $_REQUEST["site_id"] !== "" ? (string)$_REQUEST["site_id"] : "s1";
-$typeId = isset($_REQUEST["type_id"]) && $_REQUEST["type_id"] !== "" ? (string)$_REQUEST["type_id"] : "content";
+$typeId = isset($_REQUEST["type_id"]) && $_REQUEST["type_id"] !== "" ? (string)$_REQUEST["type_id"] : "realty";
 $iblockCode = isset($_REQUEST["iblock_code"]) && $_REQUEST["iblock_code"] !== "" ? (string)$_REQUEST["iblock_code"] : "projects";
 $iblockName = isset($_REQUEST["iblock_name"]) && $_REQUEST["iblock_name"] !== "" ? (string)$_REQUEST["iblock_name"] : "Проекты";
 
@@ -74,10 +74,13 @@ if (!$typeExists) {
 }
 
 $iblockId = 0;
-$iblockRes = CIBlock::GetList(array(), array("TYPE" => $typeId, "=CODE" => $iblockCode), false);
+$iblockRes = CIBlock::GetList(array(), array("=CODE" => $iblockCode), false);
 if ($row = $iblockRes->Fetch()) {
 	$iblockId = (int)$row["ID"];
 	echo "[OK] IBlock exists: ID=" . $iblockId . ", NAME=" . $row["NAME"] . PHP_EOL;
+	if ((string)$row["IBLOCK_TYPE_ID"] !== $typeId) {
+		echo "[WARN] Existing IBlock type is '" . $row["IBLOCK_TYPE_ID"] . "', requested '" . $typeId . "'. Using existing IBlock." . PHP_EOL;
+	}
 } else {
 	$ib = new CIBlock();
 	$iblockFields = array(
@@ -172,6 +175,91 @@ $requiredProperties = array(
 		"SORT" => 160,
 		"MULTIPLE" => "N",
 	),
+);
+
+$requiredProperties[] = array(
+	"CODE" => "ABOUT_IMAGE",
+	"NAME" => "Деталка: Фото главного блока",
+	"PROPERTY_TYPE" => "F",
+	"SORT" => 300,
+	"MULTIPLE" => "N",
+);
+$requiredProperties[] = array(
+	"CODE" => "ABOUT_TITLE_SUFFIX",
+	"NAME" => "Деталка: Заголовок (вторая строка)",
+	"PROPERTY_TYPE" => "S",
+	"SORT" => 301,
+	"MULTIPLE" => "N",
+);
+$requiredProperties[] = array(
+	"CODE" => "ABOUT_TEXT_1",
+	"NAME" => "Деталка: Описание, абзац 1",
+	"PROPERTY_TYPE" => "S",
+	"SORT" => 302,
+	"MULTIPLE" => "N",
+);
+$requiredProperties[] = array(
+	"CODE" => "ABOUT_TEXT_2",
+	"NAME" => "Деталка: Описание, абзац 2",
+	"PROPERTY_TYPE" => "S",
+	"SORT" => 303,
+	"MULTIPLE" => "N",
+);
+$requiredProperties[] = array(
+	"CODE" => "ABOUT_TEXT_3",
+	"NAME" => "Деталка: Описание, абзац 3",
+	"PROPERTY_TYPE" => "S",
+	"SORT" => 304,
+	"MULTIPLE" => "N",
+);
+
+for ($i = 1; $i <= 4; $i++) {
+	$requiredProperties[] = array(
+		"CODE" => "ABOUT_F" . $i . "_LABEL",
+		"NAME" => "Деталка: Первый блок, карточка " . $i . " — верхний текст",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 320 + ($i * 2 - 1),
+		"MULTIPLE" => "N",
+	);
+	$requiredProperties[] = array(
+		"CODE" => "ABOUT_F" . $i . "_VALUE",
+		"NAME" => "Деталка: Первый блок, карточка " . $i . " — заголовок",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 320 + ($i * 2),
+		"MULTIPLE" => "N",
+	);
+}
+
+for ($i = 1; $i <= 3; $i++) {
+	$requiredProperties[] = array(
+		"CODE" => "EXTRA" . $i . "_TITLE",
+		"NAME" => "Деталка: Кроме квартир, карточка " . $i . " — заголовок",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 600 + ($i - 1) * 3,
+		"MULTIPLE" => "N",
+	);
+	$requiredProperties[] = array(
+		"CODE" => "EXTRA" . $i . "_IMAGE",
+		"NAME" => "Деталка: Кроме квартир, карточка " . $i . " — фото",
+		"PROPERTY_TYPE" => "F",
+		"SORT" => 601 + ($i - 1) * 3,
+		"MULTIPLE" => "N",
+	);
+	$requiredProperties[] = array(
+		"CODE" => "EXTRA" . $i . "_URL",
+		"NAME" => "Деталка: Кроме квартир, карточка " . $i . " — ссылка",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 602 + ($i - 1) * 3,
+		"MULTIPLE" => "N",
+	);
+}
+
+$requiredProperties[] = array(
+	"CODE" => "CONSTRUCTION_SUBTITLE",
+	"NAME" => "Деталка: Ход строительства — подпись под заголовком",
+	"PROPERTY_TYPE" => "S",
+	"SORT" => 700,
+	"MULTIPLE" => "N",
 );
 
 foreach ($requiredProperties as $propertyDef) {

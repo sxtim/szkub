@@ -1,0 +1,207 @@
+{
+    "created_at": "2026-03-05T18:42:21+03:00",
+    "projects_iblock_code": "projects",
+    "projects_iblock_id": 10,
+    "iblock_codes": [
+        "project_advantages",
+        "project_construction",
+        "project_documents"
+    ],
+    "iblocks": {
+        "project_advantages": {
+            "iblock_id": 11,
+            "iblock_name": "Преимущества ЖК",
+            "before_sections_mode": "",
+            "before_section_chooser": "L",
+            "before_section_ids": [
+                8,
+                9,
+                10
+            ],
+            "element_sections_before": {
+                "75": [
+                    8
+                ],
+                "76": [
+                    8
+                ],
+                "77": [
+                    8
+                ],
+                "78": [
+                    8
+                ],
+                "79": [
+                    8
+                ],
+                "80": [
+                    8
+                ],
+                "81": [
+                    8
+                ],
+                "82": [
+                    8
+                ],
+                "89": [
+                    9
+                ],
+                "90": [
+                    9
+                ],
+                "91": [
+                    9
+                ],
+                "92": [
+                    9
+                ],
+                "93": [
+                    9
+                ],
+                "94": [
+                    9
+                ],
+                "95": [
+                    9
+                ],
+                "96": [
+                    9
+                ],
+                "103": [
+                    10
+                ],
+                "104": [
+                    10
+                ],
+                "105": [
+                    10
+                ],
+                "106": [
+                    10
+                ],
+                "107": [
+                    10
+                ],
+                "108": [
+                    10
+                ],
+                "109": [
+                    10
+                ],
+                "110": [
+                    10
+                ]
+            },
+            "created_section_ids": []
+        },
+        "project_construction": {
+            "iblock_id": 12,
+            "iblock_name": "Ход строительства ЖК",
+            "before_sections_mode": "",
+            "before_section_chooser": "L",
+            "before_section_ids": [
+                11,
+                12,
+                13
+            ],
+            "element_sections_before": {
+                "83": [
+                    11
+                ],
+                "84": [
+                    11
+                ],
+                "85": [
+                    11
+                ],
+                "86": [
+                    11
+                ],
+                "87": [
+                    11
+                ],
+                "88": [
+                    11
+                ],
+                "97": [
+                    12
+                ],
+                "98": [
+                    12
+                ],
+                "99": [
+                    12
+                ],
+                "100": [
+                    12
+                ],
+                "101": [
+                    12
+                ],
+                "102": [
+                    12
+                ],
+                "111": [
+                    13
+                ],
+                "112": [
+                    13
+                ],
+                "113": [
+                    13
+                ],
+                "114": [
+                    13
+                ],
+                "115": [
+                    13
+                ],
+                "116": [
+                    13
+                ]
+            },
+            "created_section_ids": []
+        },
+        "project_documents": {
+            "iblock_id": 13,
+            "iblock_name": "Документы ЖК",
+            "before_sections_mode": "",
+            "before_section_chooser": "L",
+            "before_section_ids": [
+                14,
+                15,
+                16
+            ],
+            "element_sections_before": {
+                "117": [
+                    14
+                ],
+                "118": [
+                    14
+                ],
+                "119": [
+                    14
+                ],
+                "120": [
+                    15
+                ],
+                "121": [
+                    15
+                ],
+                "122": [
+                    15
+                ],
+                "123": [
+                    16
+                ],
+                "124": [
+                    16
+                ],
+                "125": [
+                    16
+                ]
+            },
+            "created_section_ids": []
+        }
+    }
+}

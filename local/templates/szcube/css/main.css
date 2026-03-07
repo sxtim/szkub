@@ -1520,9 +1520,12 @@ a {
 }
 
 .extra-card {
+  display: block;
   position: relative;
   height: 266px;
   overflow: hidden;
+  text-decoration: none;
+  color: inherit;
 }
 .extra-card__title {
   position: absolute;

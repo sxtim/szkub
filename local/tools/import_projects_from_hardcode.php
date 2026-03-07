@@ -108,6 +108,51 @@ function importProjectsMakeFileArray($imagePath)
 	return CFile::MakeFileArray($absPath);
 }
 
+function importProjectsBuildDetailDefaults($item)
+{
+	$projectName = isset($item["title"]) ? trim((string)$item["title"]) : "";
+	$projectImage = isset($item["image"]) ? trim((string)$item["image"]) : "";
+	$deliveryText = isset($item["delivery_text"]) ? trim((string)$item["delivery_text"]) : "";
+
+	$defaults = array(
+		"ABOUT_TITLE_SUFFIX" => "ВАША СУПЕРСИЛА",
+		"ABOUT_TEXT_1" => "ЖК «" . $projectName . "» — современный жилой комплекс с продуманной архитектурой и комфортной средой для жизни.",
+		"ABOUT_TEXT_2" => "Рядом с домом находятся ключевые объекты инфраструктуры: магазины, школы, детские сады и общественные пространства.",
+		"ABOUT_TEXT_3" => "Удобная транспортная доступность позволяет быстро добираться до деловых и торговых центров города.",
+		"ABOUT_F1_LABEL" => "Высокая ликвидность",
+		"ABOUT_F1_VALUE" => "Бизнес‑класс, мультиформат",
+		"ABOUT_F2_LABEL" => "Благоустройство",
+		"ABOUT_F2_VALUE" => "Двор‑парк и зоны отдыха",
+		"ABOUT_F3_LABEL" => "Сервис",
+		"ABOUT_F3_VALUE" => "Поддержка 24/7",
+		"ABOUT_F4_LABEL" => "Инфраструктура",
+		"ABOUT_F4_VALUE" => "Школы, сад и магазины рядом",
+		"CONSTRUCTION_SUBTITLE" => $deliveryText !== "" ? "Сдача " . $deliveryText : "Сдача в IV кв. 2026",
+	);
+
+	$aboutImage = importProjectsMakeFileArray($projectImage);
+	if ($aboutImage !== false) {
+		$defaults["ABOUT_IMAGE"] = $aboutImage;
+	}
+
+	$extraCards = array(
+		array("title" => "Коммерция", "image" => SITE_TEMPLATE_PATH . "/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png", "url" => "/commerce/"),
+		array("title" => "Паркинг", "image" => SITE_TEMPLATE_PATH . "/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png", "url" => "/parking/"),
+		array("title" => "Кладовые", "image" => SITE_TEMPLATE_PATH . "/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png", "url" => "/storerooms/"),
+	);
+	foreach ($extraCards as $extraIndex => $extraCard) {
+		$i = $extraIndex + 1;
+		$defaults["EXTRA" . $i . "_TITLE"] = $extraCard["title"];
+		$defaults["EXTRA" . $i . "_URL"] = $extraCard["url"];
+		$extraImage = importProjectsMakeFileArray($extraCard["image"]);
+		if ($extraImage !== false) {
+			$defaults["EXTRA" . $i . "_IMAGE"] = $extraImage;
+		}
+	}
+
+	return $defaults;
+}
+
 $el = new CIBlockElement();
 $created = 0;
 $updated = 0;
@@ -167,6 +212,11 @@ foreach ($items as $item) {
 		$rooms[] = trim((string)$roomsRaw);
 	}
 	$propertyValues["ROOMS_IN_SALE"] = !empty($rooms) ? $rooms : false;
+
+	$detailDefaults = importProjectsBuildDetailDefaults($item);
+	foreach ($detailDefaults as $detailCode => $detailValue) {
+		$propertyValues[$detailCode] = $detailValue;
+	}
 
 	$existingId = 0;
 	$res = CIBlockElement::GetList(
