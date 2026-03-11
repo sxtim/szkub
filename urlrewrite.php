@@ -19,6 +19,12 @@ $arUrlRewrite = array(
 		"PATH"	=>	"/news/index.php",
 	),
 	array(
+		"CONDITION"	=>	"#^/apartments/([^/]+?)/?$#",
+		"RULE"	=>	"code=$1",
+		"ID"	=>	"",
+		"PATH"	=>	"/apartments/detail.php",
+	),
+	array(
 		"CONDITION"	=>	"#^/projects/([^/]+?)/?$#",
 		"RULE"	=>	"code=$1",
 		"ID"	=>	"",

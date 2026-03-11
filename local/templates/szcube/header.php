@@ -20,6 +20,12 @@ if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
+if (defined("APARTMENT_DETAIL_PAGE") && APARTMENT_DETAIL_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-detail.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/swiper-bundle.min.js");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-detail.js");
+}
 if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/projects.css");

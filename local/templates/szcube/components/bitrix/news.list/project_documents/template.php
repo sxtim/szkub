@@ -62,8 +62,12 @@ if (empty($items)) {
 							<? endif; ?>
 						</div>
 						<div class="projects-docs__cardIcon" aria-hidden="true">
-							<svg class="projects-docs__iconItem" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M4.66667 4.00016V2.00016C4.66667 1.82335 4.7369 1.65378 4.86193 1.52876C4.98695 1.40373 5.15652 1.3335 5.33333 1.3335H13.3333C13.5101 1.3335 13.6797 1.40373 13.8047 1.52876C13.9298 1.65378 14 1.82335 14 2.00016V11.3335C14 11.5103 13.9298 11.6799 13.8047 11.8049C13.6797 11.9299 13.5101 12.0002 13.3333 12.0002H11.3333V14.0002C11.3333 14.3682 11.0333 14.6668 10.662 14.6668H2.67133C2.58342 14.6674 2.49626 14.6505 2.41488 14.6172C2.3335 14.584 2.25949 14.535 2.19711 14.473C2.13472 14.4111 2.0852 14.3374 2.05137 14.2563C2.01754 14.1751 2.00009 14.0881 2 14.0002L2.002 4.66683C2.002 4.29883 2.302 4.00016 2.67333 4.00016H4.66667ZM6 4.00016H11.3333V10.6668H12.6667V2.66683H6V4.00016ZM4.66667 7.3335V8.66683H8.66667V7.3335H4.66667ZM4.66667 10.0002V11.3335H8.66667V10.0002H4.66667Z" fill="currentColor"></path>
+							<svg class="projects-docs__iconItem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M4 21.4V2.6C4 2.26863 4.26863 2 4.6 2H16.2515C16.4106 2 16.5632 2.06321 16.6757 2.17574L19.8243 5.32426C19.9368 5.43679 20 5.5894 20 5.74853V21.4C20 21.7314 19.7314 22 19.4 22H4.6C4.26863 22 4 21.7314 4 21.4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<path d="M8 10L16 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<path d="M8 18L16 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<path d="M8 14L12 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<path d="M16 2V5.4C16 5.73137 16.2686 6 16.6 6H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
 							</svg>
 							<svg class="projects-docs__iconItem projects-docs__iconItemMobile" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
