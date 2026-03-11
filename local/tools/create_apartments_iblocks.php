@@ -459,6 +459,8 @@ $apartmentsProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 110,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 20,
 	),
 	array(
 		"CODE" => "ENTRANCE",
@@ -467,6 +469,8 @@ $apartmentsProperties = array(
 		"SORT" => 120,
 		"MULTIPLE" => "N",
 		"IS_REQUIRED" => "Y",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 20,
 	),
 	array(
 		"CODE" => "FLOOR",
@@ -490,6 +494,8 @@ $apartmentsProperties = array(
 		"SORT" => 150,
 		"MULTIPLE" => "N",
 		"IS_REQUIRED" => "Y",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 20,
 	),
 	array(
 		"CODE" => "ROOMS",
@@ -498,6 +504,8 @@ $apartmentsProperties = array(
 		"SORT" => 160,
 		"MULTIPLE" => "N",
 		"IS_REQUIRED" => "Y",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 20,
 	),
 	array(
 		"CODE" => "AREA_TOTAL",
@@ -562,6 +570,8 @@ $apartmentsProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 240,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 60,
 	),
 	array(
 		"CODE" => "FINISH",
@@ -569,6 +579,8 @@ $apartmentsProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 250,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 50,
 	),
 	array(
 		"CODE" => "CEILING",
@@ -583,6 +595,8 @@ $apartmentsProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 270,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 4,
+		"COL_COUNT" => 90,
 	),
 	array(
 		"CODE" => "WINDOW_SIDES",
@@ -590,6 +604,8 @@ $apartmentsProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 280,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 50,
 	),
 	array(
 		"CODE" => "BALCONY_TYPE",
@@ -597,6 +613,8 @@ $apartmentsProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 290,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 60,
 	),
 	array(
 		"CODE" => "BATHROOMS",
@@ -611,6 +629,8 @@ $apartmentsProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 310,
 		"MULTIPLE" => "Y",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 60,
 	),
 	array(
 		"CODE" => "PLAN_IMAGE",
@@ -793,6 +813,8 @@ $flatMediaProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 120,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 60,
 	),
 	array(
 		"CODE" => "BEARING",
@@ -807,6 +829,8 @@ $flatMediaProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 140,
 		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
 	),
 );
 
