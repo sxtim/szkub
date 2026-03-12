@@ -24,12 +24,13 @@ define("DisableEventsCheck", true);
 
 if (PHP_SAPI === "cli") {
 	$options = getopt("", array(
+		"codes::",
 		"dry-run::",
 		"help::",
 	));
 
 	if (isset($options["help"])) {
-		echo "Usage: php local/tools/tune_iblock_property_form_sizes.php [--dry-run=1]\n";
+			echo "Usage: php local/tools/tune_iblock_property_form_sizes.php [--codes=apartments] [--dry-run=1]\n";
 		exit(0);
 	}
 
@@ -57,8 +58,13 @@ if (!\Bitrix\Main\Loader::includeModule("iblock")) {
 }
 
 $dryRun = !isset($_REQUEST["dry_run"]) || (string)$_REQUEST["dry_run"] === "" || (string)$_REQUEST["dry_run"] === "1" || strtolower((string)$_REQUEST["dry_run"]) === "y";
+$codesRaw = isset($_REQUEST["codes"]) && $_REQUEST["codes"] !== "" ? (string)$_REQUEST["codes"] : "apartments";
+$targetCodes = array_values(array_filter(array_map("trim", explode(",", $codesRaw)), static function ($item) {
+	return $item !== "";
+}));
 
 echo "dry-run: " . ($dryRun ? "Y" : "N") . PHP_EOL;
+echo "codes: " . implode(", ", $targetCodes) . PHP_EOL;
 
 function findIblockByCodeForTune($code)
 {
@@ -202,14 +208,29 @@ $matrix = array(
 		"WINDOW_SIDES" => array("ROW_COUNT" => 1, "COL_COUNT" => 50),
 		"BALCONY_TYPE" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
 		"FEATURE_TAGS" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
-	),
-	"flat_media" => array(
-		"LABEL" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
-		"ALT_TEXT" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"PLAN_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"PLAN_TEXT" => array("ROW_COUNT" => 4, "COL_COUNT" => 90),
+		"PLAN_ALT" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"FLOOR_SLIDE_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"FLOOR_SLIDE_TEXT" => array("ROW_COUNT" => 4, "COL_COUNT" => 90),
+		"FLOOR_SLIDE_ALT" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"BUILDING_SLIDE_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"BUILDING_SLIDE_TEXT" => array("ROW_COUNT" => 4, "COL_COUNT" => 90),
+		"BUILDING_SLIDE_ALT" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"VIEW_SLIDE_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"VIEW_SLIDE_TEXT" => array("ROW_COUNT" => 4, "COL_COUNT" => 90),
+		"VIEW_SLIDE_ALT" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"RENDER_SLIDE_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
+		"RENDER_SLIDE_TEXT" => array("ROW_COUNT" => 4, "COL_COUNT" => 90),
+		"RENDER_SLIDE_ALT" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
 	),
 );
 
 foreach ($matrix as $iblockCode => $properties) {
+	if (!in_array($iblockCode, $targetCodes, true)) {
+		continue;
+	}
+
 	echo PHP_EOL . "[IBLOCK] " . $iblockCode . PHP_EOL;
 	foreach ($properties as $propertyCode => $sizeDef) {
 		if (!syncPropertyFormSize($iblockCode, $propertyCode, $sizeDef, $dryRun)) {

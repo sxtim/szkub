@@ -3,10 +3,10 @@ define("APARTMENT_DETAIL_PAGE", true);
 define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 
-$planImage = SITE_TEMPLATE_PATH . "/img/apartments/" . rawurlencode("1 этаж 2е 92.8 с антресолью 1.jpg");
-$buildingImage = SITE_TEMPLATE_PATH . "/img/projects/image_15.jpg";
-$viewImage = SITE_TEMPLATE_PATH . "/img/projects/div.image-lazy__image.jpg";
-$floorImage = SITE_TEMPLATE_PATH . "/img/projects/Group.svg";
+$defaultPlanImage = SITE_TEMPLATE_PATH . "/img/apartments/" . rawurlencode("1 этаж 2е 92.8 с антресолью 1.jpg");
+$defaultBuildingImage = SITE_TEMPLATE_PATH . "/img/projects/image_15.jpg";
+$defaultViewImage = SITE_TEMPLATE_PATH . "/img/projects/div.image-lazy__image.jpg";
+$defaultFloorImage = SITE_TEMPLATE_PATH . "/img/projects/Group.svg";
 
 if (!function_exists("apartmentDetailAppendFact")) {
 	function apartmentDetailAppendFact(&$facts, $label, $value, $extra = array())
@@ -26,9 +26,282 @@ if (!function_exists("apartmentDetailAppendFact")) {
 	}
 }
 
+if (!function_exists("apartmentDetailLoadProperties")) {
+	function apartmentDetailLoadProperties($iblockId, $elementId)
+	{
+		$result = array();
+		$res = CIBlockElement::GetProperty(
+			(int)$iblockId,
+			(int)$elementId,
+			array("SORT" => "ASC", "ID" => "ASC"),
+			array()
+		);
+		while ($row = $res->Fetch()) {
+			$code = trim((string)$row["CODE"]);
+			if ($code === "") {
+				continue;
+			}
+
+			if (!isset($result[$code])) {
+				$result[$code] = array(
+					"CODE" => $code,
+					"NAME" => isset($row["NAME"]) ? (string)$row["NAME"] : $code,
+					"PROPERTY_TYPE" => isset($row["PROPERTY_TYPE"]) ? (string)$row["PROPERTY_TYPE"] : "",
+					"MULTIPLE" => isset($row["MULTIPLE"]) ? (string)$row["MULTIPLE"] : "N",
+					"VALUE" => $row["MULTIPLE"] === "Y" ? array() : "",
+					"VALUE_XML_ID" => $row["MULTIPLE"] === "Y" ? array() : "",
+					"VALUE_ENUM" => $row["MULTIPLE"] === "Y" ? array() : "",
+					"DESCRIPTION" => $row["MULTIPLE"] === "Y" ? array() : "",
+				);
+			}
+
+			if ($row["MULTIPLE"] === "Y") {
+				$result[$code]["VALUE"][] = $row["VALUE"];
+				$result[$code]["VALUE_XML_ID"][] = $row["VALUE_XML_ID"];
+				$result[$code]["VALUE_ENUM"][] = $row["VALUE_ENUM"];
+				$result[$code]["DESCRIPTION"][] = $row["DESCRIPTION"];
+				continue;
+			}
+
+			$result[$code]["VALUE"] = $row["VALUE"];
+			$result[$code]["VALUE_XML_ID"] = $row["VALUE_XML_ID"];
+			$result[$code]["VALUE_ENUM"] = $row["VALUE_ENUM"];
+			$result[$code]["DESCRIPTION"] = $row["DESCRIPTION"];
+		}
+
+		return $result;
+	}
+}
+
+if (!function_exists("apartmentDetailPropertyScalar")) {
+	function apartmentDetailPropertyScalar($properties, $code, $default = "")
+	{
+		if (!is_array($properties) || !isset($properties[$code])) {
+			return (string)$default;
+		}
+
+		$value = isset($properties[$code]["VALUE"]) ? $properties[$code]["VALUE"] : "";
+		if (is_array($value)) {
+			$value = reset($value);
+		}
+
+		$value = trim((string)$value);
+		return $value !== "" ? $value : (string)$default;
+	}
+}
+
+if (!function_exists("apartmentDetailPropertyEnumXmlId")) {
+	function apartmentDetailPropertyEnumXmlId($properties, $code, $default = "")
+	{
+		if (!is_array($properties) || !isset($properties[$code])) {
+			return (string)$default;
+		}
+
+		$value = isset($properties[$code]["VALUE_XML_ID"]) ? $properties[$code]["VALUE_XML_ID"] : "";
+		if (is_array($value)) {
+			$value = reset($value);
+		}
+
+		$value = trim((string)$value);
+		return $value !== "" ? $value : (string)$default;
+	}
+}
+
+if (!function_exists("apartmentDetailPropertyEnumLabel")) {
+	function apartmentDetailPropertyEnumLabel($properties, $code, $default = "")
+	{
+		if (!is_array($properties) || !isset($properties[$code])) {
+			return (string)$default;
+		}
+
+		$value = isset($properties[$code]["VALUE_ENUM"]) ? $properties[$code]["VALUE_ENUM"] : "";
+		if (is_array($value)) {
+			$value = reset($value);
+		}
+
+		$value = trim((string)$value);
+		return $value !== "" ? $value : (string)$default;
+	}
+}
+
+if (!function_exists("apartmentDetailPropertyMultipleScalars")) {
+	function apartmentDetailPropertyMultipleScalars($properties, $code)
+	{
+		if (!is_array($properties) || !isset($properties[$code])) {
+			return array();
+		}
+
+		$value = isset($properties[$code]["VALUE"]) ? $properties[$code]["VALUE"] : array();
+		if (!is_array($value)) {
+			$value = $value !== "" ? array($value) : array();
+		}
+
+		return array_values(array_filter(array_map("trim", $value), static function ($item) {
+			return $item !== "";
+		}));
+	}
+}
+
+if (!function_exists("apartmentDetailPropertyFileUrl")) {
+	function apartmentDetailPropertyFileUrl($properties, $code, $default = "")
+	{
+		if (!is_array($properties) || !isset($properties[$code])) {
+			return (string)$default;
+		}
+
+		$value = isset($properties[$code]["VALUE"]) ? $properties[$code]["VALUE"] : 0;
+		if (is_array($value)) {
+			$value = reset($value);
+		}
+
+		$fileId = (int)$value;
+		if ($fileId <= 0) {
+			return (string)$default;
+		}
+
+		$filePath = CFile::GetPath($fileId);
+		return $filePath ? (string)$filePath : (string)$default;
+	}
+}
+
+if (!function_exists("apartmentDetailFormatMoney")) {
+	function apartmentDetailFormatMoney($value)
+	{
+		$value = (float)$value;
+		if ($value <= 0) {
+			return "";
+		}
+
+		return number_format($value, 0, ".", " ") . " ₽";
+	}
+}
+
+if (!function_exists("apartmentDetailFormatFloat")) {
+	function apartmentDetailFormatFloat($value, $precision = 1)
+	{
+		$value = trim((string)$value);
+		if ($value === "") {
+			return "";
+		}
+
+		$number = (float)$value;
+		$isInteger = abs($number - round($number)) < 0.00001;
+		return $isInteger
+			? (string)(int)round($number)
+			: number_format($number, (int)$precision, ".", "");
+	}
+}
+
+if (!function_exists("apartmentDetailFormatArea")) {
+	function apartmentDetailFormatArea($value)
+	{
+		$formatted = apartmentDetailFormatFloat($value, 1);
+		return $formatted !== "" ? $formatted . " м²" : "";
+	}
+}
+
+if (!function_exists("apartmentDetailFormatCeiling")) {
+	function apartmentDetailFormatCeiling($value)
+	{
+		$formatted = apartmentDetailFormatFloat($value, 2);
+		return $formatted !== "" ? $formatted . " м" : "";
+	}
+}
+
+if (!function_exists("apartmentDetailRoomsLabel")) {
+	function apartmentDetailRoomsLabel($rooms)
+	{
+		$rooms = trim((string)$rooms);
+		if ($rooms === "") {
+			return "";
+		}
+
+		if (preg_match("/^studio|студ/i", $rooms)) {
+			return "Студия";
+		}
+
+		if (preg_match("/^(\d+)/", $rooms, $matches)) {
+			return $matches[1] . "-комнатная";
+		}
+
+		return $rooms;
+	}
+}
+
+if (!function_exists("apartmentDetailNormalizeSlideKind")) {
+	function apartmentDetailNormalizeSlideKind($kind)
+	{
+		$kind = trim((string)$kind);
+		$map = array(
+			"plan" => "plan",
+			"floor" => "scheme",
+			"scheme" => "scheme",
+			"building" => "render",
+			"render" => "render",
+			"view" => "photo",
+			"photo" => "photo",
+		);
+
+		return isset($map[$kind]) ? $map[$kind] : "render";
+	}
+}
+
+if (!function_exists("apartmentDetailLoadSlidesFromIblock")) {
+	function apartmentDetailLoadSlidesFromIblock($iblockId, $apartmentId)
+	{
+		$iblockId = (int)$iblockId;
+		$apartmentId = (int)$apartmentId;
+		if ($iblockId <= 0 || $apartmentId <= 0) {
+			return array();
+		}
+
+		$slides = array();
+		$res = CIBlockElement::GetList(
+			array("SORT" => "ASC", "ID" => "ASC"),
+			array(
+				"IBLOCK_ID" => $iblockId,
+				"ACTIVE" => "Y",
+				"PROPERTY_APARTMENT" => $apartmentId,
+			),
+			false,
+			false,
+			array("ID", "IBLOCK_ID", "NAME", "PREVIEW_TEXT", "PREVIEW_PICTURE")
+		);
+		while ($row = $res->Fetch()) {
+			$properties = apartmentDetailLoadProperties((int)$row["IBLOCK_ID"], (int)$row["ID"]);
+			$image = "";
+			if ((int)$row["PREVIEW_PICTURE"] > 0) {
+				$image = (string)CFile::GetPath((int)$row["PREVIEW_PICTURE"]);
+			}
+			if ($image === "") {
+				continue;
+			}
+
+			$label = apartmentDetailPropertyScalar($properties, "LABEL", (string)$row["NAME"]);
+			$mediaType = apartmentDetailPropertyEnumXmlId($properties, "MEDIA_TYPE", "render");
+			$slides[] = array(
+				"label" => $label,
+				"title" => trim((string)$row["NAME"]),
+				"description" => trim((string)$row["PREVIEW_TEXT"]),
+				"image" => $image,
+				"alt" => apartmentDetailPropertyScalar($properties, "ALT_TEXT", trim((string)$row["NAME"])),
+				"bearing" => (int)apartmentDetailPropertyScalar($properties, "BEARING", 214),
+				"kind" => apartmentDetailNormalizeSlideKind($mediaType),
+			);
+		}
+
+		return $slides;
+	}
+}
+
 if (!function_exists("apartmentDetailBuildSlides")) {
 	function apartmentDetailBuildSlides($lotCode, $building, $projectName, $planImage, $floorImage, $buildingImage, $viewImage)
 	{
+		$buildingTitle = trim((string)$building) !== "" ? "Корпус " . $building : "В корпусе";
+		$buildingAlt = trim((string)$building) !== ""
+			? "Корпус " . $building . (trim((string)$projectName) !== "" ? " " . $projectName : "")
+			: "Корпус проекта" . (trim((string)$projectName) !== "" ? " " . $projectName : "");
+
 		return array(
 			array(
 				"label" => "Планировка",
@@ -50,10 +323,10 @@ if (!function_exists("apartmentDetailBuildSlides")) {
 			),
 			array(
 				"label" => "В корпусе",
-				"title" => "Корпус " . $building,
+				"title" => $buildingTitle,
 				"description" => "Выше линии двора, с открытым видом и быстрым выходом к приватной инфраструктуре проекта.",
 				"image" => $buildingImage,
-				"alt" => "Корпус " . $building . " " . $projectName,
+				"alt" => $buildingAlt,
 				"bearing" => 206,
 				"kind" => "render",
 			),
@@ -79,49 +352,131 @@ if (!function_exists("apartmentDetailBuildSlides")) {
 	}
 }
 
+if (!function_exists("apartmentDetailBuildFixedSlidesFromProperties")) {
+	function apartmentDetailBuildFixedSlidesFromProperties(array $apartmentFields, array $properties)
+	{
+		$previewImage = (int)$apartmentFields["PREVIEW_PICTURE"] > 0 ? (string)CFile::GetPath((int)$apartmentFields["PREVIEW_PICTURE"]) : "";
+		$lotCode = trim((string)$apartmentFields["CODE"]);
+
+		$definitions = array(
+			array(
+				"label" => "Планировка",
+				"kind" => "plan",
+				"bearing" => 214,
+				"image" => apartmentDetailPropertyFileUrl($properties, "PLAN_IMAGE", $previewImage),
+				"title_code" => "PLAN_TITLE",
+				"text_code" => "PLAN_TEXT",
+				"alt_code" => "PLAN_ALT",
+				"default_title" => "Планировка",
+				"default_alt" => $lotCode !== "" ? "Планировка квартиры " . $lotCode : "Планировка квартиры",
+			),
+			array(
+				"label" => "На этаже",
+				"kind" => "scheme",
+				"bearing" => 228,
+				"image" => apartmentDetailPropertyFileUrl($properties, "FLOOR_SLIDE_IMAGE", ""),
+				"title_code" => "FLOOR_SLIDE_TITLE",
+				"text_code" => "FLOOR_SLIDE_TEXT",
+				"alt_code" => "FLOOR_SLIDE_ALT",
+				"default_title" => "На этаже",
+				"default_alt" => "Схема расположения квартиры на этаже",
+			),
+			array(
+				"label" => "В корпусе",
+				"kind" => "render",
+				"bearing" => 206,
+				"image" => apartmentDetailPropertyFileUrl($properties, "BUILDING_SLIDE_IMAGE", ""),
+				"title_code" => "BUILDING_SLIDE_TITLE",
+				"text_code" => "BUILDING_SLIDE_TEXT",
+				"alt_code" => "BUILDING_SLIDE_ALT",
+				"default_title" => "В корпусе",
+				"default_alt" => "Положение квартиры в корпусе",
+			),
+			array(
+				"label" => "Вид из окна",
+				"kind" => "photo",
+				"bearing" => 247,
+				"image" => apartmentDetailPropertyFileUrl($properties, "VIEW_SLIDE_IMAGE", ""),
+				"title_code" => "VIEW_SLIDE_TITLE",
+				"text_code" => "VIEW_SLIDE_TEXT",
+				"alt_code" => "VIEW_SLIDE_ALT",
+				"default_title" => "Вид из окна",
+				"default_alt" => "Вид из окна квартиры",
+			),
+			array(
+				"label" => "Визуализация",
+				"kind" => "render",
+				"bearing" => 214,
+				"image" => apartmentDetailPropertyFileUrl($properties, "RENDER_SLIDE_IMAGE", ""),
+				"title_code" => "RENDER_SLIDE_TITLE",
+				"text_code" => "RENDER_SLIDE_TEXT",
+				"alt_code" => "RENDER_SLIDE_ALT",
+				"default_title" => "Визуализация",
+				"default_alt" => "Визуализация квартиры",
+			),
+		);
+
+		$slides = array();
+		foreach ($definitions as $definition) {
+			$image = trim((string)$definition["image"]);
+			if ($image === "") {
+				continue;
+			}
+
+			$title = apartmentDetailPropertyScalar($properties, $definition["title_code"], $definition["default_title"]);
+			$description = apartmentDetailPropertyScalar($properties, $definition["text_code"], "");
+			$alt = apartmentDetailPropertyScalar($properties, $definition["alt_code"], $definition["default_alt"]);
+			$slides[] = array(
+				"label" => $definition["label"],
+				"title" => $title,
+				"description" => $description,
+				"image" => $image,
+				"alt" => $alt,
+				"bearing" => (int)$definition["bearing"],
+				"kind" => $definition["kind"],
+			);
+		}
+
+		return $slides;
+	}
+}
+
 if (!function_exists("apartmentDetailBuildPrototype")) {
 	function apartmentDetailBuildPrototype($overrides, $planImage, $floorImage, $buildingImage, $viewImage)
 	{
-			$base = array(
-				"title" => "2-комнатная, 92.8 м²",
-				"title_line_1" => "2-комнатная",
-				"title_line_2" => "92.8 м²",
-				"project" => "ЖК Вертикаль",
-			"project_url" => "/projects/vertical/",
-			"building" => "11",
-			"floor" => "12",
-			"house_floors" => "24",
-			"handover" => "III кв. 2027 г.",
+		$base = array(
+			"title" => "",
+			"title_line_1" => "",
+			"title_line_2" => "",
+			"project" => "",
+			"project_url" => "",
+			"building" => "",
+			"floor" => "",
+			"house_floors" => "",
+			"handover" => "",
 			"lot" => "",
-			"apartment_number" => "11",
-			"price_meter" => "532 371 ₽",
-			"price_total" => "22 199 873 ₽",
-			"price_old" => "23 408 000 ₽",
-			"finish" => "Без отделки",
-			"ceiling" => "2.72 м",
-			"street" => "ул. Фронтовая, 5",
-			"entrance" => "2",
-			"view" => "На водохранилище и город",
-				"window_sides" => "Юг / Запад",
-				"discount" => "Скидка 5%",
-				"availability_status" => "free",
-				"availability_label" => "Свободно",
-				"availability_badges" => array(),
-				"rooms" => "2Е",
-			"area_total" => "92.8 м²",
-			"area_living" => "41.7 м²",
-			"area_kitchen" => "18.4 м²",
-			"balcony_type" => "Французский балкон",
-			"bathrooms" => "2",
-			"house_type" => "Монолит-кирпич",
-			"feature_flags" => array(
-				array("label" => "Гардероб", "enabled" => true),
-				array("label" => "Мастер-спальня", "enabled" => false),
-				array("label" => "Витражное остекление", "enabled" => true),
-				array("label" => "Высокие потолки", "enabled" => false),
-				array("label" => "Терраса", "enabled" => false),
-				array("label" => "С отделкой", "enabled" => false),
-			),
+			"apartment_number" => "",
+			"price_meter" => "",
+			"price_total" => "",
+			"price_old" => "",
+			"finish" => "",
+			"ceiling" => "",
+			"street" => "",
+			"entrance" => "",
+			"view" => "",
+			"window_sides" => "",
+			"discount" => "",
+			"availability_status" => "",
+			"availability_label" => "",
+			"availability_badges" => array(),
+			"rooms" => "",
+			"area_total" => "",
+			"area_living" => "",
+			"area_kitchen" => "",
+			"balcony_type" => "",
+			"bathrooms" => "",
+			"house_type" => "",
+			"feature_flags" => array(),
 			"feature_tags" => array(),
 		);
 
@@ -209,36 +564,116 @@ if (!function_exists("apartmentDetailBuildPrototype")) {
 	}
 }
 
-$apartments = array(
-		"11-235" => apartmentDetailBuildPrototype(
-			array(
-				"lot" => "11-235",
-			),
-			$planImage,
-			$floorImage,
-		$buildingImage,
-		$viewImage
-	),
-	"2e-92-8" => apartmentDetailBuildPrototype(
-			array(
-				"lot" => "2E-92-8",
-				"price_total" => "22 540 000 ₽",
-				"price_old" => "23 730 000 ₽",
-				"discount" => "Скидка 5% до конца месяца",
-				"availability_status" => "booked",
-				"availability_label" => "Забронировано",
-				"feature_tags" => array("Кухня-гостиная 18.4 м²"),
-			),
-		$planImage,
-		$floorImage,
-		$buildingImage,
-		$viewImage
-	),
-);
-
+$apartmentsIblockCode = "apartments";
+$projectsIblockCode = "projects";
 $code = isset($_REQUEST["code"]) ? trim((string)$_REQUEST["code"]) : "";
 $code = preg_replace("/[^a-z0-9_-]/i", "", $code);
-$apartment = isset($apartments[$code]) ? $apartments[$code] : null;
+$apartment = null;
+
+if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
+	$apartmentsIblock = CIBlock::GetList(array(), array("=CODE" => $apartmentsIblockCode, "ACTIVE" => "Y"), false)->Fetch();
+	$projectsIblock = CIBlock::GetList(array(), array("=CODE" => $projectsIblockCode, "ACTIVE" => "Y"), false)->Fetch();
+
+	$apartmentsIblockId = is_array($apartmentsIblock) ? (int)$apartmentsIblock["ID"] : 0;
+	$projectsIblockId = is_array($projectsIblock) ? (int)$projectsIblock["ID"] : 0;
+
+	if ($apartmentsIblockId > 0) {
+		$apartmentRes = CIBlockElement::GetList(
+			array(),
+			array(
+				"IBLOCK_ID" => $apartmentsIblockId,
+				"=CODE" => $code,
+				"ACTIVE" => "Y",
+			),
+			false,
+			false,
+			array("ID", "IBLOCK_ID", "NAME", "CODE", "IBLOCK_SECTION_ID", "PREVIEW_PICTURE")
+		);
+
+		if ($apartmentFields = $apartmentRes->Fetch()) {
+			$apartmentId = (int)$apartmentFields["ID"];
+			$apartmentProperties = apartmentDetailLoadProperties($apartmentsIblockId, $apartmentId);
+
+			$projectId = (int)apartmentDetailPropertyScalar($apartmentProperties, "PROJECT", 0);
+			$projectName = "";
+			$projectUrl = "";
+			$street = "";
+			$handover = "";
+			$buildingImage = $defaultBuildingImage;
+
+			if ($projectsIblockId > 0 && $projectId > 0) {
+				$projectRes = CIBlockElement::GetList(
+					array(),
+					array("IBLOCK_ID" => $projectsIblockId, "ID" => $projectId, "ACTIVE" => "Y"),
+					false,
+					false,
+					array("ID", "IBLOCK_ID", "NAME", "CODE", "PREVIEW_PICTURE")
+				);
+				if ($projectFields = $projectRes->Fetch()) {
+					$projectProperties = apartmentDetailLoadProperties($projectsIblockId, (int)$projectFields["ID"]);
+					$projectName = trim((string)$projectFields["NAME"]);
+					$projectCode = trim((string)$projectFields["CODE"]);
+					$projectUrl = $projectCode !== "" ? "/projects/" . $projectCode . "/" : "";
+					$street = apartmentDetailPropertyScalar($projectProperties, "ADDRESS", "");
+					$handover = apartmentDetailPropertyScalar($projectProperties, "DELIVERY_TEXT", "");
+				}
+			}
+
+			$rooms = apartmentDetailPropertyScalar($apartmentProperties, "ROOMS", "");
+			$areaTotal = apartmentDetailFormatArea(apartmentDetailPropertyScalar($apartmentProperties, "AREA_TOTAL", ""));
+			$titleLine1 = apartmentDetailRoomsLabel($rooms);
+			$titleLine2 = $areaTotal;
+			$title = trim($titleLine1 . ($titleLine1 !== "" && $titleLine2 !== "" ? ", " : "") . $titleLine2);
+			if ($title === "") {
+				$title = trim((string)$apartmentFields["NAME"]);
+			}
+
+			$overrides = array(
+				"title" => $title,
+				"title_line_1" => $titleLine1,
+				"title_line_2" => $titleLine2,
+				"project" => $projectName,
+				"project_url" => $projectUrl,
+				"building" => apartmentDetailPropertyScalar($apartmentProperties, "CORPUS", ""),
+				"floor" => apartmentDetailPropertyScalar($apartmentProperties, "FLOOR", ""),
+				"house_floors" => apartmentDetailPropertyScalar($apartmentProperties, "HOUSE_FLOORS", ""),
+				"handover" => $handover,
+				"lot" => trim((string)$apartmentFields["CODE"]),
+				"apartment_number" => apartmentDetailPropertyScalar($apartmentProperties, "APARTMENT_NUMBER", ""),
+				"price_meter" => apartmentDetailFormatMoney(apartmentDetailPropertyScalar($apartmentProperties, "PRICE_M2", "")),
+				"price_total" => apartmentDetailFormatMoney(apartmentDetailPropertyScalar($apartmentProperties, "PRICE_TOTAL", "")),
+				"price_old" => apartmentDetailFormatMoney(apartmentDetailPropertyScalar($apartmentProperties, "PRICE_OLD", "")),
+				"finish" => apartmentDetailPropertyScalar($apartmentProperties, "FINISH", ""),
+				"ceiling" => apartmentDetailFormatCeiling(apartmentDetailPropertyScalar($apartmentProperties, "CEILING", "")),
+				"street" => $street,
+				"entrance" => apartmentDetailPropertyScalar($apartmentProperties, "ENTRANCE", ""),
+				"view" => apartmentDetailPropertyScalar($apartmentProperties, "VIEW_TEXT", ""),
+				"window_sides" => apartmentDetailPropertyScalar($apartmentProperties, "WINDOW_SIDES", ""),
+				"discount" => apartmentDetailPropertyScalar($apartmentProperties, "DISCOUNT_LABEL", ""),
+				"availability_status" => apartmentDetailPropertyEnumXmlId($apartmentProperties, "STATUS", ""),
+				"availability_label" => apartmentDetailPropertyEnumLabel($apartmentProperties, "STATUS", ""),
+				"rooms" => $rooms,
+				"area_total" => $areaTotal,
+				"area_living" => apartmentDetailFormatArea(apartmentDetailPropertyScalar($apartmentProperties, "AREA_LIVING", "")),
+				"area_kitchen" => apartmentDetailFormatArea(apartmentDetailPropertyScalar($apartmentProperties, "AREA_KITCHEN", "")),
+				"balcony_type" => apartmentDetailPropertyScalar($apartmentProperties, "BALCONY_TYPE", ""),
+				"bathrooms" => apartmentDetailPropertyScalar($apartmentProperties, "BATHROOMS", ""),
+				"house_type" => "",
+				"feature_flags" => array(),
+				"feature_tags" => apartmentDetailPropertyMultipleScalars($apartmentProperties, "FEATURE_TAGS"),
+			);
+
+			$apartment = apartmentDetailBuildPrototype(
+				$overrides,
+				"",
+				"",
+				"",
+				""
+			);
+			$apartment["slides"] = apartmentDetailBuildFixedSlidesFromProperties($apartmentFields, $apartmentProperties);
+		}
+	}
+}
 
 if (!$apartment) {
 	CHTTP::SetStatus("404 Not Found");
@@ -267,6 +702,7 @@ if (!$apartment) {
 <section class="apartment-detail">
   <div class="container">
 	    <div class="apartment-hero">
+	      <?php if (!empty($apartment["slides"])): ?>
 	      <div class="apartment-hero__media">
 	        <div class="apartment-hero__viewer-shell" data-apartment-gallery>
 	          <?php if (!empty($apartment["discount"])): ?>
@@ -320,8 +756,12 @@ if (!$apartment) {
 	                    <img src="<?= htmlspecialcharsbx($slide["image"]) ?>" alt="<?= htmlspecialcharsbx($slide["alt"]) ?>" loading="lazy" />
 	                  </div>
 	                  <div class="apartment-hero__slide-caption">
+	                    <?php if (!empty($slide["title"])): ?>
 	                    <div class="apartment-hero__slide-title"><?= htmlspecialcharsbx($slide["title"]) ?></div>
+	                    <?php endif; ?>
+	                    <?php if (!empty($slide["description"])): ?>
 	                    <p><?= htmlspecialcharsbx($slide["description"]) ?></p>
+	                    <?php endif; ?>
 	                  </div>
 	                </div>
 	                <?php endforeach; ?>
@@ -329,6 +769,7 @@ if (!$apartment) {
 	            </div>
 	          </div>
 
+          <?php if (count($apartment["slides"]) > 1): ?>
           <div class="apartment-hero__tabs-row">
             <div class="apartment-hero__tabs" role="tablist" aria-label="Режимы просмотра квартиры">
               <?php foreach ($apartment["slides"] as $index => $slide): ?>
@@ -357,8 +798,10 @@ if (!$apartment) {
               </button>
             </div>
           </div>
+          <?php endif; ?>
         </div>
       </div>
+      <?php endif; ?>
 
       <aside class="apartment-hero__summary">
         <div class="apartment-hero__eyebrow">№ <?= htmlspecialcharsbx($apartment["apartment_number"]) ?></div>

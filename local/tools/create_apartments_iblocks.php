@@ -2,10 +2,8 @@
 /**
  * Идемпотентно готовит основу для квартир:
  * - ИБ apartments
- * - ИБ flat_media
  * - UF-поля разделов ИБ apartments для дерева ЖК/подъезд/этаж
  * - верхние разделы ЖК в ИБ apartments по существующим проектам
- * - будущие привязки акций к проектам и квартирам
  *
  * CLI:
  *   php local/tools/create_apartments_iblocks.php --dry-run=1
@@ -29,8 +27,6 @@ if (PHP_SAPI === "cli") {
 		"type-id::",
 		"apartments-code::",
 		"apartments-name::",
-		"flat-media-code::",
-		"flat-media-name::",
 		"seed-project-sections::",
 		"with-promotion-links::",
 		"dry-run::",
@@ -69,16 +65,15 @@ $siteId = isset($_REQUEST["site_id"]) && $_REQUEST["site_id"] !== "" ? (string)$
 $typeId = isset($_REQUEST["type_id"]) && $_REQUEST["type_id"] !== "" ? (string)$_REQUEST["type_id"] : "realty";
 $apartmentsCode = isset($_REQUEST["apartments_code"]) && $_REQUEST["apartments_code"] !== "" ? (string)$_REQUEST["apartments_code"] : "apartments";
 $apartmentsName = isset($_REQUEST["apartments_name"]) && $_REQUEST["apartments_name"] !== "" ? (string)$_REQUEST["apartments_name"] : "Квартиры";
-$flatMediaCode = isset($_REQUEST["flat_media_code"]) && $_REQUEST["flat_media_code"] !== "" ? (string)$_REQUEST["flat_media_code"] : "flat_media";
-$flatMediaName = isset($_REQUEST["flat_media_name"]) && $_REQUEST["flat_media_name"] !== "" ? (string)$_REQUEST["flat_media_name"] : "Медиа квартир";
 $seedProjectSections = !isset($_REQUEST["seed_project_sections"]) || (string)$_REQUEST["seed_project_sections"] === "" || (string)$_REQUEST["seed_project_sections"] === "1" || strtolower((string)$_REQUEST["seed_project_sections"]) === "y";
-$withPromotionLinks = !isset($_REQUEST["with_promotion_links"]) || (string)$_REQUEST["with_promotion_links"] === "" || (string)$_REQUEST["with_promotion_links"] === "1" || strtolower((string)$_REQUEST["with_promotion_links"]) === "y";
+	$withPromotionLinks = isset($_REQUEST["with_promotion_links"]) && (
+		(string)$_REQUEST["with_promotion_links"] === "1" || strtolower((string)$_REQUEST["with_promotion_links"]) === "y"
+	);
 $dryRun = !isset($_REQUEST["dry_run"]) || (string)$_REQUEST["dry_run"] === "" || (string)$_REQUEST["dry_run"] === "1" || strtolower((string)$_REQUEST["dry_run"]) === "y";
 
 echo "Target site: " . $siteId . PHP_EOL;
 echo "IBlock type: " . $typeId . PHP_EOL;
 echo "Apartments code: " . $apartmentsCode . PHP_EOL;
-echo "Flat media code: " . $flatMediaCode . PHP_EOL;
 echo "Seed project sections: " . ($seedProjectSections ? "Y" : "N") . PHP_EOL;
 echo "Promotion links: " . ($withPromotionLinks ? "Y" : "N") . PHP_EOL;
 echo "dry-run: " . ($dryRun ? "Y" : "N") . PHP_EOL;
@@ -640,17 +635,180 @@ $apartmentsProperties = array(
 		"MULTIPLE" => "N",
 	),
 	array(
+		"CODE" => "PLAN_TITLE",
+		"NAME" => "Планировка: заголовок",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 321,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "PLAN_TEXT",
+		"NAME" => "Планировка: описание",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 322,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 4,
+		"COL_COUNT" => 90,
+	),
+	array(
+		"CODE" => "PLAN_ALT",
+		"NAME" => "Планировка: ALT",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 323,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "FLOOR_SLIDE_IMAGE",
+		"NAME" => "На этаже: изображение",
+		"PROPERTY_TYPE" => "F",
+		"SORT" => 324,
+		"MULTIPLE" => "N",
+	),
+	array(
+		"CODE" => "FLOOR_SLIDE_TITLE",
+		"NAME" => "На этаже: заголовок",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 325,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "FLOOR_SLIDE_TEXT",
+		"NAME" => "На этаже: описание",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 326,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 4,
+		"COL_COUNT" => 90,
+	),
+	array(
+		"CODE" => "FLOOR_SLIDE_ALT",
+		"NAME" => "На этаже: ALT",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 327,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "BUILDING_SLIDE_IMAGE",
+		"NAME" => "В корпусе: изображение",
+		"PROPERTY_TYPE" => "F",
+		"SORT" => 328,
+		"MULTIPLE" => "N",
+	),
+	array(
+		"CODE" => "BUILDING_SLIDE_TITLE",
+		"NAME" => "В корпусе: заголовок",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 329,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "BUILDING_SLIDE_TEXT",
+		"NAME" => "В корпусе: описание",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 330,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 4,
+		"COL_COUNT" => 90,
+	),
+	array(
+		"CODE" => "BUILDING_SLIDE_ALT",
+		"NAME" => "В корпусе: ALT",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 331,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "VIEW_SLIDE_IMAGE",
+		"NAME" => "Вид из окна: изображение",
+		"PROPERTY_TYPE" => "F",
+		"SORT" => 332,
+		"MULTIPLE" => "N",
+	),
+	array(
+		"CODE" => "VIEW_SLIDE_TITLE",
+		"NAME" => "Вид из окна: заголовок",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 333,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "VIEW_SLIDE_TEXT",
+		"NAME" => "Вид из окна: описание",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 334,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 4,
+		"COL_COUNT" => 90,
+	),
+	array(
+		"CODE" => "VIEW_SLIDE_ALT",
+		"NAME" => "Вид из окна: ALT",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 335,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "RENDER_SLIDE_IMAGE",
+		"NAME" => "Визуализация: изображение",
+		"PROPERTY_TYPE" => "F",
+		"SORT" => 336,
+		"MULTIPLE" => "N",
+	),
+	array(
+		"CODE" => "RENDER_SLIDE_TITLE",
+		"NAME" => "Визуализация: заголовок",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 337,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
+		"CODE" => "RENDER_SLIDE_TEXT",
+		"NAME" => "Визуализация: описание",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 338,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 4,
+		"COL_COUNT" => 90,
+	),
+	array(
+		"CODE" => "RENDER_SLIDE_ALT",
+		"NAME" => "Визуализация: ALT",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 339,
+		"MULTIPLE" => "N",
+		"ROW_COUNT" => 1,
+		"COL_COUNT" => 80,
+	),
+	array(
 		"CODE" => "SVG_SLOT_ID",
 		"NAME" => "ID квартиры в SVG шахматки",
 		"PROPERTY_TYPE" => "S",
-		"SORT" => 330,
+		"SORT" => 340,
 		"MULTIPLE" => "N",
 	),
 	array(
 		"CODE" => "SORT_IN_FLOOR",
 		"NAME" => "Порядок на этаже",
 		"PROPERTY_TYPE" => "N",
-		"SORT" => 340,
+		"SORT" => 350,
 		"MULTIPLE" => "N",
 	),
 );
@@ -759,87 +917,6 @@ if ($apartmentsSectionEntityId !== "") {
 	}
 }
 
-$flatMediaIblockId = ensureIblock(
-	$siteId,
-	$typeId,
-	$flatMediaCode,
-	$flatMediaName,
-	array(
-		"SORT" => 140,
-		"LIST_PAGE_URL" => "#SITE_DIR#/apartments/",
-		"SECTION_PAGE_URL" => "#SITE_DIR#/apartments/",
-		"DETAIL_PAGE_URL" => "#SITE_DIR#/apartments/",
-		"INDEX_ELEMENT" => "N",
-		"INDEX_SECTION" => "N",
-		"SECTIONS" => "N",
-	),
-	$dryRun
-);
-
-if ($flatMediaIblockId < 0) {
-	exit(9);
-}
-
-$flatMediaProperties = array(
-	array(
-		"CODE" => "APARTMENT",
-		"NAME" => "Квартира",
-		"PROPERTY_TYPE" => "E",
-		"LINK_IBLOCK_ID" => $apartmentsIblockId > 0 ? $apartmentsIblockId : 0,
-		"SORT" => 100,
-		"MULTIPLE" => "N",
-		"IS_REQUIRED" => "Y",
-	),
-	array(
-		"CODE" => "MEDIA_TYPE",
-		"NAME" => "Тип медиа",
-		"PROPERTY_TYPE" => "L",
-		"SORT" => 110,
-		"MULTIPLE" => "N",
-		"IS_REQUIRED" => "Y",
-		"VALUES" => array(
-			array("VALUE" => "Планировка", "XML_ID" => "plan", "SORT" => 100, "DEF" => "Y"),
-			array("VALUE" => "На этаже", "XML_ID" => "floor", "SORT" => 200, "DEF" => "N"),
-			array("VALUE" => "В корпусе", "XML_ID" => "building", "SORT" => 300, "DEF" => "N"),
-			array("VALUE" => "Вид из окна", "XML_ID" => "view", "SORT" => 400, "DEF" => "N"),
-			array("VALUE" => "Визуализация", "XML_ID" => "render", "SORT" => 500, "DEF" => "N"),
-			array("VALUE" => "Фото", "XML_ID" => "photo", "SORT" => 600, "DEF" => "N"),
-			array("VALUE" => "Другое", "XML_ID" => "other", "SORT" => 700, "DEF" => "N"),
-		),
-	),
-	array(
-		"CODE" => "LABEL",
-		"NAME" => "Короткая подпись",
-		"PROPERTY_TYPE" => "S",
-		"SORT" => 120,
-		"MULTIPLE" => "N",
-		"ROW_COUNT" => 1,
-		"COL_COUNT" => 60,
-	),
-	array(
-		"CODE" => "BEARING",
-		"NAME" => "Положение подписи",
-		"PROPERTY_TYPE" => "N",
-		"SORT" => 130,
-		"MULTIPLE" => "N",
-	),
-	array(
-		"CODE" => "ALT_TEXT",
-		"NAME" => "ALT текста изображения",
-		"PROPERTY_TYPE" => "S",
-		"SORT" => 140,
-		"MULTIPLE" => "N",
-		"ROW_COUNT" => 1,
-		"COL_COUNT" => 80,
-	),
-);
-
-foreach ($flatMediaProperties as $propertyDef) {
-	if (!ensureProperty($flatMediaIblockId, $propertyDef, $dryRun)) {
-		exit(10);
-	}
-}
-
 if ($withPromotionLinks) {
 	$promotionsIblock = findIblockByCode("promotions");
 	if (is_array($promotionsIblock)) {
@@ -852,7 +929,7 @@ if ($withPromotionLinks) {
 			"SORT" => 120,
 			"MULTIPLE" => "Y",
 		), $dryRun)) {
-			exit(11);
+			exit(9);
 		}
 		if (!ensureProperty($promotionsIblockId, array(
 			"CODE" => "LINK_FLATS",
@@ -862,7 +939,7 @@ if ($withPromotionLinks) {
 			"SORT" => 130,
 			"MULTIPLE" => "Y",
 		), $dryRun)) {
-			exit(12);
+			exit(10);
 		}
 	} else {
 		echo "[WARN] Promotions iblock not found; LINK_PROJECTS/LINK_FLATS skipped." . PHP_EOL;
@@ -871,7 +948,7 @@ if ($withPromotionLinks) {
 
 if ($seedProjectSections) {
 	if (!ensureTopProjectSections($apartmentsIblockId, $projectsIblockId, $nodeTypeFieldId, $dryRun)) {
-		exit(13);
+		exit(11);
 	}
 }
 
@@ -879,7 +956,6 @@ echo PHP_EOL;
 echo "Done." . PHP_EOL;
 echo "Use in code:" . PHP_EOL;
 echo "- apartments: TYPE=" . $typeId . ", CODE=" . $apartmentsCode . ($apartmentsIblockId > 0 ? ", ID=" . $apartmentsIblockId : "") . PHP_EOL;
-echo "- flat media: TYPE=" . $typeId . ", CODE=" . $flatMediaCode . ($flatMediaIblockId > 0 ? ", ID=" . $flatMediaIblockId : "") . PHP_EOL;
 if ($apartmentsSectionEntityId !== "") {
 	echo "- apartments section entity: " . $apartmentsSectionEntityId . PHP_EOL;
 }
