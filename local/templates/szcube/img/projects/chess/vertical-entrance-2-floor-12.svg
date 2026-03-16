@@ -1,0 +1,22 @@
+<svg width="1180" height="760" viewBox="0 0 1180 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1180" height="760" rx="28" fill="#EDF5F6"/>
+  <rect x="42" y="42" width="1096" height="676" rx="22" fill="#D9E7EA"/>
+  <rect x="476" y="118" width="228" height="514" rx="26" fill="#B3C7CB"/>
+  <rect x="528" y="70" width="124" height="92" rx="18" fill="#9CB7BD"/>
+  <rect x="516" y="598" width="148" height="72" rx="18" fill="#9CB7BD"/>
+  <rect x="110" y="124" width="286" height="222" rx="22" fill="#C8DBDF"/>
+  <rect x="110" y="382" width="286" height="216" rx="22" fill="#C8DBDF"/>
+  <rect x="784" y="124" width="286" height="222" rx="22" fill="#C8DBDF"/>
+  <rect x="784" y="382" width="286" height="216" rx="22" fill="#C8DBDF"/>
+  <path d="M476 285H704" stroke="#88A8AE" stroke-width="14" stroke-linecap="round"/>
+  <path d="M476 448H704" stroke="#88A8AE" stroke-width="14" stroke-linecap="round"/>
+  <path d="M589 118V632" stroke="#88A8AE" stroke-width="12" stroke-linecap="round" stroke-dasharray="14 16"/>
+  <path id="apartment-vertical-235" d="M130 144C130 132.954 138.954 124 150 124H376C387.046 124 396 132.954 396 144V578C396 589.046 387.046 598 376 598H150C138.954 598 130 589.046 130 578V144Z" fill="#7AD7D4"/>
+  <path id="apartment-vertical-236" d="M784 144C784 132.954 792.954 124 804 124H1030C1041.05 124 1050 132.954 1050 144V578C1050 589.046 1041.05 598 1030 598H804C792.954 598 784 589.046 784 578V144Z" fill="#7AD7D4"/>
+  <path d="M396 286H476" stroke="#88A8AE" stroke-width="10" stroke-linecap="round"/>
+  <path d="M704 286H784" stroke="#88A8AE" stroke-width="10" stroke-linecap="round"/>
+  <path d="M396 446H476" stroke="#88A8AE" stroke-width="10" stroke-linecap="round"/>
+  <path d="M704 446H784" stroke="#88A8AE" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="590" cy="374" r="54" fill="#88A8AE"/>
+  <path d="M590 332L618 360H602V420H578V360H562L590 332Z" fill="#EDF5F6"/>
+</svg>

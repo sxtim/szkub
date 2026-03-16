@@ -501,10 +501,21 @@ foreach ($items as $itemIndex => $item) {
 
 	$entranceCode = "podezd-" . normalizeSectionCodeForApartmentImport($entrance);
 	$entranceName = "Подъезд " . $entrance;
+	$entranceFields = array(
+		"UF_NODE_TYPE" => $entranceNodeTypeId,
+		"UF_ENTRANCE_NUMBER" => $entrance,
+		"UF_PIN_X" => isset($item["entrance_pin_x"]) ? trim((string)$item["entrance_pin_x"]) : "",
+		"UF_PIN_Y" => isset($item["entrance_pin_y"]) ? trim((string)$item["entrance_pin_y"]) : "",
+		"UF_PIN_LABEL" => isset($item["entrance_pin_label"]) ? trim((string)$item["entrance_pin_label"]) : "",
+		"SORT" => ((int)$entrance > 0 ? (int)$entrance : 1) * 100,
+	);
 	$entranceSectionId = ensureSectionForApartmentImport($apartmentsIblockId, $projectSectionId, $entranceCode, $entranceName, array(
 		"UF_NODE_TYPE" => $entranceNodeTypeId,
 		"UF_ENTRANCE_NUMBER" => $entrance,
-		"SORT" => ((int)$entrance > 0 ? (int)$entrance : 1) * 100,
+		"UF_PIN_X" => $entranceFields["UF_PIN_X"],
+		"UF_PIN_Y" => $entranceFields["UF_PIN_Y"],
+		"UF_PIN_LABEL" => $entranceFields["UF_PIN_LABEL"],
+		"SORT" => $entranceFields["SORT"],
 	), $dryRun);
 	if ($entranceSectionId === 0) {
 		exit(8);
@@ -512,11 +523,24 @@ foreach ($items as $itemIndex => $item) {
 
 	$floorCode = sprintf("floor-%02d", $floor);
 	$floorName = $floor . " этаж";
-	$floorSectionId = ensureSectionForApartmentImport($apartmentsIblockId, $entranceSectionId, $floorCode, $floorName, array(
+	$floorSectionFields = array(
 		"UF_NODE_TYPE" => $floorNodeTypeId,
 		"UF_FLOOR_NUMBER" => $floor,
 		"SORT" => $floor * 100,
-	), $dryRun);
+	);
+	$chessSvgFile = makeFileArrayForApartmentImport(isset($item["floor_chess_svg"]) ? $item["floor_chess_svg"] : "");
+	if ($chessSvgFile !== false) {
+		$floorSectionFields["UF_CHESS_SVG"] = $chessSvgFile;
+	}
+	$chessImageFile = makeFileArrayForApartmentImport(isset($item["floor_chess_image"]) ? $item["floor_chess_image"] : "");
+	if ($chessImageFile !== false) {
+		$floorSectionFields["UF_CHESS_IMAGE"] = $chessImageFile;
+	}
+	$floorSectionId = ensureSectionForApartmentImport($apartmentsIblockId, $entranceSectionId, $floorCode, $floorName, array(
+		"UF_NODE_TYPE" => $floorSectionFields["UF_NODE_TYPE"],
+		"UF_FLOOR_NUMBER" => $floorSectionFields["UF_FLOOR_NUMBER"],
+		"SORT" => $floorSectionFields["SORT"],
+	) + $floorSectionFields, $dryRun);
 	if ($floorSectionId === 0) {
 		exit(9);
 	}

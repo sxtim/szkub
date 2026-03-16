@@ -886,6 +886,30 @@ if ($apartmentsSectionEntityId !== "") {
 			"EDIT_FORM_LABEL" => array("ru" => "Изображение этажа", "en" => "Floor image"),
 			"LIST_COLUMN_LABEL" => array("ru" => "Изображение этажа", "en" => "Floor image"),
 		),
+		array(
+			"FIELD_NAME" => "UF_PIN_X",
+			"USER_TYPE_ID" => "string",
+			"XML_ID" => "UF_PIN_X",
+			"SORT" => 150,
+			"EDIT_FORM_LABEL" => array("ru" => "Пин X, %", "en" => "Pin X, %"),
+			"LIST_COLUMN_LABEL" => array("ru" => "Пин X, %", "en" => "Pin X, %"),
+		),
+		array(
+			"FIELD_NAME" => "UF_PIN_Y",
+			"USER_TYPE_ID" => "string",
+			"XML_ID" => "UF_PIN_Y",
+			"SORT" => 160,
+			"EDIT_FORM_LABEL" => array("ru" => "Пин Y, %", "en" => "Pin Y, %"),
+			"LIST_COLUMN_LABEL" => array("ru" => "Пин Y, %", "en" => "Pin Y, %"),
+		),
+		array(
+			"FIELD_NAME" => "UF_PIN_LABEL",
+			"USER_TYPE_ID" => "string",
+			"XML_ID" => "UF_PIN_LABEL",
+			"SORT" => 170,
+			"EDIT_FORM_LABEL" => array("ru" => "Подпись пина", "en" => "Pin label"),
+			"LIST_COLUMN_LABEL" => array("ru" => "Подпись пина", "en" => "Pin label"),
+		),
 	);
 
 	foreach ($userFields as $fieldDef) {

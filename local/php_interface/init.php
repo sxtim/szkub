@@ -1,5 +1,10 @@
 <?php
 
+$projectSelectorSceneConfigPath = rtrim((string)($_SERVER["DOCUMENT_ROOT"] ?? ""), "/") . "/local/php_interface/project_selector_scene_config.php";
+if ($projectSelectorSceneConfigPath !== "/local/php_interface/project_selector_scene_config.php" && is_file($projectSelectorSceneConfigPath)) {
+    require_once $projectSelectorSceneConfigPath;
+}
+
 if (PHP_SAPI !== "cli" && !headers_sent()) {
     $host = strtolower((string)($_SERVER["HTTP_HOST"] ?? ""));
     $host = preg_replace("/:\\d+$/", "", $host);

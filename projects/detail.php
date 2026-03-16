@@ -203,6 +203,20 @@ if ($project) {
 	}
 
 	$projectDetail["construction_subtitle"] = projectDetailPropertyScalar($projectProperties, "CONSTRUCTION_SUBTITLE", "Сдача в IV кв. 2026");
+
+	$selectorSceneConfig = function_exists("szcubeGetProjectSelectorSceneConfig")
+		? szcubeGetProjectSelectorSceneConfig($project["code"])
+		: array();
+	$projectDetail["selector"] = array(
+		"enabled" => !empty($selectorSceneConfig),
+		"scene_mode" => isset($selectorSceneConfig["scene_mode"]) ? (string)$selectorSceneConfig["scene_mode"] : "single_building",
+		"data_project_code" => isset($selectorSceneConfig["data_project_code"]) && trim((string)$selectorSceneConfig["data_project_code"]) !== "" ? (string)$selectorSceneConfig["data_project_code"] : $project["code"],
+		"scene_image" => isset($selectorSceneConfig["scene_image"]) && trim((string)$selectorSceneConfig["scene_image"]) !== "" ? (string)$selectorSceneConfig["scene_image"] : SITE_TEMPLATE_PATH . "/img/projects/image_15.jpg",
+		"scene_svg_path" => isset($selectorSceneConfig["scene_svg_path"]) && trim((string)$selectorSceneConfig["scene_svg_path"]) !== "" ? (string)$selectorSceneConfig["scene_svg_path"] : SITE_TEMPLATE_PATH . "/img/projects/Group.svg",
+		"map_url" => isset($selectorSceneConfig["map_url"]) ? (string)$selectorSceneConfig["map_url"] : "",
+		"map_label" => isset($selectorSceneConfig["map_label"]) && trim((string)$selectorSceneConfig["map_label"]) !== "" ? (string)$selectorSceneConfig["map_label"] : "На карте",
+		"scene_config" => $selectorSceneConfig,
+	);
 }
 ?>
 
@@ -272,35 +286,29 @@ if ($project) {
       </div>
     </div>
 
-    <section class="projects-genplan" aria-label="Генплан проекта">
-      <div class="projects-genplan__viewport">
-        <div class="projects-genplan__scene">
-          <img
-            class="projects-genplan__image"
-            src="<?=SITE_TEMPLATE_PATH?>/img/projects/image_15.jpg"
-            alt="Генплан проекта"
-            loading="lazy"
-          />
-
-          <div class="projects-genplan__overlay" aria-hidden="true">
-            <div class="projects-genplan__overlay-inner">
-              <?=file_get_contents($_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/img/projects/Group.svg")?>
-            </div>
-          </div>
-
-          <div class="projects-genplan__pins">
-            <button class="projects-genplan__pin" type="button" style="top:16%;left:35%;">
-              <span class="projects-genplan__pin-label">1 подъезд</span>
-              <svg class="projects-genplan__pin-icon" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M5.43301 7.25C5.24056 7.58333 4.75944 7.58333 4.56699 7.25L1.10289 1.25C0.910436 0.916669 1.151 0.500001 1.5359 0.500001L8.4641 0.5C8.849 0.5 9.08956 0.916666 8.89711 1.25L5.43301 7.25Z" fill="#009EAE" stroke="currentColor"></path>
-              </svg>
-            </button>
-          </div>
-
-          <button class="projects-genplan__filter" type="button">На карте</button>
-        </div>
-      </div>
-    </section>
+    <?php
+    if (!empty($projectDetail["selector"]["enabled"])) {
+      $APPLICATION->IncludeComponent(
+        "szcube:project.apartment.selector",
+        ".default",
+        array(
+          "PROJECT_ID" => $project["id"],
+          "PROJECT_CODE" => $project["code"],
+          "DATA_PROJECT_CODE" => $projectDetail["selector"]["data_project_code"],
+          "PROJECT_NAME" => $project["name"],
+          "SCENE_MODE" => $projectDetail["selector"]["scene_mode"],
+          "SCENE_IMAGE" => $projectDetail["selector"]["scene_image"],
+          "SCENE_SVG_PATH" => $projectDetail["selector"]["scene_svg_path"],
+          "MAP_URL" => $projectDetail["selector"]["map_url"],
+          "MAP_LABEL" => $projectDetail["selector"]["map_label"],
+          "SCENE_CONFIG" => $projectDetail["selector"]["scene_config"],
+          "CONSTRUCTION_SUBTITLE" => $projectDetail["construction_subtitle"],
+          "CACHE_TIME" => "36000000",
+        ),
+        false
+      );
+    }
+    ?>
 
     <section class="projects-benefits" aria-label="Преимущества проекта">
       <h2 class="projects-benefits__title">Преимущества</h2>

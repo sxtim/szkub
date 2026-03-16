@@ -705,7 +705,452 @@ const initConstructionModal = () => {
   });
 };
 
+const initProjectApartmentSelector = () => {
+  const selectors = document.querySelectorAll("[data-project-selector]");
+  if (!selectors.length) return;
+
+  const moneyFormatter = new Intl.NumberFormat("ru-RU");
+
+  const formatPrice = (value) => {
+    const numeric = Number(value) || 0;
+    if (numeric <= 0) return "0";
+    return `${moneyFormatter.format(Math.round(numeric))} р.`;
+  };
+
+  const parsePayload = (value) => {
+    if (!value) return null;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  };
+
+  selectors.forEach((root) => {
+    const state = parsePayload(root.getAttribute("data-project-selector-state")) || {};
+    const sceneView = root.querySelector('[data-selector-view="scene"]');
+    const boardView = root.querySelector('[data-selector-view="board"]');
+    const sceneStage = root.querySelector(".projects-selector__scene-stage");
+    const sceneOverlay = root.querySelector("[data-scene-overlay]");
+    const entrancePins = Array.from(root.querySelectorAll("[data-entrance-trigger]"));
+    const scenePins = Array.from(
+      root.querySelectorAll(".projects-selector__pin[data-entrance-modifier]")
+    );
+    const entranceCards = Array.from(root.querySelectorAll("[data-entrance-card]"));
+    const entranceBoards = Array.from(root.querySelectorAll("[data-entrance-board]"));
+    const entranceSwitches = Array.from(root.querySelectorAll("[data-selector-switch-entrance]"));
+    const chooseButtons = Array.from(root.querySelectorAll("[data-selector-open-board]"));
+    const closeSceneButtons = Array.from(root.querySelectorAll("[data-selector-close-scene-card]"));
+    const backButton = root.querySelector("[data-selector-back]");
+    const activeEntranceBadge = root.querySelector("[data-selector-active-entrance]");
+    const lotCard = root.querySelector("[data-selector-lot-card]");
+    const lotImage = lotCard?.querySelector("[data-lot-image]") || null;
+    const lotFinish = lotCard?.querySelector("[data-lot-finish]") || null;
+    const lotTitle = lotCard?.querySelector("[data-lot-title]") || null;
+    const lotPrice = lotCard?.querySelector("[data-lot-price]") || null;
+    const lotProject = lotCard?.querySelector("[data-lot-project]") || null;
+    const lotFloor = lotCard?.querySelector("[data-lot-floor]") || null;
+    const lotNumber = lotCard?.querySelector("[data-lot-number]") || null;
+    const lotDetail = lotCard?.querySelector("[data-lot-detail]") || null;
+    const lotClose = lotCard?.querySelector("[data-selector-close-lot]") || null;
+    const lots = Array.from(root.querySelectorAll("[data-flat-id]"));
+    const sceneSections = Array.from(root.querySelectorAll("[data-section-overlay]"));
+
+    let activeEntranceId =
+      state.initialEntranceId || entrancePins[0]?.dataset.entranceTrigger || "";
+    let currentView = "scene";
+    let sceneCardFrame = 0;
+
+    const desktopCardMedia = window.matchMedia("(max-width: 640px)");
+
+    const setHoveredEntrance = (modifier) => {
+      if (modifier) {
+        root.dataset.hoveredEntrance = modifier;
+        return;
+      }
+
+      delete root.dataset.hoveredEntrance;
+    };
+
+    const findPinByModifier = (modifier) =>
+      entrancePins.find(
+        (button) => button.dataset.entranceModifier === modifier
+      ) || null;
+
+    const hideSceneCards = () => {
+      entranceCards.forEach((card) => {
+        card.hidden = true;
+        card.classList.remove("is-active");
+        clearSceneCardPosition(card);
+      });
+    };
+
+    const clearSceneCardPosition = (card) => {
+      if (!card) return;
+
+      delete card.dataset.cardSide;
+      card.style.removeProperty("--card-left");
+      card.style.removeProperty("--card-top");
+      card.style.removeProperty("--card-transform");
+    };
+
+    const positionSceneCard = (entranceId) => {
+      if (!sceneStage || desktopCardMedia.matches || currentView !== "scene") {
+        return;
+      }
+
+      const pin = entrancePins.find(
+        (button) => button.dataset.entranceTrigger === entranceId
+      );
+      const card = entranceCards.find(
+        (item) => item.dataset.entranceCard === entranceId
+      );
+
+      if (!pin || !card || card.hidden || !card.classList.contains("is-active")) {
+        return;
+      }
+
+      const stageRect = sceneStage.getBoundingClientRect();
+      const pinRect = pin.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+
+      if (!stageRect.width || !cardRect.width) {
+        return;
+      }
+
+      const gap = 18;
+      const padding = 12;
+      const pinCenterX = pinRect.left + pinRect.width / 2 - stageRect.left;
+      const pinTopY = pinRect.top - stageRect.top;
+      const leftCandidate = pinRect.left - stageRect.left - gap - cardRect.width;
+      const rightCandidate = pinRect.right - stageRect.left + gap;
+      const maxLeft = stageRect.width - cardRect.width - padding;
+      const pinStyles = window.getComputedStyle(pin);
+      const forcedSide = (pinStyles.getPropertyValue("--card-side") || "").trim();
+      const preferredSide =
+        forcedSide === "left" || forcedSide === "right"
+          ? forcedSide
+          : pinCenterX < stageRect.width / 2
+            ? "left"
+            : "right";
+      const cardOffsetX = parseFloat(pinStyles.getPropertyValue("--card-offset-x") || "0") || 0;
+      const cardOffsetY = parseFloat(pinStyles.getPropertyValue("--card-offset-y") || "0") || 0;
+
+      let side = preferredSide;
+      let nextLeft = side === "left" ? leftCandidate : rightCandidate;
+
+      if (side === "left" && nextLeft < padding && rightCandidate <= maxLeft) {
+        side = "right";
+        nextLeft = rightCandidate;
+      } else if (
+        side === "right" &&
+        rightCandidate > maxLeft &&
+        leftCandidate >= padding
+      ) {
+        side = "left";
+        nextLeft = leftCandidate;
+      }
+
+      nextLeft = Math.min(Math.max(nextLeft + cardOffsetX, padding), maxLeft);
+
+      const nextTop = Math.min(
+        Math.max(pinTopY - 8 + cardOffsetY, padding),
+        stageRect.height - cardRect.height - padding
+      );
+
+      card.dataset.cardSide = side;
+      card.style.setProperty("--card-left", `${Math.round(nextLeft)}px`);
+      card.style.setProperty("--card-top", `${Math.round(nextTop)}px`);
+      card.style.setProperty("--card-transform", "none");
+    };
+
+    const scheduleActiveCardPosition = () => {
+      if (!activeEntranceId) return;
+
+      window.cancelAnimationFrame(sceneCardFrame);
+      sceneCardFrame = window.requestAnimationFrame(() => {
+        positionSceneCard(activeEntranceId);
+      });
+    };
+
+    const hideLotCard = () => {
+      if (!lotCard) return;
+      lotCard.hidden = true;
+      root.classList.remove("is-lot-open");
+    };
+
+    const showLotCard = (button) => {
+      if (!lotCard || !button) return;
+
+      const flatUrl = button.dataset.flatUrl || "#";
+
+      if (lotImage) {
+        if (button.dataset.flatImage) {
+          lotImage.src = button.dataset.flatImage;
+          lotImage.alt = button.dataset.flatTitle || "Планировка квартиры";
+          lotImage.hidden = false;
+        } else {
+          lotImage.removeAttribute("src");
+          lotImage.hidden = true;
+        }
+      }
+
+      if (lotFinish) {
+        lotFinish.textContent = button.dataset.flatFinish || "Квартира";
+      }
+
+      if (lotTitle) {
+        lotTitle.textContent = button.dataset.flatTitle || "Квартира";
+      }
+
+      if (lotPrice) {
+        lotPrice.textContent = formatPrice(button.dataset.flatPrice || 0);
+      }
+
+      if (lotProject) {
+        lotProject.textContent = button.dataset.flatProject || "";
+      }
+
+      if (lotFloor) {
+        lotFloor.textContent = button.dataset.flatFloor
+          ? `${button.dataset.flatFloor} этаж`
+          : "";
+      }
+
+      if (lotNumber) {
+        lotNumber.textContent = button.dataset.flatNumber
+          ? `№${button.dataset.flatNumber}`
+          : "";
+      }
+
+      if (lotDetail) {
+        lotDetail.href = flatUrl;
+      }
+
+      lotCard.hidden = false;
+      root.classList.add("is-lot-open");
+    };
+
+    const syncActiveEntrance = () => {
+      if (!activeEntranceId) return;
+
+      entrancePins.forEach((button) => {
+        button.classList.toggle(
+          "is-active",
+          button.dataset.entranceTrigger === activeEntranceId
+        );
+      });
+
+      entranceCards.forEach((card) => {
+        const isActive = card.dataset.entranceCard === activeEntranceId;
+        card.classList.toggle("is-active", isActive);
+        card.hidden = !isActive || currentView !== "scene";
+
+        if (!isActive || currentView !== "scene" || desktopCardMedia.matches) {
+          clearSceneCardPosition(card);
+        }
+      });
+
+      entranceBoards.forEach((board) => {
+        const isActive = board.dataset.entranceBoard === activeEntranceId;
+        board.classList.toggle("is-active", isActive);
+        board.hidden = !isActive || currentView !== "board";
+      });
+
+      entranceSwitches.forEach((button) => {
+        button.classList.toggle(
+          "is-active",
+          button.dataset.selectorSwitchEntrance === activeEntranceId
+        );
+      });
+
+      if (activeEntranceBadge) {
+        const activePin = entrancePins.find(
+          (button) => button.dataset.entranceTrigger === activeEntranceId
+        );
+        activeEntranceBadge.textContent = activePin?.textContent?.trim() || "";
+
+        if (activePin?.dataset.entranceModifier) {
+          root.dataset.activeEntrance = activePin.dataset.entranceModifier;
+        } else {
+          delete root.dataset.activeEntrance;
+        }
+      }
+
+      if (currentView === "scene" && !desktopCardMedia.matches) {
+        scheduleActiveCardPosition();
+      }
+    };
+
+    const setView = (view) => {
+      currentView = view === "board" ? "board" : "scene";
+      if (sceneView) sceneView.hidden = currentView !== "scene";
+      if (boardView) boardView.hidden = currentView !== "board";
+      syncActiveEntrance();
+
+      if (currentView === "scene") {
+        setHoveredEntrance("");
+        hideLotCard();
+      }
+    };
+
+    const openSceneCard = (entranceId) => {
+      activeEntranceId = entranceId || activeEntranceId;
+      setView("scene");
+    };
+
+    const openBoard = (entranceId) => {
+      activeEntranceId = entranceId || activeEntranceId;
+      setView("board");
+    };
+
+    scenePins.forEach((button) => {
+      const modifier = button.dataset.entranceModifier || "";
+
+      if (modifier) {
+        button.addEventListener("mouseenter", () => {
+          setHoveredEntrance(modifier);
+        });
+
+        button.addEventListener("mouseleave", () => {
+          setHoveredEntrance("");
+        });
+
+        button.addEventListener("focus", () => {
+          setHoveredEntrance(modifier);
+        });
+
+        button.addEventListener("blur", () => {
+          setHoveredEntrance("");
+        });
+      }
+    });
+
+    entrancePins.forEach((button) => {
+      button.addEventListener("click", () => {
+        openSceneCard(button.dataset.entranceTrigger || "");
+      });
+    });
+
+    sceneSections.forEach((shape) => {
+      const modifier = shape.dataset.sectionOverlay || "";
+      if (!modifier) {
+        return;
+      }
+
+      shape.addEventListener("mouseenter", () => {
+        setHoveredEntrance(modifier);
+      });
+
+      shape.addEventListener("mouseleave", () => {
+        setHoveredEntrance("");
+      });
+
+      shape.addEventListener("click", () => {
+        const matchedPin = findPinByModifier(modifier);
+        openSceneCard(matchedPin?.dataset.entranceTrigger || activeEntranceId);
+      });
+    });
+
+    chooseButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        openBoard(button.dataset.selectorOpenBoard || "");
+      });
+    });
+
+    closeSceneButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        hideSceneCards();
+      });
+    });
+
+    entranceSwitches.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeEntranceId = button.dataset.selectorSwitchEntrance || activeEntranceId;
+        syncActiveEntrance();
+        hideLotCard();
+      });
+    });
+
+    backButton?.addEventListener("click", () => {
+      openSceneCard(activeEntranceId);
+    });
+
+    lots.forEach((button) => {
+      button.addEventListener("click", () => {
+        showLotCard(button);
+      });
+    });
+
+    lotClose?.addEventListener("click", () => {
+      hideLotCard();
+    });
+
+    root.addEventListener("click", (event) => {
+      if (currentView === "scene") {
+        const clickedSceneStage = event.target.closest(".projects-selector__scene-stage");
+
+        if (
+          event.target.closest("[data-entrance-trigger]") ||
+          event.target.closest("[data-entrance-card]") ||
+          event.target.closest("[data-section-overlay]") ||
+          !clickedSceneStage
+        ) {
+          return;
+        }
+
+        hideSceneCards();
+        return;
+      }
+
+      if (currentView !== "board" || lotCard?.hidden) {
+        return;
+      }
+
+      const clickedBoardStage = event.target.closest(".projects-selector__board-stage");
+
+      if (
+        event.target.closest("[data-flat-id]") ||
+        event.target.closest("[data-selector-lot-card]") ||
+        !clickedBoardStage
+      ) {
+        return;
+      }
+
+      hideLotCard();
+    });
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      if (!root.contains(target)) {
+        if (currentView === "scene") {
+          hideSceneCards();
+          return;
+        }
+
+        if (currentView === "board") {
+          hideLotCard();
+        }
+      }
+    });
+
+    setView("scene");
+    hideSceneCards();
+
+    window.addEventListener("resize", () => {
+      if (currentView === "scene") {
+        scheduleActiveCardPosition();
+      }
+    });
+  });
+};
+
 const initProjectsPage = () => {
+  initProjectApartmentSelector();
   initBenefitsModal();
   initConstructionSlider();
   initConstructionModal();
