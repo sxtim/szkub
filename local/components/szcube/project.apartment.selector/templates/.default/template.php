@@ -57,6 +57,7 @@ foreach ($entrances as $entrance) {
 $scenePins = $entrances;
 $sceneCards = $entrances;
 $virtualEntranceOne = null;
+$previewFlat = null;
 
 if (!$hasEntranceOne && !empty($entrances)) {
     $virtualEntranceOne = $entrances[0];
@@ -70,6 +71,40 @@ if (!$hasEntranceOne && !empty($entrances)) {
 
     $scenePins[] = $virtualEntranceOne;
     $sceneCards[] = $virtualEntranceOne;
+}
+
+foreach ($entrances as $entrance) {
+    if (!isset($entrance["checkerboard"]["rows"]) || !is_array($entrance["checkerboard"]["rows"])) {
+        continue;
+    }
+
+    foreach ($entrance["checkerboard"]["rows"] as $row) {
+        if (!isset($row["cells"]) || !is_array($row["cells"])) {
+            continue;
+        }
+
+        foreach ($row["cells"] as $cell) {
+            if (is_array($cell)) {
+                $previewFlat = $cell;
+                break 3;
+            }
+        }
+    }
+}
+
+$popupPlanSrc = SITE_TEMPLATE_PATH . "/img/apartments/" . rawurlencode("1 этаж 2е 92.8 с антресолью 1.jpg");
+$previewFlatMeta = array();
+if (is_array($previewFlat) && isset($previewFlat["rooms"]) && trim((string)$previewFlat["rooms"]) !== "") {
+    $previewFlatMeta[] = trim((string)$previewFlat["rooms"]);
+}
+if (is_array($previewFlat) && isset($previewFlat["area_total"]) && trim((string)$previewFlat["area_total"]) !== "") {
+    $previewFlatMeta[] = trim((string)$previewFlat["area_total"]) . " м²";
+}
+if (is_array($previewFlat) && isset($previewFlat["floor"]) && (int)$previewFlat["floor"] > 0) {
+    $houseFloors = isset($previewFlat["house_floors"]) ? (int)$previewFlat["house_floors"] : 0;
+    $previewFlatMeta[] = $houseFloors > 0
+        ? ((int)$previewFlat["floor"]) . " этаж из " . $houseFloors
+        : ((int)$previewFlat["floor"]) . " этаж";
 }
 ?>
 <section class="projects-genplan" aria-label="Выбор квартиры в проекте">
@@ -228,23 +263,19 @@ if (!$hasEntranceOne && !empty($entrances)) {
               Назад
             </button>
 
-            <?php if (trim((string)$project["CONSTRUCTION_SUBTITLE"]) !== ""): ?>
-              <div class="projects-selector__board-deadline"><?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?></div>
-            <?php endif; ?>
+            <div class="projects-selector__board-headings">
+              <div class="projects-selector__board-project-name"><?= htmlspecialcharsbx((string)$project["NAME"]) ?></div>
 
-            <button class="projects-selector__board-button projects-selector__board-button--filter" type="button">
-              Фильтр
-            </button>
+              <?php if (trim((string)$project["CONSTRUCTION_SUBTITLE"]) !== ""): ?>
+                <div class="projects-selector__board-deadline"><?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?></div>
+              <?php endif; ?>
+
+              <div class="projects-selector__board-entrance-label" data-selector-active-entrance></div>
+            </div>
           </div>
-
-          <div class="projects-selector__board-entrance-badge" data-selector-active-entrance></div>
 
           <div class="projects-selector__board-content">
             <div class="projects-selector__lot-card" data-selector-lot-card hidden>
-              <div class="projects-selector__lot-card-topline">
-                <div class="projects-selector__lot-card-badge" data-lot-finish></div>
-                <div class="projects-selector__lot-card-menu" aria-hidden="true">···</div>
-              </div>
               <button
                 class="projects-selector__popup-close projects-selector__popup-close--lot"
                 type="button"
@@ -253,19 +284,33 @@ if (!$hasEntranceOne && !empty($entrances)) {
               >
                 ×
               </button>
-              <div class="projects-selector__lot-card-media">
-                <img src="" alt="" data-lot-image />
-              </div>
-              <a class="projects-selector__lot-card-body" href="#" data-lot-detail>
-                <div class="projects-selector__lot-card-title" data-lot-title></div>
-                <div class="projects-selector__lot-card-price" data-lot-price></div>
-                <div class="projects-selector__lot-card-meta">
-                  <span data-lot-project></span>
-                </div>
-                <div class="projects-selector__lot-card-meta is-secondary">
-                  <span data-lot-floor></span>
-                  <span data-lot-number></span>
-                </div>
+              <a class="projects-selector__lot-card-link" data-lot-detail href="/apartments/vertical-235/">
+                <article class="apartment-card">
+                  <div class="apartment-card__head">
+                    <div>
+                      <span class="apartment-card__project">ЖК Коллекция</span>
+                      <span class="apartment-card__date">Сдача 2 кв. 2027г.</span>
+                    </div>
+                    <button class="apartment-card__fav" type="button" aria-label="В избранное">
+                      <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="apartment-card__plan">
+                    <img class="apartment-card__plan-image" src="<?= htmlspecialcharsbx($popupPlanSrc) ?>" alt="Планировка" />
+                  </div>
+
+                  <div class="apartment-card__meta">Студия &nbsp;•&nbsp; 20,1 м² &nbsp;•&nbsp; 12 этаж из 12</div>
+
+                  <div class="apartment-card__price">
+                    <span class="apartment-card__price-main">5 700 000 ₽</span>
+                    <span class="apartment-card__price-old">6 700 000 ₽</span>
+                  </div>
+
+                  <span class="apartment-card__badge">Скидка 25%</span>
+                </article>
               </a>
             </div>
 
@@ -278,11 +323,9 @@ if (!$hasEntranceOne && !empty($entrances)) {
                 >
                   <div class="projects-selector__checkerboard-grid">
                     <div class="projects-selector__checkerboard-column">
-                      <div class="projects-selector__checkerboard-heading"><?= htmlspecialcharsbx((string)$entrance["title"]) ?></div>
-
                       <?php foreach ($entrance["checkerboard"]["rows"] as $row): ?>
                         <div class="projects-selector__checkerboard-row">
-                          <div class="projects-selector__checkerboard-floor"><?= (int)$row["number"] ?></div>
+                          <div class="projects-selector__checkerboard-floor"><?= htmlspecialcharsbx(isset($row["label"]) ? (string)$row["label"] : (string)$row["number"]) ?></div>
                           <div
                             class="projects-selector__checkerboard-cells"
                             style="--checkerboard-columns: <?= (int)$entrance["checkerboard"]["max_columns"] ?>;"
@@ -295,10 +338,15 @@ if (!$hasEntranceOne && !empty($entrances)) {
                                   data-flat-id="<?= (int)$cell["id"] ?>"
                                   data-flat-title="<?= htmlspecialcharsbx((string)$cell["title"]) ?>"
                                   data-flat-price="<?= htmlspecialcharsbx((string)$cell["price_total"]) ?>"
+                                  data-flat-price-old="<?= htmlspecialcharsbx((string)$cell["price_old"]) ?>"
                                   data-flat-project="<?= htmlspecialcharsbx((string)$project["NAME"]) ?>"
+                                  data-flat-rooms="<?= htmlspecialcharsbx((string)$cell["rooms"]) ?>"
+                                  data-flat-area="<?= htmlspecialcharsbx((string)$cell["area_total"]) ?>"
+                                  data-flat-badge="<?= htmlspecialcharsbx((string)$cell["badge"]) ?>"
                                   data-flat-finish="<?= htmlspecialcharsbx((string)$cell["finish"]) ?>"
                                   data-flat-image="<?= htmlspecialcharsbx((string)$cell["plan_image"]) ?>"
                                   data-flat-floor="<?= (int)$cell["floor"] ?>"
+                                  data-flat-house-floors="<?= (int)$cell["house_floors"] ?>"
                                   data-flat-number="<?= htmlspecialcharsbx((string)$cell["number"]) ?>"
                                   data-flat-url="<?= htmlspecialcharsbx((string)$cell["url"]) ?>"
                                   data-flat-status="<?= htmlspecialcharsbx((string)$cell["status_xml_id"]) ?>"
@@ -320,34 +368,16 @@ if (!$hasEntranceOne && !empty($entrances)) {
           </div>
 
           <div class="projects-selector__board-footer">
-            <div class="projects-selector__legend">
+            <div class="projects-selector__legend" aria-label="Обозначения статусов квартир">
               <span class="projects-selector__legend-item">
-                <i class="projects-selector__legend-dot is-free"></i>
-                Свободно
+                <span class="projects-selector__legend-dot is-booked" aria-hidden="true"></span>
+                <span>Забронировано</span>
               </span>
               <span class="projects-selector__legend-item">
-                <i class="projects-selector__legend-dot is-booked"></i>
-                Забронировано
-              </span>
-              <span class="projects-selector__legend-item">
-                <i class="projects-selector__legend-dot is-sold"></i>
-                Продано
+                <span class="projects-selector__legend-dot is-sold" aria-hidden="true"></span>
+                <span>Продано</span>
               </span>
             </div>
-
-            <?php if (count($entrances) > 1): ?>
-              <div class="projects-selector__board-switches">
-                <?php foreach ($entrances as $index => $entrance): ?>
-                  <button
-                    class="projects-selector__board-switch<?= $index === 0 ? " is-active" : "" ?>"
-                    type="button"
-                    data-selector-switch-entrance="<?= htmlspecialcharsbx((string)$entrance["id"]) ?>"
-                  >
-                    <?= htmlspecialcharsbx((string)$entrance["title"]) ?>
-                  </button>
-                <?php endforeach; ?>
-              </div>
-            <?php endif; ?>
           </div>
         </div>
       </div>

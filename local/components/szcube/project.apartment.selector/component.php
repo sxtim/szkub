@@ -80,6 +80,10 @@ if (!function_exists("szcubeProjectSelectorRoomShort")) {
             return "";
         }
 
+        if (preg_match("/ст|stud|studio/iu", $value)) {
+            return "СТ";
+        }
+
         if (preg_match("/(\\d+)/", $value, $matches)) {
             return (string)$matches[1];
         }
@@ -113,6 +117,7 @@ $mapUrl = isset($arParams["MAP_URL"]) ? trim((string)$arParams["MAP_URL"]) : "";
 $mapLabel = isset($arParams["MAP_LABEL"]) && trim((string)$arParams["MAP_LABEL"]) !== "" ? trim((string)$arParams["MAP_LABEL"]) : "На карте";
 $constructionSubtitle = isset($arParams["CONSTRUCTION_SUBTITLE"]) ? trim((string)$arParams["CONSTRUCTION_SUBTITLE"]) : "";
 $sceneConfig = isset($arParams["SCENE_CONFIG"]) && is_array($arParams["SCENE_CONFIG"]) ? $arParams["SCENE_CONFIG"] : array();
+$boardConfig = isset($sceneConfig["board"]) && is_array($sceneConfig["board"]) ? $sceneConfig["board"] : array();
 $cacheTime = isset($arParams["CACHE_TIME"]) ? (int)$arParams["CACHE_TIME"] : 36000000;
 
 if ($projectCode === "" || $dataProjectCode === "") {
@@ -248,6 +253,8 @@ if ($this->StartResultCache(false, $cacheId)) {
                 $planImage = szcubeProjectSelectorFilePath(isset($flatProperties["PLAN_IMAGE"]["VALUE"]) ? $flatProperties["PLAN_IMAGE"]["VALUE"] : 0);
                 $flatNumber = isset($flatProperties["APARTMENT_NUMBER"]["VALUE"]) ? trim((string)$flatProperties["APARTMENT_NUMBER"]["VALUE"]) : "";
                 $finish = isset($flatProperties["FINISH"]["VALUE"]) ? trim((string)$flatProperties["FINISH"]["VALUE"]) : "";
+                $priceOld = isset($flatProperties["PRICE_OLD"]["VALUE"]) ? (float)$flatProperties["PRICE_OLD"]["VALUE"] : 0;
+                $discountLabel = isset($flatProperties["DISCOUNT_LABEL"]["VALUE"]) ? trim((string)$flatProperties["DISCOUNT_LABEL"]["VALUE"]) : "";
 
                 $flatData = array(
                     "id" => (int)$flatFields["ID"],
@@ -259,11 +266,14 @@ if ($this->StartResultCache(false, $cacheId)) {
                     "rooms_short" => szcubeProjectSelectorRoomShort($rooms),
                     "area_total" => isset($flatProperties["AREA_TOTAL"]["VALUE"]) ? trim((string)$flatProperties["AREA_TOTAL"]["VALUE"]) : "",
                     "price_total" => $priceTotal,
+                    "price_old" => $priceOld,
                     "status_xml_id" => $statusXmlId !== "" ? $statusXmlId : "free",
                     "status_label" => $statusLabel !== "" ? $statusLabel : "Свободно",
                     "finish" => $finish,
+                    "badge" => $discountLabel !== "" ? $discountLabel : $finish,
                     "plan_image" => $planImage,
                     "floor" => $floorNumber,
+                    "house_floors" => $houseFloors,
                     "entrance" => $entranceData["number"],
                 );
 
@@ -317,6 +327,9 @@ if ($this->StartResultCache(false, $cacheId)) {
             }
 
             $renderFloors = max($entranceData["house_floors"], $maxFloorNumber);
+            if (isset($boardConfig["rows_count"]) && (int)$boardConfig["rows_count"] > 0) {
+                $renderFloors = (int)$boardConfig["rows_count"];
+            }
             if ($renderFloors <= 0) {
                 $renderFloors = $maxFloorNumber > 0 ? $maxFloorNumber : 1;
             }
@@ -333,6 +346,9 @@ if ($this->StartResultCache(false, $cacheId)) {
 
                 $rows[] = array(
                     "number" => $currentFloor,
+                    "label" => $currentFloor === $renderFloors && isset($boardConfig["top_row_label"]) && trim((string)$boardConfig["top_row_label"]) !== ""
+                        ? trim((string)$boardConfig["top_row_label"])
+                        : (string)$currentFloor,
                     "cells" => $cells,
                 );
             }

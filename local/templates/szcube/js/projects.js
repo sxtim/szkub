@@ -713,8 +713,8 @@ const initProjectApartmentSelector = () => {
 
   const formatPrice = (value) => {
     const numeric = Number(value) || 0;
-    if (numeric <= 0) return "0";
-    return `${moneyFormatter.format(Math.round(numeric))} р.`;
+    if (numeric <= 0) return "";
+    return `${moneyFormatter.format(Math.round(numeric))} ₽`;
   };
 
   const parsePayload = (value) => {
@@ -744,13 +744,6 @@ const initProjectApartmentSelector = () => {
     const backButton = root.querySelector("[data-selector-back]");
     const activeEntranceBadge = root.querySelector("[data-selector-active-entrance]");
     const lotCard = root.querySelector("[data-selector-lot-card]");
-    const lotImage = lotCard?.querySelector("[data-lot-image]") || null;
-    const lotFinish = lotCard?.querySelector("[data-lot-finish]") || null;
-    const lotTitle = lotCard?.querySelector("[data-lot-title]") || null;
-    const lotPrice = lotCard?.querySelector("[data-lot-price]") || null;
-    const lotProject = lotCard?.querySelector("[data-lot-project]") || null;
-    const lotFloor = lotCard?.querySelector("[data-lot-floor]") || null;
-    const lotNumber = lotCard?.querySelector("[data-lot-number]") || null;
     const lotDetail = lotCard?.querySelector("[data-lot-detail]") || null;
     const lotClose = lotCard?.querySelector("[data-selector-close-lot]") || null;
     const lots = Array.from(root.querySelectorAll("[data-flat-id]"));
@@ -882,49 +875,8 @@ const initProjectApartmentSelector = () => {
     const showLotCard = (button) => {
       if (!lotCard || !button) return;
 
-      const flatUrl = button.dataset.flatUrl || "#";
-
-      if (lotImage) {
-        if (button.dataset.flatImage) {
-          lotImage.src = button.dataset.flatImage;
-          lotImage.alt = button.dataset.flatTitle || "Планировка квартиры";
-          lotImage.hidden = false;
-        } else {
-          lotImage.removeAttribute("src");
-          lotImage.hidden = true;
-        }
-      }
-
-      if (lotFinish) {
-        lotFinish.textContent = button.dataset.flatFinish || "Квартира";
-      }
-
-      if (lotTitle) {
-        lotTitle.textContent = button.dataset.flatTitle || "Квартира";
-      }
-
-      if (lotPrice) {
-        lotPrice.textContent = formatPrice(button.dataset.flatPrice || 0);
-      }
-
-      if (lotProject) {
-        lotProject.textContent = button.dataset.flatProject || "";
-      }
-
-      if (lotFloor) {
-        lotFloor.textContent = button.dataset.flatFloor
-          ? `${button.dataset.flatFloor} этаж`
-          : "";
-      }
-
-      if (lotNumber) {
-        lotNumber.textContent = button.dataset.flatNumber
-          ? `№${button.dataset.flatNumber}`
-          : "";
-      }
-
       if (lotDetail) {
-        lotDetail.href = flatUrl;
+        lotDetail.href = button.dataset.flatUrl || "#";
       }
 
       lotCard.hidden = false;

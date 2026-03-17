@@ -110,7 +110,7 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
     ?>
 
     <div class="projects__cards">
-      <a class="project-card" href="https://xn--e1abhgabfaz8fye.xn--p1ai/">
+      <a class="project-card" href="/projects/kollekciya/">
         <div class="project-card__image">
           <img
             src="<?=SITE_TEMPLATE_PATH?>/img/photo_5467741080506797884_y.jpg"

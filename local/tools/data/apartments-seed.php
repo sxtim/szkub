@@ -2,14 +2,14 @@
 
 	return array(
 		array(
-			"xml_id" => "vertical-2-12-235",
+			"xml_id" => "vertical-2-6-235",
 			"name" => "2-комнатная, 92.8 м2",
 		"project_code" => "vertical",
 		"entrance" => "2",
 		"entrance_pin_x" => "35",
 		"entrance_pin_y" => "16",
 		"entrance_pin_label" => "2 подъезд",
-		"floor" => 12,
+		"floor" => 6,
 		"floor_chess_svg" => "/local/templates/szcube/img/projects/chess/vertical-entrance-2-floor-12.svg",
 		"house_floors" => 6,
 		"apartment_number" => "235",
@@ -44,14 +44,14 @@
 			"sort_in_floor" => 235,
 		),
 		array(
-			"xml_id" => "vertical-2-12-236",
+			"xml_id" => "vertical-2-6-236",
 			"name" => "2-комнатная, 92.8 м2",
 		"project_code" => "vertical",
 		"entrance" => "2",
 		"entrance_pin_x" => "35",
 		"entrance_pin_y" => "16",
 		"entrance_pin_label" => "2 подъезд",
-		"floor" => 12,
+		"floor" => 6,
 		"floor_chess_svg" => "/local/templates/szcube/img/projects/chess/vertical-entrance-2-floor-12.svg",
 		"house_floors" => 6,
 		"apartment_number" => "236",

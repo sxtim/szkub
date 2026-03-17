@@ -34,6 +34,10 @@ if (!function_exists("szcubeGetProjectSelectorSceneConfigs")) {
                     "mobile_zoom" => "1.6",
                     "mobile_center_x" => "62%",
                 ),
+                "board" => array(
+                    "rows_count" => 6,
+                    "top_row_label" => "6-7",
+                ),
                 "pins" => array(
                     "1" => array(
                         "desktop" => array(

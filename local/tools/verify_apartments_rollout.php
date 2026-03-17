@@ -80,6 +80,23 @@ function verifyFindIblockByCode($code)
 	return null;
 }
 
+function verifyFindUserField($entityId, $fieldName)
+{
+	$res = CUserTypeEntity::GetList(
+		array("ID" => "ASC"),
+		array(
+			"ENTITY_ID" => (string)$entityId,
+			"FIELD_NAME" => (string)$fieldName,
+		)
+	);
+
+	if ($row = $res->Fetch()) {
+		return $row;
+	}
+
+	return null;
+}
+
 function verifyNormalizeApartmentCodePart($value)
 {
 	$value = trim((string)$value);
@@ -106,6 +123,61 @@ function verifyBuildApartmentCode(array $item)
 	}));
 
 	return implode("-", $parts);
+}
+
+function verifyFindSectionByCodeAndParent($iblockId, $parentId, $code)
+{
+	$filter = array(
+		"IBLOCK_ID" => (int)$iblockId,
+		"=CODE" => (string)$code,
+	);
+
+	$filter["SECTION_ID"] = $parentId > 0 ? (int)$parentId : false;
+
+	$res = CIBlockSection::GetList(
+		array("SORT" => "ASC", "ID" => "ASC"),
+		$filter,
+		false,
+		array("ID", "NAME", "CODE", "IBLOCK_SECTION_ID", "UF_ENTRANCE_NUMBER", "UF_FLOOR_NUMBER", "UF_PIN_X", "UF_PIN_Y", "UF_PIN_LABEL")
+	);
+
+	if ($row = $res->GetNext()) {
+		return $row;
+	}
+
+	return null;
+}
+
+function verifyFindApartmentByXmlId($iblockId, $xmlId)
+{
+	$res = CIBlockElement::GetList(
+		array(),
+		array(
+			"IBLOCK_ID" => (int)$iblockId,
+			"=XML_ID" => (string)$xmlId,
+		),
+		false,
+		false,
+		array("ID", "IBLOCK_SECTION_ID", "NAME", "CODE", "XML_ID")
+	);
+
+	return $res->GetNextElement();
+}
+
+function verifyGetElementPropertyValue($iblockId, $elementId, $propertyCode)
+{
+	$res = CIBlockElement::GetProperty(
+		(int)$iblockId,
+		(int)$elementId,
+		array("SORT" => "ASC", "ID" => "ASC"),
+		array("CODE" => (string)$propertyCode)
+	);
+
+	if ($row = $res->Fetch()) {
+		return isset($row["VALUE"]) ? $row["VALUE"] : null;
+	}
+
+	return null;
 }
 
 function verifyGetHttpStatus($url)
@@ -143,6 +215,7 @@ if (!is_array($apartmentsIblock)) {
 }
 
 $apartmentsIblockId = is_array($apartmentsIblock) ? (int)$apartmentsIblock["ID"] : 0;
+$apartmentsSectionEntityId = $apartmentsIblockId > 0 ? ("IBLOCK_" . $apartmentsIblockId . "_SECTION") : "";
 
 $requiredProperties = array(
 	"PROJECT",
@@ -167,36 +240,163 @@ if ($apartmentsIblockId > 0) {
 	}
 }
 
+$requiredSectionUserFields = array(
+	"UF_NODE_TYPE",
+	"UF_ENTRANCE_NUMBER",
+	"UF_FLOOR_NUMBER",
+	"UF_CHESS_SVG",
+	"UF_CHESS_IMAGE",
+	"UF_PIN_X",
+	"UF_PIN_Y",
+	"UF_PIN_LABEL",
+);
+
+if ($apartmentsIblockId > 0 && $apartmentsSectionEntityId !== "") {
+	foreach ($requiredSectionUserFields as $fieldName) {
+		$field = verifyFindUserField($apartmentsSectionEntityId, $fieldName);
+		if (is_array($field)) {
+			echo "[OK] Section user field exists: " . $fieldName . " (ID=" . (int)$field["ID"] . ")" . PHP_EOL;
+			continue;
+		}
+
+		$errors[] = "Section user field not found: " . $fieldName;
+	}
+}
+
 if ($apartmentsIblockId > 0) {
+	$checkedProjectSections = array();
+	$checkedEntranceSections = array();
+	$checkedFloorSections = array();
+
 	foreach ($items as $item) {
 		if (!is_array($item)) {
 			continue;
 		}
 
+		$projectCode = isset($item["project_code"]) ? trim((string)$item["project_code"]) : "";
+		$entrance = isset($item["entrance"]) ? trim((string)$item["entrance"]) : "";
+		$floor = isset($item["floor"]) ? (int)$item["floor"] : 0;
+		$houseFloors = isset($item["house_floors"]) ? (int)$item["house_floors"] : 0;
+		$apartmentNumber = isset($item["apartment_number"]) ? trim((string)$item["apartment_number"]) : "";
 		$expectedXmlId = isset($item["xml_id"]) && trim((string)$item["xml_id"]) !== ""
 			? trim((string)$item["xml_id"])
 			: verifyBuildApartmentCode($item);
 		$expectedCode = verifyBuildApartmentCode($item);
+		$expectedPriceOld = isset($item["price_old"]) ? (float)$item["price_old"] : 0;
+		$expectedDiscountLabel = isset($item["discount_label"]) ? trim((string)$item["discount_label"]) : "";
 
-		$res = CIBlockElement::GetList(
-			array(),
-			array(
-				"IBLOCK_ID" => $apartmentsIblockId,
-				"=XML_ID" => $expectedXmlId,
-			),
-			false,
-			false,
-			array("ID", "NAME", "CODE", "XML_ID")
-		);
+		$projectSection = null;
+		if ($projectCode !== "") {
+			if (!array_key_exists($projectCode, $checkedProjectSections)) {
+				$checkedProjectSections[$projectCode] = verifyFindSectionByCodeAndParent($apartmentsIblockId, 0, $projectCode);
+				if (is_array($checkedProjectSections[$projectCode])) {
+					echo "[OK] Project section exists: " . $projectCode . " (ID=" . (int)$checkedProjectSections[$projectCode]["ID"] . ")" . PHP_EOL;
+				} else {
+					$errors[] = "Project section not found: " . $projectCode;
+				}
+			}
 
-		if (!($row = $res->Fetch())) {
+			$projectSection = $checkedProjectSections[$projectCode];
+		}
+
+		$entranceSection = null;
+		$entranceSectionKey = $projectCode . "|" . $entrance;
+		if (is_array($projectSection) && $entrance !== "") {
+			$entranceCode = "podezd-" . verifyNormalizeApartmentCodePart($entrance);
+			if (!array_key_exists($entranceSectionKey, $checkedEntranceSections)) {
+				$checkedEntranceSections[$entranceSectionKey] = verifyFindSectionByCodeAndParent($apartmentsIblockId, (int)$projectSection["ID"], $entranceCode);
+				if (is_array($checkedEntranceSections[$entranceSectionKey])) {
+					echo "[OK] Entrance section exists: " . $entranceCode . " (ID=" . (int)$checkedEntranceSections[$entranceSectionKey]["ID"] . ")" . PHP_EOL;
+				} else {
+					$errors[] = "Entrance section not found: " . $entranceCode . " under " . $projectCode;
+				}
+			}
+
+			$entranceSection = $checkedEntranceSections[$entranceSectionKey];
+			if (is_array($entranceSection)) {
+				$expectedPinX = isset($item["entrance_pin_x"]) ? trim((string)$item["entrance_pin_x"]) : "";
+				$expectedPinY = isset($item["entrance_pin_y"]) ? trim((string)$item["entrance_pin_y"]) : "";
+				$expectedPinLabel = isset($item["entrance_pin_label"]) ? trim((string)$item["entrance_pin_label"]) : "";
+
+				if ($expectedPinX !== "" && trim((string)$entranceSection["UF_PIN_X"]) !== $expectedPinX) {
+					$errors[] = "Entrance UF_PIN_X mismatch for " . $entranceCode . ": expected " . $expectedPinX . ", got " . trim((string)$entranceSection["UF_PIN_X"]);
+				}
+				if ($expectedPinY !== "" && trim((string)$entranceSection["UF_PIN_Y"]) !== $expectedPinY) {
+					$errors[] = "Entrance UF_PIN_Y mismatch for " . $entranceCode . ": expected " . $expectedPinY . ", got " . trim((string)$entranceSection["UF_PIN_Y"]);
+				}
+				if ($expectedPinLabel !== "" && trim((string)$entranceSection["UF_PIN_LABEL"]) !== $expectedPinLabel) {
+					$errors[] = "Entrance UF_PIN_LABEL mismatch for " . $entranceCode . ": expected " . $expectedPinLabel . ", got " . trim((string)$entranceSection["UF_PIN_LABEL"]);
+				}
+			}
+		}
+
+		$floorSection = null;
+		$floorSectionKey = $projectCode . "|" . $entrance . "|" . $floor;
+		if (is_array($entranceSection) && $floor > 0) {
+			$floorCode = sprintf("floor-%02d", $floor);
+			if (!array_key_exists($floorSectionKey, $checkedFloorSections)) {
+				$checkedFloorSections[$floorSectionKey] = verifyFindSectionByCodeAndParent($apartmentsIblockId, (int)$entranceSection["ID"], $floorCode);
+				if (is_array($checkedFloorSections[$floorSectionKey])) {
+					echo "[OK] Floor section exists: " . $floorCode . " (ID=" . (int)$checkedFloorSections[$floorSectionKey]["ID"] . ")" . PHP_EOL;
+				} else {
+					$errors[] = "Floor section not found: " . $floorCode . " under entrance " . $entrance;
+				}
+			}
+
+			$floorSection = $checkedFloorSections[$floorSectionKey];
+			if (is_array($floorSection) && (int)$floorSection["UF_FLOOR_NUMBER"] !== $floor) {
+				$errors[] = "Floor section UF_FLOOR_NUMBER mismatch for " . $floorCode . ": expected " . $floor . ", got " . (int)$floorSection["UF_FLOOR_NUMBER"];
+			}
+		}
+
+		$element = verifyFindApartmentByXmlId($apartmentsIblockId, $expectedXmlId);
+		if (!($element instanceof _CIBElement)) {
 			$errors[] = "Apartment not found by XML_ID: " . $expectedXmlId;
 			continue;
 		}
 
+		$row = $element->GetFields();
+
 		echo "[OK] Apartment exists: XML_ID=" . $expectedXmlId . ", CODE=" . (string)$row["CODE"] . PHP_EOL;
 		if (trim((string)$row["CODE"]) !== $expectedCode) {
 			$errors[] = "Apartment CODE mismatch for XML_ID=" . $expectedXmlId . ": expected " . $expectedCode . ", got " . (string)$row["CODE"];
+			continue;
+		}
+
+		if (is_array($floorSection) && (int)$row["IBLOCK_SECTION_ID"] !== (int)$floorSection["ID"]) {
+			$errors[] = "Apartment section mismatch for XML_ID=" . $expectedXmlId . ": expected section ID " . (int)$floorSection["ID"] . ", got " . (int)$row["IBLOCK_SECTION_ID"];
+			continue;
+		}
+
+		$actualEntrance = trim((string)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "ENTRANCE"));
+		$actualFloor = (int)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "FLOOR");
+		$actualHouseFloors = (int)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "HOUSE_FLOORS");
+		$actualApartmentNumber = trim((string)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "APARTMENT_NUMBER"));
+		$actualPriceOld = (float)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "PRICE_OLD");
+		$actualDiscountLabel = trim((string)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "DISCOUNT_LABEL"));
+
+		if ($entrance !== "" && $actualEntrance !== $entrance) {
+			$errors[] = "Apartment entrance mismatch for XML_ID=" . $expectedXmlId . ": expected " . $entrance . ", got " . $actualEntrance;
+			continue;
+		}
+		if ($floor > 0 && $actualFloor !== $floor) {
+			$errors[] = "Apartment floor mismatch for XML_ID=" . $expectedXmlId . ": expected " . $floor . ", got " . $actualFloor;
+			continue;
+		}
+		if ($houseFloors > 0 && $actualHouseFloors !== $houseFloors) {
+			$errors[] = "Apartment house_floors mismatch for XML_ID=" . $expectedXmlId . ": expected " . $houseFloors . ", got " . $actualHouseFloors;
+			continue;
+		}
+		if ($apartmentNumber !== "" && $actualApartmentNumber !== $apartmentNumber) {
+			$errors[] = "Apartment number mismatch for XML_ID=" . $expectedXmlId . ": expected " . $apartmentNumber . ", got " . $actualApartmentNumber;
+			continue;
+		}
+		if ($expectedPriceOld > 0 && abs($actualPriceOld - $expectedPriceOld) > 0.0001) {
+			$errors[] = "Apartment price_old mismatch for XML_ID=" . $expectedXmlId . ": expected " . $expectedPriceOld . ", got " . $actualPriceOld;
+			continue;
+		}
+		if ($expectedDiscountLabel !== "" && $actualDiscountLabel !== $expectedDiscountLabel) {
+			$errors[] = "Apartment discount_label mismatch for XML_ID=" . $expectedXmlId . ": expected " . $expectedDiscountLabel . ", got " . $actualDiscountLabel;
 			continue;
 		}
 

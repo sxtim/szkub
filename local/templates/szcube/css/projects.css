@@ -324,7 +324,7 @@
 .projects-selector__board-stage {
   position: relative;
   overflow: hidden;
-  border-radius: 32px;
+  border-radius: 2px;
   box-shadow: 0 24px 64px rgba(16, 28, 44, 0.12);
 }
 
@@ -459,27 +459,7 @@
   transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
-.projects-selector__board-entrance-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 18px;
-  border-radius: 16px;
-  border: 2px solid rgba(134, 255, 242, 0.94);
-  background: rgba(17, 168, 157, 0.92);
-  color: #fff;
-  font-family: var(--font-title);
-  font-size: 17px;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  box-shadow: 0 18px 38px rgba(10, 31, 45, 0.18);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-}
-
-.projects-selector__pin-tail,
-.projects-selector__board-entrance-badge::after {
+.projects-selector__pin-tail {
   width: 0;
   height: 0;
   border-left: 10px solid transparent;
@@ -666,7 +646,7 @@
   min-height: 48px;
   padding: 0 20px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 2px;
   background: rgba(28, 37, 66, 0.74);
   color: #fff;
   font-size: 14px;
@@ -675,19 +655,12 @@
 }
 
 .projects-selector__board-stage {
+  position: relative;
   min-height: 820px;
   padding: 102px 32px 44px;
   background:
     radial-gradient(circle at 50% 38%, rgba(18, 184, 168, 0.08), rgba(18, 184, 168, 0) 36%),
     linear-gradient(90deg, #f5f6f8 0%, #ffffff 32%, #ffffff 68%, #f5f6f8 100%);
-}
-
-.projects-selector.is-lot-open .projects-selector__board-stage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(18, 21, 45, 0.08);
-  pointer-events: none;
 }
 
 .projects-selector__board-toolbar {
@@ -696,10 +669,7 @@
   left: 28px;
   right: 28px;
   z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
+  min-height: 46px;
 }
 
 .projects-selector__board-button {
@@ -709,7 +679,7 @@
   min-height: 46px;
   padding: 0 18px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 2px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 24px rgba(18, 21, 45, 0.08);
   color: var(--selector-text);
@@ -722,22 +692,39 @@
   color: #fff;
 }
 
-.projects-selector__board-entrance-badge {
+.projects-selector__board-button--back {
   position: absolute;
-  left: 50%;
-  top: 84px;
-  z-index: 2;
-  transform: translateX(-50%);
-  flex-direction: column;
+  top: 0;
+  left: 0;
 }
 
-.projects-selector__board-entrance-badge::after {
-  content: "";
-  margin-top: -1px;
+.projects-selector__board-headings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.projects-selector__board-project-name {
+  color: var(--blue);
+  font-family: "Benzin", "Montserrat", sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.projects-selector__board-entrance-label {
+  color: rgba(18, 21, 45, 0.28);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .projects-selector__board-content {
   position: relative;
+  z-index: 2;
   min-height: 620px;
 }
 
@@ -767,7 +754,7 @@
 
 .projects-selector__checkerboard-heading {
   margin-bottom: 14px;
-  padding-left: 42px;
+  padding-left: 38px;
   color: rgba(18, 21, 45, 0.28);
   font-size: 13px;
   font-weight: 600;
@@ -776,165 +763,220 @@
 
 .projects-selector__checkerboard-row {
   display: grid;
-  grid-template-columns: 28px auto;
+  grid-template-columns: 22px auto;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .projects-selector__checkerboard-floor {
-  color: rgba(18, 21, 45, 0.24);
-  font-size: 12px;
+  color: rgba(18, 21, 45, 0.58);
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1;
   text-align: right;
 }
 
 .projects-selector__checkerboard-cells {
   display: grid;
-  grid-template-columns: repeat(var(--checkerboard-columns), 26px);
-  gap: 6px;
+  grid-template-columns: repeat(var(--checkerboard-columns), 40px);
+  gap: 10px;
 }
 
 .projects-selector__lot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: rgba(18, 21, 45, 0.06);
-  color: rgba(18, 21, 45, 0.78);
-  font-size: 12px;
+  border: 1px solid rgba(207, 217, 227, 0.72);
+  border-radius: 2px;
+  background: #edf3f6;
+  color: var(--blue);
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
 .projects-selector__lot--empty {
+  width: 40px;
+  height: 40px;
+  border-radius: 2px;
+  border: 1px solid rgba(207, 217, 227, 0.72);
+  background: #eef3f6;
   cursor: default;
 }
 
 .projects-selector__lot.is-free {
-  background: rgba(46, 209, 194, 0.86);
+  background: #edf3f6;
+  border-color: rgba(207, 217, 227, 0.72);
+  color: var(--blue);
 }
 
 .projects-selector__lot.is-booked {
-  background: rgba(242, 165, 108, 0.92);
+  border-color: rgba(232, 149, 255, 0.45);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(232, 149, 255, 0.32) 0,
+      rgba(232, 149, 255, 0.32) 2px,
+      rgba(255, 255, 255, 0) 2px,
+      rgba(255, 255, 255, 0) 6px
+    ),
+    #ffffff;
+  color: transparent;
 }
 
 .projects-selector__lot.is-sold {
-  background: rgba(201, 209, 217, 0.9);
+  background: #eef3f6;
+  border-color: rgba(207, 217, 227, 0.72);
+  color: transparent;
 }
 
 .projects-selector__lot:hover,
 .projects-selector__lot:focus {
   transform: scale(1.04);
-  box-shadow: 0 10px 22px rgba(16, 28, 44, 0.12);
+  box-shadow: 0 10px 22px rgba(16, 28, 44, 0.1);
+  border-color: rgba(18, 184, 168, 0.42);
   outline: none;
 }
 
 .projects-selector__lot-card {
   position: absolute;
-  left: 20px;
-  top: 14px;
+  left: 24px;
+  top: 18px;
   z-index: 5;
-  width: min(544px, calc(100% - 108px));
-  padding: 28px 28px 18px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 24px 54px rgba(16, 28, 44, 0.16);
+  width: 325px;
 }
 
-.projects-selector__lot-card-topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.projects-selector__lot-card-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 10px;
-  border-radius: 8px;
-  background: linear-gradient(90deg, var(--selector-accent-strong), var(--selector-accent));
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.projects-selector__lot-card-menu {
-  color: rgba(18, 21, 45, 0.54);
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: 0.18em;
+.projects-selector__lot-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 
 .projects-selector__popup-close--lot {
   position: absolute;
-  top: 0;
-  right: -56px;
+  top: -10px;
+  right: -10px;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 18px rgba(18, 21, 45, 0.12);
 }
 
-.projects-selector__lot-card-media {
+.projects-selector__lot-card .apartment-card {
+  position: relative;
+  width: 325px;
+  background: #fff;
+  border-radius: 2px;
+  padding: 16px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+}
+
+.projects-selector__lot-card .apartment-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.projects-selector__lot-card .apartment-card__project {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(64, 64, 64, 0.9);
+}
+
+.projects-selector__lot-card .apartment-card__date {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(64, 64, 64, 0.6);
+}
+
+.projects-selector__lot-card .apartment-card__fav {
+  border: 0;
+  background: none;
+  padding: 2px;
+  color: rgba(64, 64, 64, 0.6);
+  cursor: pointer;
+}
+
+.projects-selector__lot-card .apartment-card__fav svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.projects-selector__lot-card .apartment-card__fav path {
+  fill: none;
+  stroke: #8c8c8c;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.projects-selector__lot-card .apartment-card__fav:hover path {
+  stroke: #d92323;
+}
+
+.projects-selector__lot-card .apartment-card__plan {
+  border-radius: 2px;
+  height: 275px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 270px;
-  margin-top: 18px;
-  border-radius: 0;
-  background: transparent;
-  overflow: hidden;
 }
 
-.projects-selector__lot-card-media img {
-  width: auto;
-  max-width: 100%;
-  max-height: 100%;
+.projects-selector__lot-card .apartment-card__plan-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
 
-.projects-selector__lot-card-body {
-  display: block;
-  margin-top: 18px;
-  padding: 18px 16px 16px;
-  border-radius: 14px;
-  background: #f3f3f4;
-  text-decoration: none;
+.projects-selector__lot-card .apartment-card__meta {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(64, 64, 64, 0.7);
 }
 
-.projects-selector__lot-card-title {
-  color: var(--selector-text);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.22;
-  text-transform: uppercase;
-}
-
-.projects-selector__lot-card-price {
-  margin-top: 10px;
-  color: var(--selector-accent-strong);
-  font-family: var(--font-title);
-  font-size: 42px;
-  line-height: 0.92;
-}
-
-.projects-selector__lot-card-meta {
+.projects-selector__lot-card .apartment-card__price {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  margin-top: 34px;
-  color: var(--selector-muted);
-  font-size: 16px;
-  line-height: 1.35;
+  align-items: baseline;
+  gap: 10px;
 }
 
-.projects-selector__lot-card-meta.is-secondary {
-  margin-top: 10px;
+.projects-selector__lot-card .apartment-card__price-main {
   font-size: 18px;
+  font-weight: 600;
+  color: #1a3b88;
+}
+
+.projects-selector__lot-card .apartment-card__price-old {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(64, 64, 64, 0.45);
+  text-decoration: line-through;
+}
+
+.projects-selector__lot-card .apartment-card__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 2px;
+  background: #1a3b88;
+  color: #fff;
+  width: fit-content;
 }
 
 .projects-selector__board-footer {
@@ -950,7 +992,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 28px;
 }
 
 .projects-selector__legend-item {
@@ -959,49 +1001,33 @@
   gap: 8px;
   color: var(--selector-muted);
   font-size: 14px;
+  font-weight: 500;
 }
 
 .projects-selector__legend-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
   display: inline-block;
-}
-
-.projects-selector__legend-dot.is-free {
-  background: var(--selector-free);
+  border: 1px solid rgba(207, 217, 227, 0.72);
+  background: #eef3f6;
 }
 
 .projects-selector__legend-dot.is-booked {
-  background: var(--selector-booked);
+  border-color: rgba(232, 149, 255, 0.42);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(232, 149, 255, 0.52) 0,
+      rgba(232, 149, 255, 0.52) 2px,
+      rgba(255, 255, 255, 0) 2px,
+      rgba(255, 255, 255, 0) 6px
+    ),
+    #ffffff;
 }
 
 .projects-selector__legend-dot.is-sold {
-  background: var(--selector-sold);
-}
-
-.projects-selector__board-switches {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
-
-.projects-selector__board-switch {
-  min-height: 40px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 10px 24px rgba(16, 28, 44, 0.08);
-  color: var(--selector-text);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.projects-selector__board-switch.is-active {
-  background: linear-gradient(90deg, var(--selector-accent-strong), var(--selector-accent));
-  color: #fff;
+  background: #eef3f6;
 }
 
 @media (max-width: 1200px) {
@@ -1057,7 +1083,7 @@
   .projects-selector__scene-stage,
   .projects-selector__board-stage {
     min-height: 520px;
-    border-radius: 24px;
+    border-radius: 2px;
   }
 
   .projects-selector__scene-stage {
@@ -1125,16 +1151,14 @@
     object-position: 50% 50%;
   }
 
-  .projects-selector__pin-label,
-  .projects-selector__board-entrance-badge {
+  .projects-selector__pin-label {
     min-height: 30px;
     padding: 0 10px;
     font-size: 11px;
     border-width: 1px;
   }
 
-  .projects-selector__pin-tail,
-  .projects-selector__board-entrance-badge::after {
+  .projects-selector__pin-tail {
     border-left-width: 8px;
     border-right-width: 8px;
     border-top-width: 9px;
@@ -1163,6 +1187,33 @@
     padding: 74px 16px 28px;
   }
 
+  .projects-selector__checkerboard-heading {
+    padding-left: 32px;
+  }
+
+  .projects-selector__checkerboard-row {
+    grid-template-columns: 18px auto;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .projects-selector__checkerboard-floor {
+    font-size: 12px;
+  }
+
+  .projects-selector__checkerboard-cells {
+    grid-template-columns: repeat(var(--checkerboard-columns), 34px);
+    gap: 8px;
+  }
+
+  .projects-selector__lot,
+  .projects-selector__lot--empty {
+    width: 34px;
+    height: 34px;
+    border-radius: 2px;
+    font-size: 13px;
+  }
+
   .projects-selector__board-toolbar {
     top: 14px;
     left: 16px;
@@ -1176,6 +1227,10 @@
     font-size: 13px;
   }
 
+  .projects-selector__board-project-name {
+    font-size: 18px;
+  }
+
   .projects-selector__checkerboard-cells {
     grid-template-columns: repeat(var(--checkerboard-columns), 26px);
     gap: 6px;
@@ -1184,8 +1239,14 @@
   .projects-selector__lot {
     width: 26px;
     height: 26px;
-    border-radius: 6px;
+    border-radius: 2px;
     font-size: 12px;
+  }
+
+  .projects-selector__lot--empty {
+    width: 26px;
+    height: 26px;
+    border-radius: 2px;
   }
 
   .projects-selector__checkerboard-row {
