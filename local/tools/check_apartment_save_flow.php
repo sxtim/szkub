@@ -143,19 +143,120 @@ function checkApartmentSaveFlowSnapshot($iblockId, array $element)
     );
 }
 
+function checkApartmentSaveFlowFindSectionById($iblockId, $sectionId)
+{
+    $res = CIBlockSection::GetList(
+        array("SORT" => "ASC", "ID" => "ASC"),
+        array(
+            "IBLOCK_ID" => (int)$iblockId,
+            "ID" => (int)$sectionId,
+        ),
+        false,
+        array("ID", "NAME", "CODE", "IBLOCK_SECTION_ID")
+    );
+
+    return $res->Fetch() ?: null;
+}
+
+function checkApartmentSaveFlowSectionHasChildren($iblockId, $sectionId)
+{
+    $res = CIBlockSection::GetList(
+        array("SORT" => "ASC", "ID" => "ASC"),
+        array(
+            "IBLOCK_ID" => (int)$iblockId,
+            "SECTION_ID" => (int)$sectionId,
+        ),
+        false,
+        array("ID")
+    );
+
+    return (bool)$res->Fetch();
+}
+
+function checkApartmentSaveFlowSectionHasElements($iblockId, $sectionId)
+{
+    $res = CIBlockElement::GetList(
+        array("ID" => "ASC"),
+        array(
+            "IBLOCK_ID" => (int)$iblockId,
+            "SECTION_ID" => (int)$sectionId,
+            "INCLUDE_SUBSECTIONS" => "N",
+        ),
+        false,
+        array("nTopCount" => 1),
+        array("ID")
+    );
+
+    return (bool)$res->Fetch();
+}
+
+function checkApartmentSaveFlowDeleteSectionIfEmpty($iblockId, $sectionId)
+{
+    $sectionId = (int)$sectionId;
+    if ($sectionId <= 0) {
+        return;
+    }
+
+    if (checkApartmentSaveFlowSectionHasChildren($iblockId, $sectionId)) {
+        return;
+    }
+
+    if (checkApartmentSaveFlowSectionHasElements($iblockId, $sectionId)) {
+        return;
+    }
+
+    CIBlockSection::Delete($sectionId);
+}
+
 function checkApartmentSaveFlowUpdateIdentity($iblockId, $elementId, $name, array $propertyMap, $entrance, $floor, $apartmentNumber)
 {
-    CIBlockElement::SetPropertyValuesEx((int)$elementId, (int)$iblockId, array(
+    $projectId = checkApartmentSaveFlowPropertyValue($iblockId, $elementId, "PROJECT");
+    $corpus = checkApartmentSaveFlowPropertyValue($iblockId, $elementId, "CORPUS");
+
+    $propertyValues = array(
         "ENTRANCE" => (string)$entrance,
         "FLOOR" => (int)$floor,
         "APARTMENT_NUMBER" => (string)$apartmentNumber,
-    ));
+    );
+
+    $beforeSaveFields = array(
+        "ID" => (int)$elementId,
+        "IBLOCK_ID" => (int)$iblockId,
+        "NAME" => (string)$name,
+        "PROPERTY_VALUES" => array(
+            $propertyMap["ENTRANCE"] => array("VALUE" => (string)$entrance),
+            $propertyMap["FLOOR"] => array("VALUE" => (int)$floor),
+            $propertyMap["APARTMENT_NUMBER"] => array("VALUE" => (string)$apartmentNumber),
+        ),
+    );
+
+    if (isset($propertyMap["PROJECT"]) && trim((string)$projectId) !== "") {
+        $propertyValues["PROJECT"] = (int)$projectId;
+        $beforeSaveFields["PROPERTY_VALUES"][$propertyMap["PROJECT"]] = array("VALUE" => (int)$projectId);
+    }
+
+    if (isset($propertyMap["CORPUS"])) {
+        $propertyValues["CORPUS"] = (string)$corpus;
+        $beforeSaveFields["PROPERTY_VALUES"][$propertyMap["CORPUS"]] = array("VALUE" => (string)$corpus);
+    }
+
+    if (function_exists("szcubePrepareApartmentBeforeSave")) {
+        szcubePrepareApartmentBeforeSave($beforeSaveFields);
+    }
+
+    CIBlockElement::SetPropertyValuesEx((int)$elementId, (int)$iblockId, $propertyValues);
 
     $api = new CIBlockElement();
     $updateFields = array(
         "IBLOCK_ID" => (int)$iblockId,
         "NAME" => (string)$name,
     );
+
+    foreach (array("CODE", "XML_ID", "IBLOCK_SECTION_ID", "IBLOCK_SECTION") as $fieldName) {
+        if (array_key_exists($fieldName, $beforeSaveFields)) {
+            $updateFields[$fieldName] = $beforeSaveFields[$fieldName];
+        }
+    }
 
     if (!$api->Update((int)$elementId, $updateFields, false, false, true)) {
         return (string)$api->LAST_ERROR;
@@ -297,6 +398,14 @@ if (!empty($forwardErrors)) {
 if (!empty($restoreErrors)) {
     echo "[ERROR] Restore sync mismatch: " . implode(", ", $restoreErrors) . PHP_EOL;
     exit(11);
+}
+
+if ((int)$updatedSnapshot["section_id"] !== (int)$restoredSnapshot["section_id"]) {
+    $temporaryFloorSection = checkApartmentSaveFlowFindSectionById($iblockId, (int)$updatedSnapshot["section_id"]);
+    $temporaryEntranceSectionId = is_array($temporaryFloorSection) ? (int)$temporaryFloorSection["IBLOCK_SECTION_ID"] : 0;
+
+    checkApartmentSaveFlowDeleteSectionIfEmpty($iblockId, (int)$updatedSnapshot["section_id"]);
+    checkApartmentSaveFlowDeleteSectionIfEmpty($iblockId, $temporaryEntranceSectionId);
 }
 
 echo "[OK] Apartment save flow verified." . PHP_EOL;
