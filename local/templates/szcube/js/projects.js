@@ -745,6 +745,13 @@ const initProjectApartmentSelector = () => {
     const activeEntranceBadge = root.querySelector("[data-selector-active-entrance]");
     const lotCard = root.querySelector("[data-selector-lot-card]");
     const lotDetail = lotCard?.querySelector("[data-lot-detail]") || null;
+    const lotProject = lotCard?.querySelector("[data-lot-project]") || null;
+    const lotDelivery = lotCard?.querySelector("[data-lot-delivery]") || null;
+    const lotImage = lotCard?.querySelector("[data-lot-image]") || null;
+    const lotMeta = lotCard?.querySelector("[data-lot-meta]") || null;
+    const lotPriceMain = lotCard?.querySelector("[data-lot-price-main]") || null;
+    const lotPriceOld = lotCard?.querySelector("[data-lot-price-old]") || null;
+    const lotBadge = lotCard?.querySelector("[data-lot-badge]") || null;
     const lotClose = lotCard?.querySelector("[data-selector-close-lot]") || null;
     const lots = Array.from(root.querySelectorAll("[data-flat-id]"));
     const sceneSections = Array.from(root.querySelectorAll("[data-section-overlay]"));
@@ -877,6 +884,56 @@ const initProjectApartmentSelector = () => {
 
       if (lotDetail) {
         lotDetail.href = button.dataset.flatUrl || "#";
+      }
+
+      if (lotProject) {
+        lotProject.textContent = button.dataset.flatProject || "";
+      }
+
+      if (lotDelivery) {
+        const delivery = button.dataset.flatDelivery || "";
+        lotDelivery.textContent = delivery;
+        lotDelivery.hidden = !delivery;
+      }
+
+      if (lotImage) {
+        lotImage.src = button.dataset.flatImage || lotImage.getAttribute("src") || "";
+        lotImage.alt = button.dataset.flatImageAlt || button.dataset.flatTitle || "Планировка";
+      }
+
+      if (lotMeta) {
+        const metaParts = [];
+        const rooms = button.dataset.flatRooms || "";
+        const area = button.dataset.flatArea || "";
+        const floor = button.dataset.flatFloor || "";
+        const houseFloors = button.dataset.flatHouseFloors || "";
+
+        if (rooms) metaParts.push(rooms);
+        if (area) metaParts.push(`${area} м²`);
+        if (floor) {
+          metaParts.push(houseFloors ? `${floor} этаж из ${houseFloors}` : `${floor} этаж`);
+        }
+
+        lotMeta.textContent = metaParts.join(" • ");
+        lotMeta.hidden = metaParts.length === 0;
+      }
+
+      if (lotPriceMain) {
+        const priceMain = formatPrice(button.dataset.flatPrice);
+        lotPriceMain.textContent = priceMain;
+        lotPriceMain.hidden = !priceMain;
+      }
+
+      if (lotPriceOld) {
+        const priceOld = formatPrice(button.dataset.flatPriceOld);
+        lotPriceOld.textContent = priceOld;
+        lotPriceOld.hidden = !priceOld;
+      }
+
+      if (lotBadge) {
+        const badge = button.dataset.flatBadge || button.dataset.flatFinish || "";
+        lotBadge.textContent = badge;
+        lotBadge.hidden = !badge;
       }
 
       lotCard.hidden = false;

@@ -255,6 +255,7 @@ if ($this->StartResultCache(false, $cacheId)) {
                 $finish = isset($flatProperties["FINISH"]["VALUE"]) ? trim((string)$flatProperties["FINISH"]["VALUE"]) : "";
                 $priceOld = isset($flatProperties["PRICE_OLD"]["VALUE"]) ? (float)$flatProperties["PRICE_OLD"]["VALUE"] : 0;
                 $discountLabel = isset($flatProperties["DISCOUNT_LABEL"]["VALUE"]) ? trim((string)$flatProperties["DISCOUNT_LABEL"]["VALUE"]) : "";
+                $planAlt = isset($flatProperties["PLAN_ALT"]["VALUE"]) ? trim((string)$flatProperties["PLAN_ALT"]["VALUE"]) : "";
 
                 $flatData = array(
                     "id" => (int)$flatFields["ID"],
@@ -272,6 +273,7 @@ if ($this->StartResultCache(false, $cacheId)) {
                     "finish" => $finish,
                     "badge" => $discountLabel !== "" ? $discountLabel : $finish,
                     "plan_image" => $planImage,
+                    "plan_alt" => $planAlt !== "" ? $planAlt : ((string)$flatFields["NAME"] !== "" ? (string)$flatFields["NAME"] : "Планировка"),
                     "floor" => $floorNumber,
                     "house_floors" => $houseFloors,
                     "entrance" => $entranceData["number"],

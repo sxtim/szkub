@@ -261,31 +261,16 @@ if (!function_exists("szcubeGetElementPropertyValueByCode")) {
 if (!function_exists("szcubeResolveApartmentCodeFromFields")) {
     function szcubeResolveApartmentCodeFromFields(array $fields, $existingElementId = 0)
     {
-        $iblockId = isset($fields["IBLOCK_ID"]) ? (int)$fields["IBLOCK_ID"] : 0;
-        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("apartments")) {
+        $identity = szcubeResolveApartmentIdentityFromFields($fields, $existingElementId);
+        if (empty($identity)) {
             return "";
         }
 
-        $propertyMap = szcubeGetApartmentPropertyMap($iblockId);
-        $projectId = isset($propertyMap["PROJECT"]) ? (int)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["PROJECT"]) : 0;
-        $corpus = isset($propertyMap["CORPUS"]) ? (string)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["CORPUS"]) : "";
-        $apartmentNumber = isset($propertyMap["APARTMENT_NUMBER"]) ? (string)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["APARTMENT_NUMBER"]) : "";
-
-        $existingElementId = (int)$existingElementId;
-        if ($existingElementId > 0) {
-            if ($projectId <= 0) {
-                $projectId = (int)szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "PROJECT");
-            }
-            if ($corpus === "") {
-                $corpus = szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "CORPUS");
-            }
-            if ($apartmentNumber === "") {
-                $apartmentNumber = szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "APARTMENT_NUMBER");
-            }
-        }
-
-        $projectCode = $projectId > 0 ? szcubeGetProjectCodeById($projectId) : "";
-        return szcubeBuildApartmentCode($projectCode, $apartmentNumber, $corpus);
+        return szcubeBuildApartmentCode(
+            isset($identity["project_code"]) ? $identity["project_code"] : "",
+            isset($identity["apartment_number"]) ? $identity["apartment_number"] : "",
+            isset($identity["corpus"]) ? $identity["corpus"] : ""
+        );
     }
 }
 
@@ -297,16 +282,339 @@ if (!function_exists("szcubeEnsureApartmentCodeBeforeSave")) {
             return;
         }
 
-        if (isset($fields["CODE"]) && trim((string)$fields["CODE"]) !== "") {
-            $fields["CODE"] = szcubeNormalizeApartmentCodePart($fields["CODE"]);
-            return;
-        }
-
         $elementId = isset($fields["ID"]) ? (int)$fields["ID"] : 0;
         $generatedCode = szcubeResolveApartmentCodeFromFields($fields, $elementId);
         if ($generatedCode !== "") {
             $fields["CODE"] = $generatedCode;
+            return;
         }
+
+        if (isset($fields["CODE"]) && trim((string)$fields["CODE"]) !== "") {
+            $fields["CODE"] = szcubeNormalizeApartmentCodePart($fields["CODE"]);
+        }
+    }
+}
+
+if (!function_exists("szcubeResolveApartmentIdentityFromFields")) {
+    function szcubeResolveApartmentIdentityFromFields(array $fields, $existingElementId = 0)
+    {
+        $iblockId = isset($fields["IBLOCK_ID"]) ? (int)$fields["IBLOCK_ID"] : 0;
+        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("apartments")) {
+            return array();
+        }
+
+        $propertyMap = szcubeGetApartmentPropertyMap($iblockId);
+        $projectId = isset($propertyMap["PROJECT"]) ? (int)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["PROJECT"]) : 0;
+        $corpus = isset($propertyMap["CORPUS"]) ? (string)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["CORPUS"]) : "";
+        $entrance = isset($propertyMap["ENTRANCE"]) ? (string)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["ENTRANCE"]) : "";
+        $floor = isset($propertyMap["FLOOR"]) ? (int)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["FLOOR"]) : 0;
+        $apartmentNumber = isset($propertyMap["APARTMENT_NUMBER"]) ? (string)szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["APARTMENT_NUMBER"]) : "";
+
+        $existingElementId = (int)$existingElementId;
+        if ($existingElementId > 0) {
+            if ($projectId <= 0) {
+                $projectId = (int)szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "PROJECT");
+            }
+            if ($corpus === "") {
+                $corpus = szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "CORPUS");
+            }
+            if ($entrance === "") {
+                $entrance = szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "ENTRANCE");
+            }
+            if ($floor <= 0) {
+                $floor = (int)szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "FLOOR");
+            }
+            if ($apartmentNumber === "") {
+                $apartmentNumber = szcubeGetElementPropertyValueByCode($iblockId, $existingElementId, "APARTMENT_NUMBER");
+            }
+        }
+
+        $projectCode = $projectId > 0 ? szcubeGetProjectCodeById($projectId) : "";
+
+        return array(
+            "iblock_id" => $iblockId,
+            "project_id" => $projectId,
+            "project_code" => $projectCode,
+            "corpus" => trim((string)$corpus),
+            "entrance" => trim((string)$entrance),
+            "floor" => (int)$floor,
+            "apartment_number" => trim((string)$apartmentNumber),
+        );
+    }
+}
+
+if (!function_exists("szcubeBuildApartmentXmlId")) {
+    function szcubeBuildApartmentXmlId($projectCode, $entrance, $floor, $apartmentNumber, $corpus = "")
+    {
+        $projectCode = szcubeNormalizeApartmentCodePart($projectCode);
+        $entrance = szcubeNormalizeApartmentCodePart($entrance);
+        $apartmentNumber = szcubeNormalizeApartmentCodePart($apartmentNumber);
+        $corpus = szcubeNormalizeApartmentCodePart($corpus);
+        $floor = (int)$floor;
+
+        $parts = array($projectCode);
+        if ($corpus !== "") {
+            $parts[] = "c" . ltrim($corpus, "c");
+        }
+        if ($entrance !== "") {
+            $parts[] = $entrance;
+        }
+        if ($floor > 0) {
+            $parts[] = (string)$floor;
+        }
+        if ($apartmentNumber !== "") {
+            $parts[] = $apartmentNumber;
+        }
+
+        $parts = array_values(array_filter($parts, static function ($value) {
+            return trim((string)$value) !== "";
+        }));
+
+        return implode("-", $parts);
+    }
+}
+
+if (!function_exists("szcubeEnsureApartmentXmlIdBeforeSave")) {
+    function szcubeEnsureApartmentXmlIdBeforeSave(&$fields)
+    {
+        $identity = szcubeResolveApartmentIdentityFromFields($fields, isset($fields["ID"]) ? (int)$fields["ID"] : 0);
+        if (empty($identity)) {
+            return;
+        }
+
+        $generatedXmlId = szcubeBuildApartmentXmlId(
+            isset($identity["project_code"]) ? $identity["project_code"] : "",
+            isset($identity["entrance"]) ? $identity["entrance"] : "",
+            isset($identity["floor"]) ? (int)$identity["floor"] : 0,
+            isset($identity["apartment_number"]) ? $identity["apartment_number"] : "",
+            isset($identity["corpus"]) ? $identity["corpus"] : ""
+        );
+        if ($generatedXmlId !== "") {
+            $fields["XML_ID"] = $generatedXmlId;
+        }
+    }
+}
+
+if (!function_exists("szcubeGetApartmentSectionEntityId")) {
+    function szcubeGetApartmentSectionEntityId($iblockId)
+    {
+        $iblockId = (int)$iblockId;
+        return $iblockId > 0 ? ("IBLOCK_" . $iblockId . "_SECTION") : "";
+    }
+}
+
+if (!function_exists("szcubeGetUserFieldEnumIdByXmlId")) {
+    function szcubeGetUserFieldEnumIdByXmlId($entityId, $fieldName, $xmlId)
+    {
+        static $cache = array();
+
+        $entityId = trim((string)$entityId);
+        $fieldName = trim((string)$fieldName);
+        $xmlId = trim((string)$xmlId);
+        if ($entityId === "" || $fieldName === "" || $xmlId === "") {
+            return 0;
+        }
+
+        $cacheKey = $entityId . ":" . $fieldName . ":" . $xmlId;
+        if (array_key_exists($cacheKey, $cache)) {
+            return $cache[$cacheKey];
+        }
+
+        $cache[$cacheKey] = 0;
+        $userFieldRes = CUserTypeEntity::GetList(
+            array("ID" => "ASC"),
+            array(
+                "ENTITY_ID" => $entityId,
+                "FIELD_NAME" => $fieldName,
+            )
+        );
+        if (!($userField = $userFieldRes->Fetch())) {
+            return 0;
+        }
+
+        $enumRes = CUserFieldEnum::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array("USER_FIELD_ID" => (int)$userField["ID"])
+        );
+        while ($row = $enumRes->Fetch()) {
+            if (trim((string)$row["XML_ID"]) === $xmlId) {
+                $cache[$cacheKey] = (int)$row["ID"];
+                break;
+            }
+        }
+
+        return $cache[$cacheKey];
+    }
+}
+
+if (!function_exists("szcubeFindSectionByCodeAndParent")) {
+    function szcubeFindSectionByCodeAndParent($iblockId, $parentId, $code)
+    {
+        $res = CIBlockSection::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => (int)$iblockId,
+                "SECTION_ID" => (int)$parentId > 0 ? (int)$parentId : false,
+                "=CODE" => (string)$code,
+            ),
+            false,
+            array("ID", "NAME", "CODE", "UF_NODE_TYPE", "UF_ENTRANCE_NUMBER", "UF_FLOOR_NUMBER")
+        );
+
+        if ($row = $res->Fetch()) {
+            return $row;
+        }
+
+        return null;
+    }
+}
+
+if (!function_exists("szcubeGetProjectNameById")) {
+    function szcubeGetProjectNameById($projectId)
+    {
+        static $cache = array();
+
+        $projectId = (int)$projectId;
+        if ($projectId <= 0) {
+            return "";
+        }
+
+        if (array_key_exists($projectId, $cache)) {
+            return $cache[$projectId];
+        }
+
+        $cache[$projectId] = "";
+        $res = CIBlockElement::GetList(
+            array(),
+            array("ID" => $projectId),
+            false,
+            false,
+            array("ID", "NAME")
+        );
+        if ($row = $res->Fetch()) {
+            $cache[$projectId] = trim((string)$row["NAME"]);
+        }
+
+        return $cache[$projectId];
+    }
+}
+
+if (!function_exists("szcubeEnsureApartmentSection")) {
+    function szcubeEnsureApartmentSection($iblockId, $parentId, $code, $name, array $fields)
+    {
+        $iblockId = (int)$iblockId;
+        $parentId = (int)$parentId;
+        $code = trim((string)$code);
+        $name = trim((string)$name);
+        if ($iblockId <= 0 || $code === "" || $name === "") {
+            return 0;
+        }
+
+        $sectionApi = new CIBlockSection();
+        $existing = szcubeFindSectionByCodeAndParent($iblockId, $parentId, $code);
+        $updateFields = array(
+            "NAME" => $name,
+            "ACTIVE" => "Y",
+        ) + $fields;
+
+        if (is_array($existing)) {
+            $sectionApi->Update((int)$existing["ID"], $updateFields);
+            return (int)$existing["ID"];
+        }
+
+        $newId = (int)$sectionApi->Add(array(
+            "IBLOCK_ID" => $iblockId,
+            "IBLOCK_SECTION_ID" => $parentId > 0 ? $parentId : false,
+            "ACTIVE" => "Y",
+            "NAME" => $name,
+            "CODE" => $code,
+        ) + $fields);
+
+        return $newId > 0 ? $newId : 0;
+    }
+}
+
+if (!function_exists("szcubeEnsureApartmentSectionBeforeSave")) {
+    function szcubeEnsureApartmentSectionBeforeSave(&$fields)
+    {
+        $identity = szcubeResolveApartmentIdentityFromFields($fields, isset($fields["ID"]) ? (int)$fields["ID"] : 0);
+        if (empty($identity)) {
+            return;
+        }
+
+        $iblockId = isset($identity["iblock_id"]) ? (int)$identity["iblock_id"] : 0;
+        $projectId = isset($identity["project_id"]) ? (int)$identity["project_id"] : 0;
+        $projectCode = isset($identity["project_code"]) ? trim((string)$identity["project_code"]) : "";
+        $entrance = isset($identity["entrance"]) ? trim((string)$identity["entrance"]) : "";
+        $floor = isset($identity["floor"]) ? (int)$identity["floor"] : 0;
+        if ($iblockId <= 0 || $projectId <= 0 || $projectCode === "" || $entrance === "" || $floor <= 0) {
+            return;
+        }
+
+        $sectionEntityId = szcubeGetApartmentSectionEntityId($iblockId);
+        $projectNodeTypeId = szcubeGetUserFieldEnumIdByXmlId($sectionEntityId, "UF_NODE_TYPE", "project");
+        $entranceNodeTypeId = szcubeGetUserFieldEnumIdByXmlId($sectionEntityId, "UF_NODE_TYPE", "entrance");
+        $floorNodeTypeId = szcubeGetUserFieldEnumIdByXmlId($sectionEntityId, "UF_NODE_TYPE", "floor");
+
+        $projectSectionId = szcubeGetDynamicSectionIdByProjectCode($iblockId, $projectCode);
+        if ($projectSectionId <= 0) {
+            $projectSectionId = szcubeEnsureApartmentSection(
+                $iblockId,
+                0,
+                $projectCode,
+                szcubeGetProjectNameById($projectId) !== "" ? szcubeGetProjectNameById($projectId) : $projectCode,
+                array(
+                    "SORT" => 500,
+                    "UF_NODE_TYPE" => $projectNodeTypeId > 0 ? $projectNodeTypeId : false,
+                )
+            );
+        }
+        if ($projectSectionId <= 0) {
+            return;
+        }
+
+        $entranceSectionId = szcubeEnsureApartmentSection(
+            $iblockId,
+            $projectSectionId,
+            "podezd-" . szcubeNormalizeApartmentCodePart($entrance),
+            "Подъезд " . $entrance,
+            array(
+                "SORT" => ((int)$entrance > 0 ? (int)$entrance : 1) * 100,
+                "UF_NODE_TYPE" => $entranceNodeTypeId > 0 ? $entranceNodeTypeId : false,
+                "UF_ENTRANCE_NUMBER" => $entrance,
+                "UF_PIN_LABEL" => $entrance . " подъезд",
+            )
+        );
+        if ($entranceSectionId <= 0) {
+            return;
+        }
+
+        $floorSectionId = szcubeEnsureApartmentSection(
+            $iblockId,
+            $entranceSectionId,
+            sprintf("floor-%02d", $floor),
+            $floor . " этаж",
+            array(
+                "SORT" => $floor * 100,
+                "UF_NODE_TYPE" => $floorNodeTypeId > 0 ? $floorNodeTypeId : false,
+                "UF_FLOOR_NUMBER" => $floor,
+            )
+        );
+        if ($floorSectionId <= 0) {
+            return;
+        }
+
+        $fields["IBLOCK_SECTION_ID"] = $floorSectionId;
+        $fields["IBLOCK_SECTION"] = array($floorSectionId);
+    }
+}
+
+if (!function_exists("szcubePrepareApartmentBeforeSave")) {
+    function szcubePrepareApartmentBeforeSave(&$fields)
+    {
+        szcubeEnsureApartmentCodeBeforeSave($fields);
+        szcubeEnsureApartmentXmlIdBeforeSave($fields);
+        szcubeEnsureApartmentSectionBeforeSave($fields);
     }
 }
 
@@ -440,7 +748,7 @@ if (!function_exists("szcubeSyncProjectDynamicElementSection")) {
     }
 }
 
-AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubeEnsureApartmentCodeBeforeSave");
-AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubeEnsureApartmentCodeBeforeSave");
+AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubePrepareApartmentBeforeSave");
+AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnAfterIBlockElementAdd", "szcubeSyncProjectDynamicElementSection");
 AddEventHandler("iblock", "OnAfterIBlockElementUpdate", "szcubeSyncProjectDynamicElementSection");

@@ -416,12 +416,12 @@ function upsertApartmentElementForImport($iblockId, $xmlId, $code, array $identi
 
 	$elementApi = new CIBlockElement();
 	if (is_array($existing)) {
+		CIBlockElement::SetPropertyValuesEx((int)$existing["ID"], $iblockId, $propertyValues);
 		$ok = $elementApi->Update((int)$existing["ID"], $fields);
 		if (!$ok) {
 			echo "[ERROR] Failed to update apartment " . $code . ": " . $elementApi->LAST_ERROR . PHP_EOL;
 			return false;
 		}
-		CIBlockElement::SetPropertyValuesEx((int)$existing["ID"], $iblockId, $propertyValues);
 		return true;
 	}
 

@@ -100,6 +100,13 @@ $steps = array(
 		),
 	),
 	array(
+		"label" => "Cleanup legacy apartment samples",
+		"script" => "/local/tools/cleanup_legacy_apartment_samples.php",
+		"args" => array(
+			"--dry-run=" . ($dryRun ? "1" : "0"),
+		),
+	),
+	array(
 		"label" => "Configure apartments admin form",
 		"script" => "/local/tools/configure_apartments_admin_form.php",
 		"args" => array(

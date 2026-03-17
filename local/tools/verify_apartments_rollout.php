@@ -206,6 +206,41 @@ function verifyGetHttpStatus($url)
 	return 0;
 }
 
+function verifyFindApartmentFieldsByCode($iblockId, $code)
+{
+	$res = CIBlockElement::GetList(
+		array(),
+		array(
+			"IBLOCK_ID" => (int)$iblockId,
+			"=CODE" => (string)$code,
+		),
+		false,
+		false,
+		array("ID", "IBLOCK_SECTION_ID", "NAME", "CODE", "XML_ID", "ACTIVE")
+	);
+
+	if ($row = $res->Fetch()) {
+		return $row;
+	}
+
+	return null;
+}
+
+function verifySectionHasDescendants($iblockId, $sectionId)
+{
+	$res = CIBlockSection::GetList(
+		array("SORT" => "ASC", "ID" => "ASC"),
+		array(
+			"IBLOCK_ID" => (int)$iblockId,
+			"SECTION_ID" => (int)$sectionId,
+		),
+		false,
+		array("ID")
+	);
+
+	return (bool)$res->Fetch();
+}
+
 $errors = array();
 $apartmentsIblock = verifyFindIblockByCode("apartments");
 if (!is_array($apartmentsIblock)) {
@@ -408,6 +443,24 @@ if ($apartmentsIblockId > 0) {
 				echo "[OK] HTTP 200: /apartments/" . $expectedCode . "/" . PHP_EOL;
 			}
 		}
+	}
+}
+
+if ($apartmentsIblockId > 0) {
+	foreach (array(
+		"vertical-235",
+		"vertical-236",
+		"301",
+	) as $legacyCode) {
+		$legacyElement = verifyFindApartmentFieldsByCode($apartmentsIblockId, $legacyCode);
+		if (is_array($legacyElement)) {
+			$errors[] = "Legacy apartment still exists: CODE=" . $legacyCode . ", ID=" . (int)$legacyElement["ID"];
+		}
+	}
+
+	$verticalSection = verifyFindSectionByCodeAndParent($apartmentsIblockId, 0, "vertical");
+	if (is_array($verticalSection) && verifySectionHasDescendants($apartmentsIblockId, (int)$verticalSection["ID"])) {
+		$errors[] = "Vertical section still has child sections";
 	}
 }
 

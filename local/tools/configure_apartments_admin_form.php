@@ -120,10 +120,9 @@ $propertyMap = getPropertyMapForAdminForm($iblockId);
 $mainFields = array(
 	"ACTIVE" => "Активность",
 	"NAME" => "Название",
+	"CODE" => "Символьный код",
+	"XML_ID" => "Внешний код",
 );
-if (COption::GetOptionString("iblock", "show_xml_id", "N") === "Y") {
-	$mainFields["XML_ID"] = "Внешний код";
-}
 $mainFields["IBLOCK_ELEMENT_SECTION_ID"] = "Основной раздел";
 $mainFields["SORT"] = "Сортировка";
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "PROJECT");
@@ -159,7 +158,6 @@ addPropertyFieldForAdminForm($mainFields, $propertyMap, "VIEW_SLIDE_IMAGE");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "VIEW_SLIDE_ALT");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "RENDER_SLIDE_IMAGE");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "RENDER_SLIDE_ALT");
-addPropertyFieldForAdminForm($mainFields, $propertyMap, "SVG_SLOT_ID");
 
 $tabs = array(
 	"edit1" => array(

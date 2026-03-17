@@ -92,7 +92,14 @@ foreach ($entrances as $entrance) {
     }
 }
 
-$popupPlanSrc = SITE_TEMPLATE_PATH . "/img/apartments/" . rawurlencode("1 этаж 2е 92.8 с антресолью 1.jpg");
+$popupPlanSrc = is_array($previewFlat) && isset($previewFlat["plan_image"]) && trim((string)$previewFlat["plan_image"]) !== ""
+    ? trim((string)$previewFlat["plan_image"])
+    : SITE_TEMPLATE_PATH . "/img/apartments/" . rawurlencode("1 этаж 2е 92.8 с антресолью 1.jpg");
+$popupPlanAlt = is_array($previewFlat) && isset($previewFlat["plan_alt"]) && trim((string)$previewFlat["plan_alt"]) !== ""
+    ? trim((string)$previewFlat["plan_alt"])
+    : "Планировка";
+$popupProjectName = trim((string)$project["NAME"]);
+$popupDeliveryLabel = trim((string)$project["CONSTRUCTION_SUBTITLE"]);
 $previewFlatMeta = array();
 if (is_array($previewFlat) && isset($previewFlat["rooms"]) && trim((string)$previewFlat["rooms"]) !== "") {
     $previewFlatMeta[] = trim((string)$previewFlat["rooms"]);
@@ -106,6 +113,17 @@ if (is_array($previewFlat) && isset($previewFlat["floor"]) && (int)$previewFlat[
         ? ((int)$previewFlat["floor"]) . " этаж из " . $houseFloors
         : ((int)$previewFlat["floor"]) . " этаж";
 }
+$popupMeta = !empty($previewFlatMeta) ? implode(" • ", $previewFlatMeta) : "";
+$popupPriceMain = is_array($previewFlat) && isset($previewFlat["price_total"]) && (float)$previewFlat["price_total"] > 0
+    ? number_format((float)$previewFlat["price_total"], 0, ".", " ") . " ₽"
+    : "";
+$popupPriceOld = is_array($previewFlat) && isset($previewFlat["price_old"]) && (float)$previewFlat["price_old"] > 0
+    ? number_format((float)$previewFlat["price_old"], 0, ".", " ") . " ₽"
+    : "";
+$popupBadge = is_array($previewFlat) && isset($previewFlat["badge"]) ? trim((string)$previewFlat["badge"]) : "";
+$popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string)$previewFlat["url"]) !== ""
+    ? trim((string)$previewFlat["url"])
+    : "#";
 ?>
 <section class="projects-genplan" aria-label="Выбор квартиры в проекте">
   <div
@@ -284,12 +302,12 @@ if (is_array($previewFlat) && isset($previewFlat["floor"]) && (int)$previewFlat[
               >
                 ×
               </button>
-              <a class="projects-selector__lot-card-link" data-lot-detail href="/apartments/vertical-235/">
+              <a class="projects-selector__lot-card-link" data-lot-detail href="<?= htmlspecialcharsbx($popupUrl) ?>">
                 <article class="apartment-card">
                   <div class="apartment-card__head">
                     <div>
-                      <span class="apartment-card__project">ЖК Коллекция</span>
-                      <span class="apartment-card__date">Сдача 2 кв. 2027г.</span>
+                      <span class="apartment-card__project" data-lot-project><?= htmlspecialcharsbx($popupProjectName) ?></span>
+                      <span class="apartment-card__date" data-lot-delivery<?= $popupDeliveryLabel === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupDeliveryLabel) ?></span>
                     </div>
                     <button class="apartment-card__fav" type="button" aria-label="В избранное">
                       <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -299,17 +317,17 @@ if (is_array($previewFlat) && isset($previewFlat["floor"]) && (int)$previewFlat[
                   </div>
 
                   <div class="apartment-card__plan">
-                    <img class="apartment-card__plan-image" src="<?= htmlspecialcharsbx($popupPlanSrc) ?>" alt="Планировка" />
+                    <img class="apartment-card__plan-image" data-lot-image src="<?= htmlspecialcharsbx($popupPlanSrc) ?>" alt="<?= htmlspecialcharsbx($popupPlanAlt) ?>" />
                   </div>
 
-                  <div class="apartment-card__meta">Студия &nbsp;•&nbsp; 20,1 м² &nbsp;•&nbsp; 12 этаж из 12</div>
+                  <div class="apartment-card__meta" data-lot-meta<?= $popupMeta === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupMeta) ?></div>
 
                   <div class="apartment-card__price">
-                    <span class="apartment-card__price-main">5 700 000 ₽</span>
-                    <span class="apartment-card__price-old">6 700 000 ₽</span>
+                    <span class="apartment-card__price-main" data-lot-price-main<?= $popupPriceMain === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupPriceMain) ?></span>
+                    <span class="apartment-card__price-old" data-lot-price-old<?= $popupPriceOld === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupPriceOld) ?></span>
                   </div>
 
-                  <span class="apartment-card__badge">Скидка 25%</span>
+                  <span class="apartment-card__badge" data-lot-badge<?= $popupBadge === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupBadge) ?></span>
                 </article>
               </a>
             </div>
@@ -345,11 +363,13 @@ if (is_array($previewFlat) && isset($previewFlat["floor"]) && (int)$previewFlat[
                                   data-flat-badge="<?= htmlspecialcharsbx((string)$cell["badge"]) ?>"
                                   data-flat-finish="<?= htmlspecialcharsbx((string)$cell["finish"]) ?>"
                                   data-flat-image="<?= htmlspecialcharsbx((string)$cell["plan_image"]) ?>"
+                                  data-flat-image-alt="<?= htmlspecialcharsbx((string)$cell["plan_alt"]) ?>"
                                   data-flat-floor="<?= (int)$cell["floor"] ?>"
                                   data-flat-house-floors="<?= (int)$cell["house_floors"] ?>"
                                   data-flat-number="<?= htmlspecialcharsbx((string)$cell["number"]) ?>"
                                   data-flat-url="<?= htmlspecialcharsbx((string)$cell["url"]) ?>"
                                   data-flat-status="<?= htmlspecialcharsbx((string)$cell["status_xml_id"]) ?>"
+                                  data-flat-delivery="<?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?>"
                                 >
                                   <?= htmlspecialcharsbx((string)$cell["rooms_short"]) ?>
                                 </button>

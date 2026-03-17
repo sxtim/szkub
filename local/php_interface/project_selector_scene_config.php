@@ -14,7 +14,7 @@ if (!function_exists("szcubeGetProjectSelectorSceneConfigs")) {
         $config = array(
             "kollekciya" => array(
                 "scene_mode" => "single_building",
-                "data_project_code" => "vertical",
+                "data_project_code" => "kollekciya",
                 "scene_image" => $templatePath . "/img/projects/image_15.jpg",
                 "mobile_scene_image" => $templatePath . "/img/projects/kollecttsiya-mobile.jpg",
                 "scene_svg_path" => $templatePath . "/img/projects/Group.svg",
@@ -34,10 +34,7 @@ if (!function_exists("szcubeGetProjectSelectorSceneConfigs")) {
                     "mobile_zoom" => "1.6",
                     "mobile_center_x" => "62%",
                 ),
-                "board" => array(
-                    "rows_count" => 6,
-                    "top_row_label" => "6-7",
-                ),
+                "board" => array(),
                 "pins" => array(
                     "1" => array(
                         "desktop" => array(
