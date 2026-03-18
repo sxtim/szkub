@@ -20,6 +20,7 @@ if (empty($entrances)) {
 $state = array(
     "initialEntranceId" => isset($arResult["INITIAL_ENTRANCE_ID"]) ? (string)$arResult["INITIAL_ENTRANCE_ID"] : "",
     "initialView" => isset($arResult["INITIAL_VIEW"]) ? (string)$arResult["INITIAL_VIEW"] : "scene",
+    "initialFlatCode" => isset($arResult["INITIAL_FLAT_CODE"]) ? (string)$arResult["INITIAL_FLAT_CODE"] : "",
 );
 $sceneConfig = isset($project["SCENE_CONFIG"]) && is_array($project["SCENE_CONFIG"]) ? $project["SCENE_CONFIG"] : array();
 $sceneSettings = isset($sceneConfig["scene"]) && is_array($sceneConfig["scene"]) ? $sceneConfig["scene"] : array();
@@ -118,11 +119,8 @@ if (is_array($previewFlat) && isset($previewFlat["rooms_label"]) && trim((string
 if (is_array($previewFlat) && isset($previewFlat["area_total"]) && trim((string)$previewFlat["area_total"]) !== "") {
     $previewFlatMeta[] = trim((string)$previewFlat["area_total"]) . " м²";
 }
-if (is_array($previewFlat) && isset($previewFlat["floor"]) && (int)$previewFlat["floor"] > 0) {
-    $houseFloors = isset($previewFlat["house_floors"]) ? (int)$previewFlat["house_floors"] : 0;
-    $previewFlatMeta[] = $houseFloors > 0
-        ? ((int)$previewFlat["floor"]) . " этаж из " . $houseFloors
-        : ((int)$previewFlat["floor"]) . " этаж";
+if (is_array($previewFlat) && isset($previewFlat["floor_display"]) && trim((string)$previewFlat["floor_display"]) !== "") {
+    $previewFlatMeta[] = trim((string)$previewFlat["floor_display"]);
 }
 $popupMeta = !empty($previewFlatMeta) ? implode(" • ", $previewFlatMeta) : "";
 $popupPriceMain = is_array($previewFlat) && isset($previewFlat["price_total"]) && (float)$previewFlat["price_total"] > 0
@@ -131,7 +129,11 @@ $popupPriceMain = is_array($previewFlat) && isset($previewFlat["price_total"]) &
 $popupPriceOld = is_array($previewFlat) && isset($previewFlat["price_old"]) && (float)$previewFlat["price_old"] > 0
     ? number_format((float)$previewFlat["price_old"], 0, ".", " ") . " ₽"
     : "";
-$popupBadge = is_array($previewFlat) && isset($previewFlat["badge"]) ? trim((string)$previewFlat["badge"]) : "";
+$popupBadges = is_array($previewFlat) && isset($previewFlat["badges"]) && is_array($previewFlat["badges"])
+    ? array_values(array_filter(array_map("trim", $previewFlat["badges"]), static function ($badge) {
+        return $badge !== "";
+    }))
+    : array();
 $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string)$previewFlat["url"]) !== ""
     ? trim((string)$previewFlat["url"])
     : "#";
@@ -338,7 +340,11 @@ $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string
                     <span class="apartment-card__price-old" data-lot-price-old<?= $popupPriceOld === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupPriceOld) ?></span>
                   </div>
 
-                  <span class="apartment-card__badge" data-lot-badge<?= $popupBadge === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupBadge) ?></span>
+                  <div class="apartment-card__badges" data-lot-badges<?= empty($popupBadges) ? " hidden" : "" ?>>
+                    <?php foreach ($popupBadges as $popupBadge): ?>
+                      <span class="apartment-card__badge"><?= htmlspecialcharsbx($popupBadge) ?></span>
+                    <?php endforeach; ?>
+                  </div>
                 </article>
               </a>
             </div>
@@ -365,17 +371,20 @@ $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string
                                   class="projects-selector__lot is-<?= htmlspecialcharsbx((string)$cell["status_xml_id"]) ?>"
                                   type="button"
                                   data-flat-id="<?= (int)$cell["id"] ?>"
+                                  data-flat-code="<?= htmlspecialcharsbx((string)$cell["code"]) ?>"
                                   data-flat-title="<?= htmlspecialcharsbx((string)$cell["title"]) ?>"
                                   data-flat-price="<?= htmlspecialcharsbx((string)$cell["price_total"]) ?>"
                                   data-flat-price-old="<?= htmlspecialcharsbx((string)$cell["price_old"]) ?>"
                                   data-flat-project="<?= htmlspecialcharsbx((string)$project["NAME"]) ?>"
                                   data-flat-rooms="<?= htmlspecialcharsbx((string)$cell["rooms"]) ?>"
                                   data-flat-area="<?= htmlspecialcharsbx((string)$cell["area_total"]) ?>"
-                                  data-flat-badge="<?= htmlspecialcharsbx((string)$cell["badge"]) ?>"
+                                  data-flat-badges="<?= htmlspecialcharsbx(str_replace("</", "<\\/", json_encode(isset($cell["badges"]) && is_array($cell["badges"]) ? $cell["badges"] : array(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))) ?>"
                                   data-flat-finish="<?= htmlspecialcharsbx((string)$cell["finish"]) ?>"
                                   data-flat-image="<?= htmlspecialcharsbx((string)$cell["plan_image"]) ?>"
                                   data-flat-image-alt="<?= htmlspecialcharsbx((string)$cell["plan_alt"]) ?>"
                                   data-flat-floor="<?= (int)$cell["floor"] ?>"
+                                  data-flat-floor-to="<?= (int)$cell["floor_to"] ?>"
+                                  data-flat-floor-display="<?= htmlspecialcharsbx((string)$cell["floor_display"]) ?>"
                                   data-flat-house-floors="<?= (int)$cell["house_floors"] ?>"
                                   data-flat-number="<?= htmlspecialcharsbx((string)$cell["number"]) ?>"
                                   data-flat-url="<?= htmlspecialcharsbx((string)$cell["url"]) ?>"

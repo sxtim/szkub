@@ -845,13 +845,14 @@
       rgba(255, 255, 255, 0) 6px
     ),
     #ffffff;
-  color: transparent;
+  color: var(--blue);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .projects-selector__lot.is-sold {
   background: #eef3f6;
   border-color: rgba(207, 217, 227, 0.72);
-  color: transparent;
+  color: rgba(18, 21, 45, 0.42);
 }
 
 .projects-selector__lot:hover,
@@ -860,6 +861,28 @@
   box-shadow: 0 10px 22px rgba(16, 28, 44, 0.1);
   border-color: rgba(18, 184, 168, 0.42);
   outline: none;
+}
+
+.projects-selector__lot.is-selected {
+  position: relative;
+  z-index: 1;
+  transform: scale(1.08);
+  border-color: rgba(18, 184, 168, 0.95);
+  box-shadow:
+    0 0 0 3px rgba(18, 184, 168, 0.18),
+    0 14px 28px rgba(16, 28, 44, 0.16);
+}
+
+.projects-selector__lot.is-selected.is-free {
+  background: #dfeafb;
+}
+
+.projects-selector__lot.is-selected.is-booked {
+  color: var(--blue);
+}
+
+.projects-selector__lot.is-selected.is-sold {
+  color: var(--blue);
 }
 
 .projects-selector__lot-card {
@@ -983,6 +1006,12 @@
   font-weight: 500;
   color: rgba(64, 64, 64, 0.45);
   text-decoration: line-through;
+}
+
+.projects-selector__lot-card .apartment-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .projects-selector__lot-card .apartment-card__badge {

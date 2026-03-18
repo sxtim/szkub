@@ -212,6 +212,95 @@ if (!function_exists("szcubeApartmentFilterMultiPropertyValues")) {
     }
 }
 
+if (!function_exists("szcubeApartmentFilterDiscountBadge")) {
+    function szcubeApartmentFilterDiscountBadge($priceTotal, $priceOld)
+    {
+        $priceTotal = (float)$priceTotal;
+        $priceOld = (float)$priceOld;
+        if ($priceOld <= 0 || $priceTotal <= 0 || $priceOld <= $priceTotal) {
+            return "";
+        }
+
+        $discountPercent = (int)round((($priceOld - $priceTotal) / $priceOld) * 100);
+        if ($discountPercent <= 0) {
+            return "";
+        }
+
+        return "Скидка " . $discountPercent . "%";
+    }
+}
+
+if (!function_exists("szcubeApartmentFilterNormalizeUpperFloor")) {
+    function szcubeApartmentFilterNormalizeUpperFloor($floor, $floorTo)
+    {
+        $floor = (int)$floor;
+        $floorTo = (int)$floorTo;
+        return $floorTo > $floor ? $floorTo : 0;
+    }
+}
+
+if (!function_exists("szcubeApartmentFilterIsDuplex")) {
+    function szcubeApartmentFilterIsDuplex($floor, $floorTo)
+    {
+        return szcubeApartmentFilterNormalizeUpperFloor($floor, $floorTo) > 0;
+    }
+}
+
+if (!function_exists("szcubeApartmentFilterFloorMax")) {
+    function szcubeApartmentFilterFloorMax($floor, $floorTo)
+    {
+        $floor = (int)$floor;
+        $normalizedFloorTo = szcubeApartmentFilterNormalizeUpperFloor($floor, $floorTo);
+        return $normalizedFloorTo > 0 ? $normalizedFloorTo : $floor;
+    }
+}
+
+if (!function_exists("szcubeApartmentFilterFloorLabel")) {
+    function szcubeApartmentFilterFloorLabel($floor, $floorTo, $houseFloors, $compact = false)
+    {
+        $floor = (int)$floor;
+        $houseFloors = (int)$houseFloors;
+        $normalizedFloorTo = szcubeApartmentFilterNormalizeUpperFloor($floor, $floorTo);
+        if ($normalizedFloorTo > 0) {
+            return $floor > 0 ? ($floor . "-" . $normalizedFloorTo . " этаж") : "";
+        }
+
+        if ($floor <= 0) {
+            return $houseFloors > 0 ? ($houseFloors . " этаж") : "";
+        }
+
+        if ($compact && $houseFloors > 0) {
+            return $floor . "/" . $houseFloors . " этаж";
+        }
+
+        return $houseFloors > 0 ? ($floor . " этаж из " . $houseFloors) : ($floor . " этаж");
+    }
+}
+
+if (!function_exists("szcubeApartmentFilterBuildBadges")) {
+    function szcubeApartmentFilterBuildBadges(array $manualBadges, $priceTotal, $priceOld, $floor = 0, $floorTo = 0)
+    {
+        $badges = array();
+        foreach ($manualBadges as $badge) {
+            $badge = trim((string)$badge);
+            if ($badge !== "") {
+                $badges[] = $badge;
+            }
+        }
+
+        if (szcubeApartmentFilterIsDuplex($floor, $floorTo) && !in_array("Двухуровневая", $badges, true)) {
+            $badges[] = "Двухуровневая";
+        }
+
+        $discountBadge = szcubeApartmentFilterDiscountBadge($priceTotal, $priceOld);
+        if ($discountBadge !== "" && !in_array($discountBadge, $badges, true)) {
+            $badges[] = $discountBadge;
+        }
+
+        return array_values(array_unique($badges));
+    }
+}
+
 $cacheTime = isset($arParams["CACHE_TIME"]) ? (int)$arParams["CACHE_TIME"] : 36000000;
 $projectsPageUrl = isset($arParams["PROJECTS_PAGE_URL"]) && trim((string)$arParams["PROJECTS_PAGE_URL"]) !== ""
     ? trim((string)$arParams["PROJECTS_PAGE_URL"])
@@ -302,27 +391,37 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl))) {
             $flatUrl = szcubeApartmentFilterElementUrl($apartmentsDetailTemplate, $flatFields, $catalogPageUrl);
         }
 
-        $roomsRaw = isset($flatProperties["ROOMS"]["VALUE"]) ? trim((string)$flatProperties["ROOMS"]["VALUE"]) : "";
-        $roomsLabel = szcubeApartmentFilterRoomFullLabel($roomsRaw);
-        $roomBucket = szcubeApartmentFilterRoomBucketKey($roomsRaw);
+        $roomsLabel = isset($flatProperties["ROOMS"]["VALUE"]) ? trim((string)$flatProperties["ROOMS"]["VALUE"]) : "";
+        $roomBucket = isset($flatProperties["ROOMS"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["ROOMS"]["VALUE_XML_ID"]) : "";
+        if ($roomBucket === "") {
+            $roomBucket = szcubeApartmentFilterRoomBucketKey($roomsLabel);
+        }
+        if ($roomsLabel === "" && $roomBucket !== "") {
+            $roomsLabel = szcubeApartmentFilterRoomFullLabel($roomBucket);
+        }
         if ($roomBucket !== "" && isset($rooms[$roomBucket])) {
             $rooms[$roomBucket]["count"]++;
         }
 
         $priceTotal = isset($flatProperties["PRICE_TOTAL"]["VALUE"]) ? (float)$flatProperties["PRICE_TOTAL"]["VALUE"] : 0.0;
         $floor = isset($flatProperties["FLOOR"]["VALUE"]) ? (int)$flatProperties["FLOOR"]["VALUE"] : 0;
+        $floorTo = isset($flatProperties["FLOOR_TO"]["VALUE"]) ? (int)$flatProperties["FLOOR_TO"]["VALUE"] : 0;
+        $floorMax = szcubeApartmentFilterFloorMax($floor, $floorTo);
         $areaTotal = isset($flatProperties["AREA_TOTAL"]["VALUE"]) ? (float)$flatProperties["AREA_TOTAL"]["VALUE"] : 0.0;
         $ceiling = isset($flatProperties["CEILING"]["VALUE"]) ? (float)$flatProperties["CEILING"]["VALUE"] : 0.0;
         $statusKey = isset($flatProperties["STATUS"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["STATUS"]["VALUE_XML_ID"]) : "";
         $statusLabel = isset($flatProperties["STATUS"]["VALUE"]) ? trim((string)$flatProperties["STATUS"]["VALUE"]) : "";
         $finishLabel = isset($flatProperties["FINISH"]["VALUE"]) ? trim((string)$flatProperties["FINISH"]["VALUE"]) : "";
-        $finishKey = $finishLabel !== "" ? szcubeApartmentFilterNormalizeKey($finishLabel) : "";
+        $finishKey = isset($flatProperties["FINISH"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["FINISH"]["VALUE_XML_ID"]) : "";
         $flatFeatureTags = szcubeApartmentFilterMultiPropertyValues(isset($flatProperties["FEATURE_TAGS"]) && is_array($flatProperties["FEATURE_TAGS"]) ? $flatProperties["FEATURE_TAGS"] : array());
         $priceOld = isset($flatProperties["PRICE_OLD"]["VALUE"]) ? (float)$flatProperties["PRICE_OLD"]["VALUE"] : 0.0;
         $houseFloors = isset($flatProperties["HOUSE_FLOORS"]["VALUE"]) ? (int)$flatProperties["HOUSE_FLOORS"]["VALUE"] : 0;
         $planImage = szcubeApartmentFilterFilePath(isset($flatProperties["PLAN_IMAGE"]["VALUE"]) ? $flatProperties["PLAN_IMAGE"]["VALUE"] : 0);
         $planAlt = isset($flatProperties["PLAN_ALT"]["VALUE"]) ? trim((string)$flatProperties["PLAN_ALT"]["VALUE"]) : "";
-        $discountLabel = isset($flatProperties["DISCOUNT_LABEL"]["VALUE"]) ? trim((string)$flatProperties["DISCOUNT_LABEL"]["VALUE"]) : "";
+        $manualBadges = szcubeApartmentFilterMultiPropertyValues(isset($flatProperties["BADGES"]) && is_array($flatProperties["BADGES"]) ? $flatProperties["BADGES"] : array());
+        $badges = szcubeApartmentFilterBuildBadges($manualBadges, $priceTotal, $priceOld, $floor, $floorTo);
+        $floorDisplay = szcubeApartmentFilterFloorLabel($floor, $floorTo, $houseFloors, false);
+        $floorShort = szcubeApartmentFilterFloorLabel($floor, $floorTo, $houseFloors, true);
 
         if (!isset($projects[$projectCode])) {
             $projects[$projectCode] = array(
@@ -381,6 +480,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl))) {
         szcubeApartmentFilterRangeUpdate($ranges["price"], $priceTotal);
         szcubeApartmentFilterRangeUpdate($ranges["area"], $areaTotal);
         szcubeApartmentFilterRangeUpdate($ranges["floor"], $floor);
+        szcubeApartmentFilterRangeUpdate($ranges["floor"], $floorMax);
         szcubeApartmentFilterRangeUpdate($ranges["ceiling"], $ceiling);
 
         $flats[] = array(
@@ -398,6 +498,10 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl))) {
             "price_total" => $priceTotal,
             "price_old" => $priceOld,
             "floor" => $floor,
+            "floor_to" => szcubeApartmentFilterNormalizeUpperFloor($floor, $floorTo),
+            "floor_max" => $floorMax,
+            "floor_display" => $floorDisplay,
+            "floor_short" => $floorShort,
             "house_floors" => $houseFloors,
             "area_total" => $areaTotal,
             "ceiling" => $ceiling,
@@ -405,7 +509,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl))) {
             "status_label" => $statusLabel,
             "finish" => $finishKey,
             "finish_label" => $finishLabel,
-            "badge" => $discountLabel !== "" ? $discountLabel : $finishLabel,
+            "badges" => $badges,
             "plan_image" => $planImage,
             "plan_alt" => $planAlt !== "" ? $planAlt : trim((string)$flatFields["NAME"]),
             "feature_tags" => array_values(array_unique($featureTagKeys)),

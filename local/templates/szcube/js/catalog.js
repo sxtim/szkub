@@ -15,6 +15,35 @@ const catalogEscapeHtml = (value) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 
+const catalogNormalizeBadges = (badges) => {
+  if (!Array.isArray(badges)) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      badges
+        .map((badge) => String(badge ?? "").trim())
+        .filter(Boolean)
+    )
+  );
+};
+
+const catalogRenderBadges = (badges) => {
+  const normalizedBadges = catalogNormalizeBadges(badges);
+  if (!normalizedBadges.length) {
+    return "";
+  }
+
+  return `
+    <div class="apartment-card__badges">
+      ${normalizedBadges
+        .map((badge) => `<span class="apartment-card__badge">${catalogEscapeHtml(badge)}</span>`)
+        .join("")}
+    </div>
+  `;
+};
+
 const catalogUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
 
 const catalogPluralize = (count) => {
@@ -28,6 +57,33 @@ const catalogPluralize = (count) => {
     return "квартиры";
   }
   return "квартир";
+};
+
+const catalogFlatFloorFrom = (flat) => {
+  const value = Number(flat?.floor) || 0;
+  return value > 0 ? value : 0;
+};
+
+const catalogFlatFloorTo = (flat) => {
+  const floorFrom = catalogFlatFloorFrom(flat);
+  const floorTo = Number(flat?.floor_to) || 0;
+  return floorTo > floorFrom ? floorTo : floorFrom;
+};
+
+const catalogFlatMatchesFloorRange = (flat, from, to) => {
+  const floorFrom = catalogFlatFloorFrom(flat);
+  const floorTo = catalogFlatFloorTo(flat);
+  if (floorFrom <= 0) {
+    return true;
+  }
+  if (typeof from === "number" && Number.isFinite(from) && floorTo + 0.0001 < from) {
+    return false;
+  }
+  if (typeof to === "number" && Number.isFinite(to) && floorFrom - 0.0001 > to) {
+    return false;
+  }
+
+  return true;
 };
 
 const catalogParsePayload = (root) => {
@@ -50,6 +106,17 @@ const catalogReadRangeValue = (root, key, fallback) => {
   return Number.isFinite(value) ? value : fallback;
 };
 
+const catalogNumberDiffers = (value, fallback) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return false;
+  }
+  if (typeof fallback !== "number" || !Number.isFinite(fallback)) {
+    return true;
+  }
+
+  return Math.abs(value - fallback) > 0.0001;
+};
+
 const catalogNormalizeState = (value) => {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -69,6 +136,10 @@ const catalogNormalizeState = (value) => {
   }
 
   const normalizeValues = (items) => {
+    if (typeof items === "string") {
+      items = items.split(",");
+    }
+
     if (!Array.isArray(items)) {
       return [];
     }
@@ -85,19 +156,19 @@ const catalogNormalizeState = (value) => {
   };
 
   return {
-    projects: normalizeValues(value.projects),
+    projects: normalizeValues(typeof value.projects !== "undefined" ? value.projects : value.project),
     rooms: normalizeValues(value.rooms),
-    statuses: normalizeValues(value.statuses),
-    finishes: normalizeValues(value.finishes),
-    features: normalizeValues(value.features),
-    priceFrom: normalizeNumber(value.priceFrom),
-    priceTo: normalizeNumber(value.priceTo),
-    floorFrom: normalizeNumber(value.floorFrom),
-    floorTo: normalizeNumber(value.floorTo),
-    areaFrom: normalizeNumber(value.areaFrom),
-    areaTo: normalizeNumber(value.areaTo),
-    ceilingFrom: normalizeNumber(value.ceilingFrom),
-    ceilingTo: normalizeNumber(value.ceilingTo),
+    statuses: normalizeValues(typeof value.statuses !== "undefined" ? value.statuses : value.status),
+    finishes: normalizeValues(typeof value.finishes !== "undefined" ? value.finishes : value.finish),
+    features: normalizeValues(typeof value.features !== "undefined" ? value.features : value.feature),
+    priceFrom: normalizeNumber(typeof value.priceFrom !== "undefined" ? value.priceFrom : value.price_from),
+    priceTo: normalizeNumber(typeof value.priceTo !== "undefined" ? value.priceTo : value.price_to),
+    floorFrom: normalizeNumber(typeof value.floorFrom !== "undefined" ? value.floorFrom : value.floor_from),
+    floorTo: normalizeNumber(typeof value.floorTo !== "undefined" ? value.floorTo : value.floor_to),
+    areaFrom: normalizeNumber(typeof value.areaFrom !== "undefined" ? value.areaFrom : value.area_from),
+    areaTo: normalizeNumber(typeof value.areaTo !== "undefined" ? value.areaTo : value.area_to),
+    ceilingFrom: normalizeNumber(typeof value.ceilingFrom !== "undefined" ? value.ceilingFrom : value.ceiling_from),
+    ceilingTo: normalizeNumber(typeof value.ceilingTo !== "undefined" ? value.ceilingTo : value.ceiling_to),
   };
 };
 
@@ -127,7 +198,80 @@ const catalogHasCriteria = (state) => {
 const catalogStateFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
   const raw = params.get("apartment_filter");
-  return catalogNormalizeState(raw);
+  if (raw) {
+    return {
+      state: catalogNormalizeState(raw),
+      legacy: true,
+    };
+  }
+
+  const state = catalogNormalizeState({
+    project: params.get("project"),
+    rooms: params.get("rooms"),
+    status: params.get("status"),
+    finish: params.get("finish"),
+    feature: params.get("feature"),
+    price_from: params.get("price_from"),
+    price_to: params.get("price_to"),
+    floor_from: params.get("floor_from"),
+    floor_to: params.get("floor_to"),
+    area_from: params.get("area_from"),
+    area_to: params.get("area_to"),
+    ceiling_from: params.get("ceiling_from"),
+    ceiling_to: params.get("ceiling_to"),
+  });
+
+  return {
+    state: catalogHasCriteria(state) ? state : null,
+    legacy: false,
+  };
+};
+
+const catalogStateToQuery = (state, payload) => {
+  const params = new URLSearchParams();
+  const ranges = payload.ranges || {};
+
+  const setCsv = (key, values) => {
+    const normalized = catalogUniqueValues(
+      (Array.isArray(values) ? values : []).map((item) => String(item || "").trim())
+    );
+    if (normalized.length) {
+      params.set(key, normalized.join(","));
+    }
+  };
+
+  setCsv("project", state.projects);
+  setCsv("rooms", state.rooms);
+  setCsv("status", state.statuses);
+  setCsv("finish", state.finishes);
+  setCsv("feature", state.features);
+
+  if (catalogNumberDiffers(state.priceFrom, ranges.price?.actual_min ?? null)) {
+    params.set("price_from", String(state.priceFrom));
+  }
+  if (catalogNumberDiffers(state.priceTo, ranges.price?.actual_max ?? null)) {
+    params.set("price_to", String(state.priceTo));
+  }
+  if (catalogNumberDiffers(state.floorFrom, ranges.floor?.actual_min ?? null)) {
+    params.set("floor_from", String(state.floorFrom));
+  }
+  if (catalogNumberDiffers(state.floorTo, ranges.floor?.actual_max ?? null)) {
+    params.set("floor_to", String(state.floorTo));
+  }
+  if (catalogNumberDiffers(state.areaFrom, ranges.area?.actual_min ?? null)) {
+    params.set("area_from", String(state.areaFrom));
+  }
+  if (catalogNumberDiffers(state.areaTo, ranges.area?.actual_max ?? null)) {
+    params.set("area_to", String(state.areaTo));
+  }
+  if (catalogNumberDiffers(state.ceilingFrom, ranges.ceiling?.actual_min ?? null)) {
+    params.set("ceiling_from", String(state.ceilingFrom));
+  }
+  if (catalogNumberDiffers(state.ceilingTo, ranges.ceiling?.actual_max ?? null)) {
+    params.set("ceiling_to", String(state.ceilingTo));
+  }
+
+  return params.toString();
 };
 
 const catalogBuildState = (root, payload) => {
@@ -198,7 +342,7 @@ const catalogMatchesFlat = (flat, state) => {
   if (flat.price_total > 0 && (flat.price_total < state.priceFrom || flat.price_total > state.priceTo)) {
     return false;
   }
-  if (flat.floor > 0 && (flat.floor < state.floorFrom || flat.floor > state.floorTo)) {
+  if (!catalogFlatMatchesFloorRange(flat, state.floorFrom, state.floorTo)) {
     return false;
   }
   if (flat.area_total > 0 && (flat.area_total + 0.0001 < state.areaFrom || flat.area_total - 0.0001 > state.areaTo)) {
@@ -313,10 +457,10 @@ const catalogSortFlats = (flats, sortValue) => {
       items.sort((left, right) => compareNumbers(left, right, "price_total", "desc"));
       break;
     case "floor_asc":
-      items.sort((left, right) => compareNumbers(left, right, "floor", "asc"));
+      items.sort((left, right) => compareNumbers(left, right, "floor_max", "asc"));
       break;
     case "floor_desc":
-      items.sort((left, right) => compareNumbers(left, right, "floor", "desc"));
+      items.sort((left, right) => compareNumbers(left, right, "floor_max", "desc"));
       break;
     case "area_desc":
       items.sort((left, right) => compareNumbers(left, right, "area_total", "desc"));
@@ -336,8 +480,8 @@ const catalogBuildMeta = (flat) => {
   if (flat.area_total) {
     parts.push(`${flat.area_total} м²`);
   }
-  if (flat.floor) {
-    parts.push(flat.house_floors ? `${flat.floor}/${flat.house_floors} этаж` : `${flat.floor} этаж`);
+  if (flat.floor_short) {
+    parts.push(flat.floor_short);
   }
 
   return parts.join(" • ");
@@ -348,19 +492,48 @@ const catalogBuildListMeta = (flat) => {
   if (flat.area_total) {
     parts.push(`${flat.area_total} м²`);
   }
-  if (flat.floor) {
-    parts.push(flat.house_floors ? `${flat.floor}/${flat.house_floors} этаж` : `${flat.floor} этаж`);
+  if (flat.floor_short) {
+    parts.push(flat.floor_short);
   }
 
   return parts.join(" • ");
 };
 
-const catalogRenderCard = (flat) => {
+const catalogBuildBoardUrl = (flat) => {
+  const baseUrl = flat.project_filter_url || flat.project_url || "/projects/";
+  const url = new URL(baseUrl, window.location.origin);
+
+  url.searchParams.set("selector_view", "board");
+  if (flat.code) {
+    url.searchParams.set("selector_flat", flat.code);
+  }
+
+  return `${url.pathname}${url.search}${url.hash}`;
+};
+
+const catalogRenderCard = (flat, queryString = "") => {
   const meta = catalogBuildMeta(flat);
   const listMeta = catalogBuildListMeta(flat);
-  const badge = flat.badge || flat.status_label || "";
-  const listLabel = flat.status_label || badge || "";
+  const badges = catalogNormalizeBadges(flat.badges);
+  const listLabel = flat.status_label || "";
   const planAlt = flat.plan_alt || flat.rooms_label || "Планировка";
+  const boardUrl = catalogBuildBoardUrl(flat);
+  const boardAction = `
+    <button
+      class="apartment-card__action apartment-card__board"
+      type="button"
+      data-board-url="${catalogEscapeHtml(boardUrl)}"
+      aria-label="Показать на шахматке"
+      title="Показать на шахматке"
+    >
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3.5 3.5H7.25V7.25H3.5V3.5Z" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M10.75 3.5H14.5V7.25H10.75V3.5Z" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M3.5 10.75H7.25V14.5H3.5V10.75Z" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M10.75 10.75H14.5V14.5H10.75V10.75Z" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+    </button>
+  `;
 
   return `
     <article class="apartment-card" data-card-url="${catalogEscapeHtml(flat.url)}" tabindex="0" role="link">
@@ -369,11 +542,14 @@ const catalogRenderCard = (flat) => {
           <span class="apartment-card__project">${catalogEscapeHtml(flat.project_name)}</span>
           ${flat.project_delivery ? `<span class="apartment-card__date">Сдача ${catalogEscapeHtml(flat.project_delivery)}</span>` : ""}
         </div>
-        <button class="apartment-card__fav" type="button" aria-label="В избранное">
-          <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+        <div class="apartment-card__actions">
+          ${boardAction}
+          <button class="apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное">
+            <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="apartment-card__plan">
@@ -387,7 +563,7 @@ const catalogRenderCard = (flat) => {
         ${flat.price_old > 0 ? `<span class="apartment-card__price-old">${catalogEscapeHtml(catalogFormatPrice(flat.price_old))}</span>` : ""}
       </div>
 
-      ${badge ? `<span class="apartment-card__badge">${catalogEscapeHtml(badge)}</span>` : ""}
+      ${catalogRenderBadges(badges)}
 
       <div class="apartment-card__list">
         <div class="apartment-card__summary">
@@ -401,7 +577,15 @@ const catalogRenderCard = (flat) => {
         <div class="apartment-card__list-price">${catalogEscapeHtml(catalogFormatPrice(flat.price_total))}</div>
         ${listLabel ? `<span class="apartment-card__label">${catalogEscapeHtml(listLabel)}</span>` : `<span></span>`}
         <div class="apartment-card__icons">
-          <button class="apartment-card__icon apartment-card__fav" type="button" aria-label="В избранное">
+          <button class="apartment-card__icon apartment-card__action apartment-card__board" type="button" data-board-url="${catalogEscapeHtml(boardUrl)}" aria-label="Показать на шахматке" title="Показать на шахматке">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M3.5 3.5H7.25V7.25H3.5V3.5Z" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M10.75 3.5H14.5V7.25H10.75V3.5Z" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3.5 10.75H7.25V14.5H3.5V10.75Z" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M10.75 10.75H14.5V14.5H10.75V10.75Z" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>
+          <button class="apartment-card__icon apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное">
             <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -527,14 +711,30 @@ const initApartmentCatalog = () => {
     return;
   }
 
+  const initialQuery = catalogStateFromQuery();
   let currentSort = "default";
+  let isReady = false;
 
   const render = () => {
+    if (!isReady) {
+      return;
+    }
+
     const state = catalogBuildState(root, payload);
+    const queryString = catalogStateToQuery(state, payload);
+    const nextUrl = queryString
+      ? `${window.location.pathname}?${queryString}${window.location.hash || ""}`
+      : `${window.location.pathname}${window.location.hash || ""}`;
+    if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== nextUrl) {
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+
     const matches = payload.flats.filter((flat) => catalogMatchesFlat(flat, state));
     const sortedMatches = catalogSortFlats(matches, currentSort);
 
-    resultsContainer.innerHTML = sortedMatches.map(catalogRenderCard).join("");
+    resultsContainer.innerHTML = sortedMatches
+      .map((flat) => catalogRenderCard(flat, queryString))
+      .join("");
 
     const count = sortedMatches.length;
     countEls.forEach((element) => {
@@ -561,6 +761,14 @@ const initApartmentCatalog = () => {
   root.addEventListener("input", render);
 
   resultsContainer.addEventListener("click", (event) => {
+    const boardButton = event.target.closest(".apartment-card__board");
+    if (boardButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href = boardButton.dataset.boardUrl || "#";
+      return;
+    }
+
     const favoriteButton = event.target.closest(".apartment-card__fav");
     if (favoriteButton) {
       favoriteButton.classList.toggle("is-active");
@@ -577,6 +785,13 @@ const initApartmentCatalog = () => {
   });
 
   resultsContainer.addEventListener("keydown", (event) => {
+    if (
+      event.target.closest(".apartment-card__board") ||
+      event.target.closest(".apartment-card__fav")
+    ) {
+      return;
+    }
+
     const card = event.target.closest("[data-card-url]");
     if (!card) {
       return;
@@ -607,14 +822,12 @@ const initApartmentCatalog = () => {
   });
 
   window.requestAnimationFrame(() => {
-    const initialState = catalogStateFromQuery();
-    if (initialState) {
-      catalogApplyState(root, payload, initialState);
-      const cleanUrl = `${window.location.pathname}${window.location.hash || ""}`;
-      window.history.replaceState(window.history.state, "", cleanUrl);
+    if (initialQuery.state) {
+      catalogApplyState(root, payload, initialQuery.state);
     } else {
       catalogUpdateDropdownLabels(root);
     }
+    isReady = true;
     render();
   });
 };

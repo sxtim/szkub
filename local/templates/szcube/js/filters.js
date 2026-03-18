@@ -294,6 +294,91 @@ const apartmentFilterPluralize = (count) => {
   return "квартир";
 };
 
+const apartmentFilterFlatFloorFrom = (flat) => {
+  const value = Number(flat?.floor) || 0;
+  return value > 0 ? value : 0;
+};
+
+const apartmentFilterFlatFloorTo = (flat) => {
+  const floorFrom = apartmentFilterFlatFloorFrom(flat);
+  const floorTo = Number(flat?.floor_to) || 0;
+  return floorTo > floorFrom ? floorTo : floorFrom;
+};
+
+const apartmentFilterMatchesFloorRange = (flat, from, to) => {
+  const floorFrom = apartmentFilterFlatFloorFrom(flat);
+  const floorTo = apartmentFilterFlatFloorTo(flat);
+  if (floorFrom <= 0) {
+    return true;
+  }
+  if (typeof from === "number" && Number.isFinite(from) && floorTo + 0.0001 < from) {
+    return false;
+  }
+  if (typeof to === "number" && Number.isFinite(to) && floorFrom - 0.0001 > to) {
+    return false;
+  }
+
+  return true;
+};
+
+const apartmentFilterNumberDiffers = (value, fallback) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return false;
+  }
+  if (typeof fallback !== "number" || !Number.isFinite(fallback)) {
+    return true;
+  }
+
+  return Math.abs(value - fallback) > 0.0001;
+};
+
+const apartmentFilterStateToQuery = (state, payload) => {
+  const params = new URLSearchParams();
+  const ranges = payload.ranges || {};
+
+  const setCsv = (key, values) => {
+    const normalized = apartmentFilterUniqueValues(
+      (Array.isArray(values) ? values : []).map((item) => String(item || "").trim())
+    );
+    if (normalized.length) {
+      params.set(key, normalized.join(","));
+    }
+  };
+
+  setCsv("project", state.projects);
+  setCsv("rooms", state.rooms);
+  setCsv("status", state.statuses);
+  setCsv("finish", state.finishes);
+  setCsv("feature", state.features);
+
+  if (apartmentFilterNumberDiffers(state.priceFrom, ranges.price?.actual_min ?? null)) {
+    params.set("price_from", String(state.priceFrom));
+  }
+  if (apartmentFilterNumberDiffers(state.priceTo, ranges.price?.actual_max ?? null)) {
+    params.set("price_to", String(state.priceTo));
+  }
+  if (apartmentFilterNumberDiffers(state.floorFrom, ranges.floor?.actual_min ?? null)) {
+    params.set("floor_from", String(state.floorFrom));
+  }
+  if (apartmentFilterNumberDiffers(state.floorTo, ranges.floor?.actual_max ?? null)) {
+    params.set("floor_to", String(state.floorTo));
+  }
+  if (apartmentFilterNumberDiffers(state.areaFrom, ranges.area?.actual_min ?? null)) {
+    params.set("area_from", String(state.areaFrom));
+  }
+  if (apartmentFilterNumberDiffers(state.areaTo, ranges.area?.actual_max ?? null)) {
+    params.set("area_to", String(state.areaTo));
+  }
+  if (apartmentFilterNumberDiffers(state.ceilingFrom, ranges.ceiling?.actual_min ?? null)) {
+    params.set("ceiling_from", String(state.ceilingFrom));
+  }
+  if (apartmentFilterNumberDiffers(state.ceilingTo, ranges.ceiling?.actual_max ?? null)) {
+    params.set("ceiling_to", String(state.ceilingTo));
+  }
+
+  return params.toString();
+};
+
 const apartmentFilterBuildState = (root, payload) => {
   const projects = apartmentFilterUniqueValues(
     Array.from(root.querySelectorAll('.custom-checkbox[data-sync-group="project"]:checked')).map(
@@ -350,7 +435,7 @@ const apartmentFilterMatchesFlat = (flat, state) => {
   if (flat.price_total > 0 && (flat.price_total < state.priceFrom || flat.price_total > state.priceTo)) {
     return false;
   }
-  if (flat.floor > 0 && (flat.floor < state.floorFrom || flat.floor > state.floorTo)) {
+  if (!apartmentFilterMatchesFloorRange(flat, state.floorFrom, state.floorTo)) {
     return false;
   }
   if (flat.area_total > 0 && (flat.area_total + 0.0001 < state.areaFrom || flat.area_total - 0.0001 > state.areaTo)) {
@@ -437,10 +522,12 @@ const initApartmentFilter = () => {
       return;
     }
 
-    const encodedState = encodeURIComponent(JSON.stringify(state));
     if (payload.catalog_page_url) {
+      const queryString = apartmentFilterStateToQuery(state, payload);
       const glue = payload.catalog_page_url.includes("?") ? "&" : "?";
-      window.location.href = `${payload.catalog_page_url}${glue}apartment_filter=${encodedState}`;
+      window.location.href = queryString
+        ? `${payload.catalog_page_url}${glue}${queryString}`
+        : payload.catalog_page_url;
       return;
     }
 

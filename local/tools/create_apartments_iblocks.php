@@ -193,8 +193,41 @@ function ensureProperty($iblockId, array $propertyDef, $dryRun)
 		array("SORT" => "ASC", "ID" => "ASC"),
 		array("IBLOCK_ID" => $iblockId, "CODE" => $propertyDef["CODE"])
 	);
-	if ($propRes->Fetch()) {
-		echo "[OK] Property exists: " . $propertyDef["CODE"] . PHP_EOL;
+	$existing = $propRes->Fetch();
+	if ($existing) {
+		$propertyId = (int)$existing["ID"];
+		$needsUpdate = false;
+		$compareFields = array("NAME", "PROPERTY_TYPE", "MULTIPLE", "IS_REQUIRED", "SORT", "ROW_COUNT", "COL_COUNT");
+		foreach ($compareFields as $fieldName) {
+			$expected = isset($propertyDef[$fieldName]) ? (string)$propertyDef[$fieldName] : "";
+			$actual = isset($existing[$fieldName]) ? (string)$existing[$fieldName] : "";
+			if ($expected !== $actual) {
+				$needsUpdate = true;
+				break;
+			}
+		}
+
+		if ($needsUpdate) {
+			echo "[UPDATE] Property: " . $propertyDef["CODE"] . PHP_EOL;
+			if (!$dryRun) {
+				$property = new CIBlockProperty();
+				$updateFields = $propertyDef + array("IBLOCK_ID" => $iblockId);
+				unset($updateFields["VALUES"]);
+				if (!$property->Update($propertyId, $updateFields)) {
+					echo "[ERROR] Failed to update property " . $propertyDef["CODE"] . ": " . $property->LAST_ERROR . PHP_EOL;
+					return false;
+				}
+			}
+		} else {
+			echo "[OK] Property exists: " . $propertyDef["CODE"] . PHP_EOL;
+		}
+
+		if (isset($propertyDef["VALUES"]) && is_array($propertyDef["VALUES"])) {
+			if (!ensurePropertyEnumValues($propertyId, $propertyDef["VALUES"], $dryRun)) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -208,6 +241,88 @@ function ensureProperty($iblockId, array $propertyDef, $dryRun)
 	if (!$newPropId) {
 		echo "[ERROR] Failed to create property " . $propertyDef["CODE"] . ": " . $property->LAST_ERROR . PHP_EOL;
 		return false;
+	}
+
+	return true;
+}
+
+function ensurePropertyEnumValues($propertyId, array $values, $dryRun)
+{
+	$propertyId = (int)$propertyId;
+	if ($propertyId <= 0) {
+		echo "[SKIP] Property enum values (dry-run, property ID unknown)" . PHP_EOL;
+		return true;
+	}
+
+	$existing = array();
+	$res = CIBlockPropertyEnum::GetList(
+		array("SORT" => "ASC", "ID" => "ASC"),
+		array("PROPERTY_ID" => $propertyId)
+	);
+	while ($row = $res->Fetch()) {
+		$key = trim((string)$row["XML_ID"]) !== "" ? trim((string)$row["XML_ID"]) : trim((string)$row["VALUE"]);
+		$existing[$key] = $row;
+	}
+
+	$processed = array();
+	foreach ($values as $index => $valueDef) {
+		$xmlId = isset($valueDef["XML_ID"]) ? trim((string)$valueDef["XML_ID"]) : "";
+		$key = $xmlId !== "" ? $xmlId : trim((string)$valueDef["VALUE"]);
+		$sort = isset($valueDef["SORT"]) ? (int)$valueDef["SORT"] : (($index + 1) * 100);
+		$def = isset($valueDef["DEF"]) && (string)$valueDef["DEF"] === "Y" ? "Y" : "N";
+		$payload = array(
+			"PROPERTY_ID" => $propertyId,
+			"VALUE" => (string)$valueDef["VALUE"],
+			"XML_ID" => $xmlId,
+			"SORT" => $sort,
+			"DEF" => $def,
+		);
+
+		if (isset($existing[$key])) {
+			$processed[$key] = true;
+			$current = $existing[$key];
+			$needsUpdate = (string)$current["VALUE"] !== (string)$payload["VALUE"]
+				|| (string)$current["XML_ID"] !== (string)$payload["XML_ID"]
+				|| (int)$current["SORT"] !== (int)$payload["SORT"]
+				|| (string)$current["DEF"] !== (string)$payload["DEF"];
+
+			if ($needsUpdate) {
+				echo "[UPDATE] Property enum: " . $key . PHP_EOL;
+				if (!$dryRun) {
+					$enum = new CIBlockPropertyEnum();
+					if (!$enum->Update((int)$current["ID"], $payload)) {
+						echo "[ERROR] Failed to update property enum " . $key . PHP_EOL;
+						return false;
+					}
+				}
+			}
+			continue;
+		}
+
+		$processed[$key] = true;
+		echo "[CREATE] Property enum: " . $key . PHP_EOL;
+		if (!$dryRun) {
+			$enum = new CIBlockPropertyEnum();
+			if (!$enum->Add($payload)) {
+				echo "[ERROR] Failed to create property enum " . $key . PHP_EOL;
+				return false;
+			}
+		}
+	}
+
+	foreach ($existing as $key => $row) {
+		if (isset($processed[$key])) {
+			continue;
+		}
+
+		echo "[DELETE] Property enum: " . $key . PHP_EOL;
+		if (!$dryRun) {
+			$enum = new CIBlockPropertyEnum();
+			if (!$enum->Delete((int)$row["ID"])) {
+				echo "[ERROR] Failed to delete property enum " . $key . PHP_EOL;
+				return false;
+			}
+		}
 	}
 
 	return true;
@@ -476,6 +591,13 @@ $apartmentsProperties = array(
 		"IS_REQUIRED" => "Y",
 	),
 	array(
+		"CODE" => "FLOOR_TO",
+		"NAME" => "Верхний этаж",
+		"PROPERTY_TYPE" => "N",
+		"SORT" => 135,
+		"MULTIPLE" => "N",
+	),
+	array(
 		"CODE" => "HOUSE_FLOORS",
 		"NAME" => "Этажность дома",
 		"PROPERTY_TYPE" => "N",
@@ -495,12 +617,19 @@ $apartmentsProperties = array(
 	array(
 		"CODE" => "ROOMS",
 		"NAME" => "Комнатность",
-		"PROPERTY_TYPE" => "S",
+		"PROPERTY_TYPE" => "L",
 		"SORT" => 160,
 		"MULTIPLE" => "N",
 		"IS_REQUIRED" => "Y",
-		"ROW_COUNT" => 1,
-		"COL_COUNT" => 20,
+		"VALUES" => array(
+			array("VALUE" => "Студия", "XML_ID" => "studio", "SORT" => 100, "DEF" => "N"),
+			array("VALUE" => "1-комнатная", "XML_ID" => "1k", "SORT" => 200, "DEF" => "N"),
+			array("VALUE" => "2-комнатная", "XML_ID" => "2k", "SORT" => 300, "DEF" => "N"),
+			array("VALUE" => "Евродвушка", "XML_ID" => "2e", "SORT" => 350, "DEF" => "N"),
+			array("VALUE" => "3-комнатная", "XML_ID" => "3k", "SORT" => 400, "DEF" => "N"),
+			array("VALUE" => "Евротрешка", "XML_ID" => "3e", "SORT" => 450, "DEF" => "N"),
+			array("VALUE" => "4-комнатная", "XML_ID" => "4k", "SORT" => 500, "DEF" => "N"),
+		),
 	),
 	array(
 		"CODE" => "AREA_TOTAL",
@@ -560,22 +689,26 @@ $apartmentsProperties = array(
 		),
 	),
 	array(
-		"CODE" => "DISCOUNT_LABEL",
-		"NAME" => "Плашка скидки",
+		"CODE" => "BADGES",
+		"NAME" => "Лейблы карточки",
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 240,
-		"MULTIPLE" => "N",
+		"MULTIPLE" => "Y",
 		"ROW_COUNT" => 1,
 		"COL_COUNT" => 60,
 	),
 	array(
 		"CODE" => "FINISH",
 		"NAME" => "Отделка",
-		"PROPERTY_TYPE" => "S",
+		"PROPERTY_TYPE" => "L",
 		"SORT" => 250,
 		"MULTIPLE" => "N",
-		"ROW_COUNT" => 1,
-		"COL_COUNT" => 50,
+		"VALUES" => array(
+			array("VALUE" => "Без отделки", "XML_ID" => "no_finish", "SORT" => 100, "DEF" => "N"),
+			array("VALUE" => "Предчистовая", "XML_ID" => "whitebox", "SORT" => 200, "DEF" => "N"),
+			array("VALUE" => "Чистовая", "XML_ID" => "finish", "SORT" => 300, "DEF" => "N"),
+			array("VALUE" => "Дизайнерская", "XML_ID" => "design", "SORT" => 400, "DEF" => "N"),
+		),
 	),
 	array(
 		"CODE" => "CEILING",

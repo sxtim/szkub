@@ -142,6 +142,78 @@ if (!function_exists("apartmentDetailPropertyMultipleScalars")) {
 	}
 }
 
+if (!function_exists("apartmentDetailDiscountBadge")) {
+	function apartmentDetailDiscountBadge($priceTotal, $priceOld)
+	{
+		$priceTotal = (float)$priceTotal;
+		$priceOld = (float)$priceOld;
+		if ($priceOld <= 0 || $priceTotal <= 0 || $priceOld <= $priceTotal) {
+			return "";
+		}
+
+		$discountPercent = (int)round((($priceOld - $priceTotal) / $priceOld) * 100);
+		if ($discountPercent <= 0) {
+			return "";
+		}
+
+		return "Скидка " . $discountPercent . "%";
+	}
+}
+
+if (!function_exists("apartmentDetailNormalizeUpperFloor")) {
+	function apartmentDetailNormalizeUpperFloor($floor, $floorTo)
+	{
+		$floor = (int)$floor;
+		$floorTo = (int)$floorTo;
+		return $floorTo > $floor ? $floorTo : 0;
+	}
+}
+
+if (!function_exists("apartmentDetailIsDuplex")) {
+	function apartmentDetailIsDuplex($floor, $floorTo)
+	{
+		return apartmentDetailNormalizeUpperFloor($floor, $floorTo) > 0;
+	}
+}
+
+if (!function_exists("apartmentDetailFloorDisplay")) {
+	function apartmentDetailFloorDisplay($floor, $floorTo, $houseFloors)
+	{
+		$floor = trim((string)$floor);
+		$houseFloors = trim((string)$houseFloors);
+		$floorNumber = (int)$floor;
+		$upperFloor = apartmentDetailNormalizeUpperFloor($floorNumber, $floorTo);
+		if ($upperFloor > 0 && $floorNumber > 0) {
+			return $floorNumber . "-" . $upperFloor . " этаж";
+		}
+
+		if ($floor !== "" && $houseFloors !== "") {
+			return $floor . " из " . $houseFloors;
+		}
+
+		return $floor !== "" ? $floor : $houseFloors;
+	}
+}
+
+if (!function_exists("apartmentDetailBuildBadges")) {
+	function apartmentDetailBuildBadges(array $manualBadges, $floor, $floorTo)
+	{
+		$badges = array();
+		foreach ($manualBadges as $badge) {
+			$badge = trim((string)$badge);
+			if ($badge !== "") {
+				$badges[] = $badge;
+			}
+		}
+
+		if (apartmentDetailIsDuplex($floor, $floorTo) && !in_array("Двухуровневая", $badges, true)) {
+			$badges[] = "Двухуровневая";
+		}
+
+		return array_values(array_unique($badges));
+	}
+}
+
 if (!function_exists("apartmentDetailPropertyFileUrl")) {
 	function apartmentDetailPropertyFileUrl($properties, $code, $default = "")
 	{
@@ -465,6 +537,7 @@ if (!function_exists("apartmentDetailBuildPrototype")) {
 			"project_url" => "",
 			"building" => "",
 			"floor" => "",
+			"floor_to" => "",
 			"house_floors" => "",
 			"handover" => "",
 			"lot" => "",
@@ -479,6 +552,7 @@ if (!function_exists("apartmentDetailBuildPrototype")) {
 			"view" => "",
 			"window_sides" => "",
 			"discount" => "",
+			"badges" => array(),
 			"availability_status" => "",
 			"availability_label" => "",
 			"availability_badges" => array(),
@@ -494,13 +568,11 @@ if (!function_exists("apartmentDetailBuildPrototype")) {
 		);
 
 			$data = array_replace($base, is_array($overrides) ? $overrides : array());
-		$floorValue = trim((string)$data["floor"]);
-		$houseFloorsValue = trim((string)$data["house_floors"]);
-		if ($floorValue !== "" && $houseFloorsValue !== "") {
-			$data["floor_display"] = $floorValue . " из " . $houseFloorsValue;
-		} else {
-			$data["floor_display"] = $floorValue !== "" ? $floorValue : $houseFloorsValue;
-		}
+		$data["floor_display"] = apartmentDetailFloorDisplay(
+			isset($data["floor"]) ? $data["floor"] : "",
+			isset($data["floor_to"]) ? $data["floor_to"] : "",
+			isset($data["house_floors"]) ? $data["house_floors"] : ""
+		);
 
 			$availabilityBadges = array();
 			if (isset($data["availability_badges"]) && is_array($data["availability_badges"])) {
@@ -522,6 +594,21 @@ if (!function_exists("apartmentDetailBuildPrototype")) {
 				);
 			}
 			$data["availability_badges"] = $availabilityBadges;
+
+			$badges = array();
+			if (isset($data["badges"]) && is_array($data["badges"])) {
+				foreach ($data["badges"] as $badge) {
+					$badge = trim((string)$badge);
+					if ($badge !== "") {
+						$badges[] = $badge;
+					}
+				}
+			}
+			$data["badges"] = apartmentDetailBuildBadges(
+				$badges,
+				isset($data["floor"]) ? $data["floor"] : "",
+				isset($data["floor_to"]) ? $data["floor_to"] : ""
+			);
 
 			$data["slides"] = apartmentDetailBuildSlides(
 			(string)$data["lot"],
@@ -632,7 +719,7 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 				}
 			}
 
-			$rooms = apartmentDetailPropertyScalar($apartmentProperties, "ROOMS", "");
+			$rooms = apartmentDetailPropertyEnumLabel($apartmentProperties, "ROOMS", "");
 			$areaTotal = apartmentDetailFormatArea(apartmentDetailPropertyScalar($apartmentProperties, "AREA_TOTAL", ""));
 			$titleLine1 = apartmentDetailRoomsLabel($rooms);
 			$titleLine2 = $areaTotal;
@@ -640,6 +727,9 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 			if ($title === "") {
 				$title = trim((string)$apartmentFields["NAME"]);
 			}
+
+			$priceTotalRaw = (float)apartmentDetailPropertyScalar($apartmentProperties, "PRICE_TOTAL", 0);
+			$priceOldRaw = (float)apartmentDetailPropertyScalar($apartmentProperties, "PRICE_OLD", 0);
 
 			$overrides = array(
 				"title" => $title,
@@ -649,20 +739,22 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 				"project_url" => $projectUrl,
 				"building" => apartmentDetailPropertyScalar($apartmentProperties, "CORPUS", ""),
 				"floor" => apartmentDetailPropertyScalar($apartmentProperties, "FLOOR", ""),
+				"floor_to" => apartmentDetailPropertyScalar($apartmentProperties, "FLOOR_TO", ""),
 				"house_floors" => apartmentDetailPropertyScalar($apartmentProperties, "HOUSE_FLOORS", ""),
 				"handover" => $handover,
 				"lot" => trim((string)$apartmentFields["CODE"]),
 				"apartment_number" => apartmentDetailPropertyScalar($apartmentProperties, "APARTMENT_NUMBER", ""),
 				"price_meter" => apartmentDetailFormatMoney(apartmentDetailPropertyScalar($apartmentProperties, "PRICE_M2", "")),
-				"price_total" => apartmentDetailFormatMoney(apartmentDetailPropertyScalar($apartmentProperties, "PRICE_TOTAL", "")),
-				"price_old" => apartmentDetailFormatMoney(apartmentDetailPropertyScalar($apartmentProperties, "PRICE_OLD", "")),
-				"finish" => apartmentDetailPropertyScalar($apartmentProperties, "FINISH", ""),
+				"price_total" => apartmentDetailFormatMoney($priceTotalRaw),
+				"price_old" => apartmentDetailFormatMoney($priceOldRaw),
+				"finish" => apartmentDetailPropertyEnumLabel($apartmentProperties, "FINISH", ""),
 				"ceiling" => apartmentDetailFormatCeiling(apartmentDetailPropertyScalar($apartmentProperties, "CEILING", "")),
 				"street" => $street,
 				"entrance" => apartmentDetailPropertyScalar($apartmentProperties, "ENTRANCE", ""),
 				"view" => apartmentDetailPropertyScalar($apartmentProperties, "VIEW_TEXT", ""),
 				"window_sides" => apartmentDetailPropertyScalar($apartmentProperties, "WINDOW_SIDES", ""),
-				"discount" => apartmentDetailPropertyScalar($apartmentProperties, "DISCOUNT_LABEL", ""),
+				"discount" => apartmentDetailDiscountBadge($priceTotalRaw, $priceOldRaw),
+				"badges" => apartmentDetailPropertyMultipleScalars($apartmentProperties, "BADGES"),
 				"availability_status" => apartmentDetailPropertyEnumXmlId($apartmentProperties, "STATUS", ""),
 				"availability_label" => apartmentDetailPropertyEnumLabel($apartmentProperties, "STATUS", ""),
 				"rooms" => $rooms,
@@ -727,6 +819,13 @@ if (!$apartment) {
 	            <div class="apartment-hero__badge apartment-hero__badge--status apartment-hero__badge--<?= htmlspecialcharsbx($statusBadge["status"]) ?>">
 	              <?= htmlspecialcharsbx($statusBadge["label"]) ?>
 	            </div>
+	            <?php endif; ?>
+	            <?php if (!empty($apartment["badges"])): ?>
+	              <?php foreach ($apartment["badges"] as $badge): ?>
+	                <div class="apartment-hero__badge apartment-hero__badge--status">
+	                  <?= htmlspecialcharsbx($badge) ?>
+	                </div>
+	              <?php endforeach; ?>
 	            <?php endif; ?>
 	            <div class="apartment-hero__actions">
 	              <button class="apartment-hero__action" type="button" data-apartment-action="zoom" aria-label="Увеличить слайд">

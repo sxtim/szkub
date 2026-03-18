@@ -163,6 +163,63 @@ function getPropertyEnumIdForApartmentImport($iblockId, $propertyCode, $xmlId)
 	return 0;
 }
 
+function normalizeRoomXmlIdForApartmentImport($value)
+{
+	$value = trim((string)$value);
+	if ($value === "") {
+		return "";
+	}
+
+	$valueLower = mb_strtolower($value);
+	if ($valueLower === "studio" || preg_match("/студ/iu", $value)) {
+		return "studio";
+	}
+	if ($valueLower === "2e" || preg_match("/евро\\s*дв|евродв|\\b2\\s*[еe]\\b/iu", $value)) {
+		return "2e";
+	}
+	if ($valueLower === "3e" || preg_match("/евро\\s*тр|евротр|\\b3\\s*[еe]\\b/iu", $value)) {
+		return "3e";
+	}
+	if (preg_match("/^1k$/iu", $value) || preg_match("/\\b1\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "1k";
+	}
+	if (preg_match("/^2k$/iu", $value) || preg_match("/\\b2\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "2k";
+	}
+	if (preg_match("/^3k$/iu", $value) || preg_match("/\\b3\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "3k";
+	}
+	if (preg_match("/^4k$/iu", $value) || preg_match("/\\b4\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "4k";
+	}
+
+	return $valueLower;
+}
+
+function normalizeFinishXmlIdForApartmentImport($value)
+{
+	$value = trim((string)$value);
+	if ($value === "") {
+		return "";
+	}
+
+	$valueLower = mb_strtolower($value);
+	if ($valueLower === "no_finish" || preg_match("/без\\s+отделк/iu", $value)) {
+		return "no_finish";
+	}
+	if ($valueLower === "whitebox" || preg_match("/предчист/iu", $value)) {
+		return "whitebox";
+	}
+	if ($valueLower === "finish" || preg_match("/чистов/iu", $value)) {
+		return "finish";
+	}
+	if ($valueLower === "design" || preg_match("/дизайнер/iu", $value)) {
+		return "design";
+	}
+
+	return $valueLower;
+}
+
 function makeFileArrayForApartmentImport($path)
 {
 	$path = trim((string)$path);
@@ -414,22 +471,53 @@ function upsertApartmentElementForImport($iblockId, $xmlId, $code, array $identi
 		return true;
 	}
 
+	$filePropertyCodes = array(
+		"PLAN_IMAGE",
+		"FLOOR_SLIDE_IMAGE",
+		"BUILDING_SLIDE_IMAGE",
+		"VIEW_SLIDE_IMAGE",
+		"RENDER_SLIDE_IMAGE",
+	);
+	$scalarPropertyValues = array();
+	$filePropertyValues = array();
+	foreach ($propertyValues as $propertyCode => $propertyValue) {
+		if (in_array((string)$propertyCode, $filePropertyCodes, true)) {
+			$filePropertyValues[$propertyCode] = $propertyValue;
+			continue;
+		}
+
+		$scalarPropertyValues[$propertyCode] = $propertyValue;
+	}
+
 	$elementApi = new CIBlockElement();
 	if (is_array($existing)) {
-		CIBlockElement::SetPropertyValuesEx((int)$existing["ID"], $iblockId, $propertyValues);
+		if (!empty($scalarPropertyValues)) {
+			CIBlockElement::SetPropertyValuesEx((int)$existing["ID"], $iblockId, $scalarPropertyValues);
+		}
 		$ok = $elementApi->Update((int)$existing["ID"], $fields);
 		if (!$ok) {
 			echo "[ERROR] Failed to update apartment " . $code . ": " . $elementApi->LAST_ERROR . PHP_EOL;
 			return false;
 		}
+
+		foreach ($filePropertyValues as $propertyCode => $fileValue) {
+			CIBlockElement::SetPropertyValueCode((int)$existing["ID"], $propertyCode, array("VALUE" => $fileValue));
+		}
+
 		return true;
 	}
 
-	$fields["PROPERTY_VALUES"] = $propertyValues;
 	$newId = (int)$elementApi->Add($fields);
 	if ($newId <= 0) {
 		echo "[ERROR] Failed to create apartment " . $code . ": " . $elementApi->LAST_ERROR . PHP_EOL;
 		return false;
+	}
+
+	if (!empty($scalarPropertyValues)) {
+		CIBlockElement::SetPropertyValuesEx($newId, $iblockId, $scalarPropertyValues);
+	}
+	foreach ($filePropertyValues as $propertyCode => $fileValue) {
+		CIBlockElement::SetPropertyValueCode($newId, $propertyCode, array("VALUE" => $fileValue));
 	}
 
 	return true;
@@ -458,9 +546,36 @@ $statusMap = array(
 	"sold" => $statusSoldId,
 );
 
+$roomsMap = array(
+	"studio" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "ROOMS", "studio"),
+	"1k" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "ROOMS", "1k"),
+	"2k" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "ROOMS", "2k"),
+	"2e" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "ROOMS", "2e"),
+	"3k" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "ROOMS", "3k"),
+	"3e" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "ROOMS", "3e"),
+	"4k" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "ROOMS", "4k"),
+);
+
+$finishMap = array(
+	"no_finish" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "FINISH", "no_finish"),
+	"whitebox" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "FINISH", "whitebox"),
+	"finish" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "FINISH", "finish"),
+	"design" => getPropertyEnumIdForApartmentImport($apartmentsIblockId, "FINISH", "design"),
+);
+
 if ($projectNodeTypeId <= 0 || $entranceNodeTypeId <= 0 || $floorNodeTypeId <= 0) {
 	echo "[ERROR] Required UF_NODE_TYPE enums not found." . PHP_EOL;
 	exit(5);
+}
+
+if (in_array(0, $roomsMap, true)) {
+	echo "[ERROR] Required ROOMS enums not found." . PHP_EOL;
+	exit(6);
+}
+
+if (in_array(0, $finishMap, true)) {
+	echo "[ERROR] Required FINISH enums not found." . PHP_EOL;
+	exit(7);
 }
 
 foreach ($items as $itemIndex => $item) {
@@ -552,6 +667,20 @@ foreach ($items as $itemIndex => $item) {
 		exit(10);
 	}
 
+	$roomsXmlId = normalizeRoomXmlIdForApartmentImport(isset($item["rooms"]) ? $item["rooms"] : "");
+	$roomsEnumId = isset($roomsMap[$roomsXmlId]) ? (int)$roomsMap[$roomsXmlId] : 0;
+	if ($roomsEnumId <= 0) {
+		echo "[ERROR] Unknown apartment rooms value: " . (isset($item["rooms"]) ? (string)$item["rooms"] : "") . PHP_EOL;
+		exit(10);
+	}
+
+	$finishXmlId = normalizeFinishXmlIdForApartmentImport(isset($item["finish"]) ? $item["finish"] : "");
+	$finishEnumId = $finishXmlId !== "" && isset($finishMap[$finishXmlId]) ? (int)$finishMap[$finishXmlId] : 0;
+	if ($finishXmlId !== "" && $finishEnumId <= 0) {
+		echo "[ERROR] Unknown apartment finish value: " . (isset($item["finish"]) ? (string)$item["finish"] : "") . PHP_EOL;
+		exit(10);
+	}
+
 	$name = isset($item["name"]) && trim((string)$item["name"]) !== "" ? trim((string)$item["name"]) : ("Квартира №" . $apartmentNumber);
 	$fields = array(
 		"IBLOCK_ID" => $apartmentsIblockId,
@@ -573,18 +702,19 @@ foreach ($items as $itemIndex => $item) {
 		"CORPUS" => isset($item["corpus"]) ? trim((string)$item["corpus"]) : "",
 		"ENTRANCE" => $entrance,
 		"FLOOR" => $floor,
+		"FLOOR_TO" => isset($item["floor_to"]) && (int)$item["floor_to"] > $floor ? (int)$item["floor_to"] : false,
 		"HOUSE_FLOORS" => isset($item["house_floors"]) ? (int)$item["house_floors"] : 0,
 		"APARTMENT_NUMBER" => $apartmentNumber,
-		"ROOMS" => isset($item["rooms"]) ? trim((string)$item["rooms"]) : "",
+		"ROOMS" => $roomsEnumId,
 		"AREA_TOTAL" => isset($item["area_total"]) ? (float)$item["area_total"] : 0,
 		"AREA_LIVING" => isset($item["area_living"]) ? (float)$item["area_living"] : 0,
 		"AREA_KITCHEN" => isset($item["area_kitchen"]) ? (float)$item["area_kitchen"] : 0,
 		"PRICE_TOTAL" => isset($item["price_total"]) ? (float)$item["price_total"] : 0,
-		"PRICE_OLD" => isset($item["price_old"]) ? (float)$item["price_old"] : 0,
+		"PRICE_OLD" => isset($item["price_old"]) && (float)$item["price_old"] > 0 ? (float)$item["price_old"] : false,
 		"PRICE_M2" => isset($item["price_m2"]) ? (float)$item["price_m2"] : 0,
 		"STATUS" => $statusEnumId,
-		"DISCOUNT_LABEL" => isset($item["discount_label"]) ? trim((string)$item["discount_label"]) : "",
-		"FINISH" => isset($item["finish"]) ? trim((string)$item["finish"]) : "",
+		"DISCOUNT_LABEL" => "",
+		"FINISH" => $finishEnumId > 0 ? $finishEnumId : "",
 		"CEILING" => isset($item["ceiling"]) ? (float)$item["ceiling"] : 0,
 		"VIEW_TEXT" => isset($item["view_text"]) ? trim((string)$item["view_text"]) : "",
 		"WINDOW_SIDES" => isset($item["window_sides"]) ? trim((string)$item["window_sides"]) : "",
@@ -608,6 +738,14 @@ foreach ($items as $itemIndex => $item) {
 		"SVG_SLOT_ID" => isset($item["svg_slot_id"]) ? trim((string)$item["svg_slot_id"]) : "",
 		"SORT_IN_FLOOR" => isset($item["sort_in_floor"]) ? (int)$item["sort_in_floor"] : 0,
 	);
+
+	$badges = array();
+	if (isset($item["badges"]) && is_array($item["badges"])) {
+		$badges = array_values(array_filter(array_map("trim", $item["badges"]), static function ($value) {
+			return $value !== "";
+		}));
+	}
+	$propertyValues["BADGES"] = !empty($badges) ? $badges : false;
 
 	if (isset($item["feature_tags"]) && is_array($item["feature_tags"])) {
 		$propertyValues["FEATURE_TAGS"] = array_values(array_filter(array_map("trim", $item["feature_tags"]), static function ($value) {

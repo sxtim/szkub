@@ -16,9 +16,112 @@ $projectDocumentsIblockCode = "project_documents";
 $projectDocumentsIblockType = "";
 $projectDocumentsIblockId = 0;
 
+if (!function_exists("szcubeProjectPageNormalizeFilterValues")) {
+	function szcubeProjectPageNormalizeFilterValues($value)
+	{
+		if (is_string($value)) {
+			$value = explode(",", $value);
+		}
+
+		if (!is_array($value)) {
+			return array();
+		}
+
+		$result = array();
+		foreach ($value as $item) {
+			$item = trim((string)$item);
+			if ($item !== "") {
+				$result[] = $item;
+			}
+		}
+
+		return array_values(array_unique($result));
+	}
+}
+
+if (!function_exists("szcubeProjectPageNormalizeFilterNumber")) {
+	function szcubeProjectPageNormalizeFilterNumber($value)
+	{
+		if ($value === null || $value === "") {
+			return null;
+		}
+
+		$number = (float)$value;
+		return is_finite($number) ? $number : null;
+	}
+}
+
+if (!function_exists("szcubeProjectPageRequestValue")) {
+	function szcubeProjectPageRequestValue(array $keys)
+	{
+		foreach ($keys as $key) {
+			if (isset($_GET[$key])) {
+				return $_GET[$key];
+			}
+		}
+
+		return null;
+	}
+}
+
+if (!function_exists("szcubeProjectPageReadApartmentFilter")) {
+	function szcubeProjectPageReadApartmentFilter()
+	{
+		$legacy = isset($_GET["apartment_filter"]) ? trim((string)$_GET["apartment_filter"]) : "";
+		if ($legacy !== "") {
+			return $legacy;
+		}
+
+		$state = array(
+			"projects" => szcubeProjectPageNormalizeFilterValues(szcubeProjectPageRequestValue(array("project", "projects"))),
+			"rooms" => szcubeProjectPageNormalizeFilterValues(szcubeProjectPageRequestValue(array("rooms"))),
+			"statuses" => szcubeProjectPageNormalizeFilterValues(szcubeProjectPageRequestValue(array("status", "statuses"))),
+			"finishes" => szcubeProjectPageNormalizeFilterValues(szcubeProjectPageRequestValue(array("finish", "finishes"))),
+			"features" => szcubeProjectPageNormalizeFilterValues(szcubeProjectPageRequestValue(array("feature", "features"))),
+			"priceFrom" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("price_from", "priceFrom"))),
+			"priceTo" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("price_to", "priceTo"))),
+			"floorFrom" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("floor_from", "floorFrom"))),
+			"floorTo" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("floor_to", "floorTo"))),
+			"areaFrom" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("area_from", "areaFrom"))),
+			"areaTo" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("area_to", "areaTo"))),
+			"ceilingFrom" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("ceiling_from", "ceilingFrom"))),
+			"ceilingTo" => szcubeProjectPageNormalizeFilterNumber(szcubeProjectPageRequestValue(array("ceiling_to", "ceilingTo"))),
+		);
+
+		foreach (array("projects", "rooms", "statuses", "finishes", "features") as $key) {
+			if (!empty($state[$key])) {
+				return $state;
+			}
+		}
+
+		foreach (array("priceFrom", "priceTo", "floorFrom", "floorTo", "areaFrom", "areaTo", "ceilingFrom", "ceilingTo") as $key) {
+			if ($state[$key] !== null) {
+				return $state;
+			}
+		}
+
+		return array();
+	}
+}
+
+if (!function_exists("szcubeProjectPageReadSelectorContext")) {
+	function szcubeProjectPageReadSelectorContext()
+	{
+		$view = isset($_GET["selector_view"]) ? trim((string)$_GET["selector_view"]) : "";
+		$flatCode = isset($_GET["selector_flat"]) ? trim((string)$_GET["selector_flat"]) : "";
+		$flatCode = preg_replace("/[^a-z0-9_-]/i", "", $flatCode);
+
+		return array(
+			"initial_view" => $view === "board" ? "board" : "",
+			"flat_code" => $flatCode,
+		);
+	}
+}
+
 $code = isset($_REQUEST["code"]) ? trim((string)$_REQUEST["code"]) : "";
 $code = preg_replace("/[^a-z0-9_-]/i", "", $code);
-$apartmentFilterRaw = isset($_REQUEST["apartment_filter"]) ? trim((string)$_REQUEST["apartment_filter"]) : "";
+$apartmentFilterRaw = szcubeProjectPageReadApartmentFilter();
+$selectorContext = szcubeProjectPageReadSelectorContext();
 $project = null;
 
 if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
@@ -304,6 +407,8 @@ if ($project) {
           "MAP_LABEL" => $projectDetail["selector"]["map_label"],
           "SCENE_CONFIG" => $projectDetail["selector"]["scene_config"],
           "APARTMENT_FILTER" => $apartmentFilterRaw,
+          "INITIAL_VIEW" => isset($selectorContext["initial_view"]) ? $selectorContext["initial_view"] : "",
+          "TARGET_FLAT_CODE" => isset($selectorContext["flat_code"]) ? $selectorContext["flat_code"] : "",
           "CONSTRUCTION_SUBTITLE" => $projectDetail["construction_subtitle"],
           "CACHE_TIME" => "36000000",
         ),

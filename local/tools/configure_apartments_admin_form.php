@@ -129,6 +129,7 @@ addPropertyFieldForAdminForm($mainFields, $propertyMap, "PROJECT");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "CORPUS");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "ENTRANCE");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "FLOOR");
+addPropertyFieldForAdminForm($mainFields, $propertyMap, "FLOOR_TO");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "HOUSE_FLOORS");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "APARTMENT_NUMBER");
 
@@ -136,7 +137,7 @@ addPropertyFieldForAdminForm($mainFields, $propertyMap, "PRICE_TOTAL");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "PRICE_OLD");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "PRICE_M2");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "STATUS");
-addPropertyFieldForAdminForm($mainFields, $propertyMap, "DISCOUNT_LABEL");
+addPropertyFieldForAdminForm($mainFields, $propertyMap, "BADGES");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "ROOMS");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "AREA_TOTAL");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "AREA_LIVING");

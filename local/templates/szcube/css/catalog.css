@@ -160,7 +160,7 @@
 .catalog-grid.is-list .apartment-card__plan,
 .catalog-grid.is-list .apartment-card__meta,
 .catalog-grid.is-list .apartment-card__price,
-.catalog-grid.is-list .apartment-card__badge {
+.catalog-grid.is-list .apartment-card__badges {
   display: none;
 }
 
@@ -169,6 +169,12 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.apartment-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .apartment-card__project {
@@ -185,15 +191,29 @@
   color: rgba(64, 64, 64, 0.6);
 }
 
-.apartment-card__fav {
+.apartment-card__action {
   border: 0;
-  background: none;
-  padding: 2px;
+  background: #fff;
+  padding: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   color: rgba(64, 64, 64, 0.6);
   cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.apartment-card__fav svg {
+.apartment-card__action:hover {
+  color: #1a3b88;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.apartment-card__action svg {
   width: 18px;
   height: 18px;
   display: block;
@@ -252,6 +272,12 @@
   font-weight: 500;
   color: rgba(64, 64, 64, 0.45);
   text-decoration: line-through;
+}
+
+.apartment-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .apartment-card__badge {
@@ -352,10 +378,6 @@
 
 .apartment-card__icon svg {
   display: block;
-}
-
-.apartment-card__icon:hover {
-  color: #1a3b88;
 }
 
 @media (max-width: 1200px) {

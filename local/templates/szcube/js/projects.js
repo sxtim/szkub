@@ -726,6 +726,21 @@ const initProjectApartmentSelector = () => {
     }
   };
 
+  const parseBadges = (value) => {
+    const parsed = parsePayload(value);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return Array.from(
+      new Set(
+        parsed
+          .map((item) => String(item ?? "").trim())
+          .filter(Boolean)
+      )
+    );
+  };
+
   selectors.forEach((root) => {
     const state = parsePayload(root.getAttribute("data-project-selector-state")) || {};
     const sceneView = root.querySelector('[data-selector-view="scene"]');
@@ -751,7 +766,7 @@ const initProjectApartmentSelector = () => {
     const lotMeta = lotCard?.querySelector("[data-lot-meta]") || null;
     const lotPriceMain = lotCard?.querySelector("[data-lot-price-main]") || null;
     const lotPriceOld = lotCard?.querySelector("[data-lot-price-old]") || null;
-    const lotBadge = lotCard?.querySelector("[data-lot-badge]") || null;
+    const lotBadges = lotCard?.querySelector("[data-lot-badges]") || null;
     const lotClose = lotCard?.querySelector("[data-selector-close-lot]") || null;
     const lots = Array.from(root.querySelectorAll("[data-flat-id]"));
     const sceneSections = Array.from(root.querySelectorAll("[data-section-overlay]"));
@@ -873,14 +888,26 @@ const initProjectApartmentSelector = () => {
       });
     };
 
+    const clearSelectedLots = () => {
+      lots.forEach((button) => {
+        button.classList.remove("is-selected");
+        button.removeAttribute("aria-current");
+      });
+    };
+
     const hideLotCard = () => {
       if (!lotCard) return;
+      clearSelectedLots();
       lotCard.hidden = true;
       root.classList.remove("is-lot-open");
     };
 
     const showLotCard = (button) => {
       if (!lotCard || !button) return;
+
+      clearSelectedLots();
+      button.classList.add("is-selected");
+      button.setAttribute("aria-current", "true");
 
       if (lotDetail) {
         lotDetail.href = button.dataset.flatUrl || "#";
@@ -905,13 +932,12 @@ const initProjectApartmentSelector = () => {
         const metaParts = [];
         const rooms = button.dataset.flatRooms || "";
         const area = button.dataset.flatArea || "";
-        const floor = button.dataset.flatFloor || "";
-        const houseFloors = button.dataset.flatHouseFloors || "";
+        const floorDisplay = button.dataset.flatFloorDisplay || "";
 
         if (rooms) metaParts.push(rooms);
         if (area) metaParts.push(`${area} м²`);
-        if (floor) {
-          metaParts.push(houseFloors ? `${floor} этаж из ${houseFloors}` : `${floor} этаж`);
+        if (floorDisplay) {
+          metaParts.push(floorDisplay);
         }
 
         lotMeta.textContent = metaParts.join(" • ");
@@ -930,10 +956,20 @@ const initProjectApartmentSelector = () => {
         lotPriceOld.hidden = !priceOld;
       }
 
-      if (lotBadge) {
-        const badge = button.dataset.flatBadge || button.dataset.flatFinish || "";
-        lotBadge.textContent = badge;
-        lotBadge.hidden = !badge;
+      if (lotBadges) {
+        const badges = parseBadges(button.dataset.flatBadges);
+        lotBadges.innerHTML = badges
+          .map(
+            (badge) =>
+              `<span class="apartment-card__badge">${badge
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;")}</span>`
+          )
+          .join("");
+        lotBadges.hidden = badges.length === 0;
       }
 
       lotCard.hidden = false;
@@ -1011,6 +1047,20 @@ const initProjectApartmentSelector = () => {
     const openBoard = (entranceId) => {
       activeEntranceId = entranceId || activeEntranceId;
       setView("board");
+    };
+
+    const openInitialLot = () => {
+      if (!state.initialFlatCode || currentView !== "board") {
+        return;
+      }
+
+      const targetLot = lots.find(
+        (button) => button.dataset.flatCode === state.initialFlatCode
+      );
+
+      if (targetLot) {
+        showLotCard(targetLot);
+      }
     };
 
     scenePins.forEach((button) => {
@@ -1149,6 +1199,7 @@ const initProjectApartmentSelector = () => {
 
     setView(state.initialView === "board" ? "board" : "scene");
     hideSceneCards();
+    openInitialLot();
 
     window.addEventListener("resize", () => {
       if (currentView === "scene") {

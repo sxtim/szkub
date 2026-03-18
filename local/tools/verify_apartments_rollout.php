@@ -180,6 +180,99 @@ function verifyGetElementPropertyValue($iblockId, $elementId, $propertyCode)
 	return null;
 }
 
+function verifyGetElementPropertyValues($iblockId, $elementId, $propertyCode)
+{
+	$result = array();
+	$res = CIBlockElement::GetProperty(
+		(int)$iblockId,
+		(int)$elementId,
+		array("SORT" => "ASC", "ID" => "ASC"),
+		array("CODE" => (string)$propertyCode)
+	);
+
+	while ($row = $res->Fetch()) {
+		$value = isset($row["VALUE"]) ? trim((string)$row["VALUE"]) : "";
+		if ($value !== "") {
+			$result[] = $value;
+		}
+	}
+
+	return array_values(array_unique($result));
+}
+
+function verifyGetElementPropertyXmlId($iblockId, $elementId, $propertyCode)
+{
+	$res = CIBlockElement::GetProperty(
+		(int)$iblockId,
+		(int)$elementId,
+		array("SORT" => "ASC", "ID" => "ASC"),
+		array("CODE" => (string)$propertyCode)
+	);
+
+	if ($row = $res->Fetch()) {
+		return isset($row["VALUE_XML_ID"]) ? trim((string)$row["VALUE_XML_ID"]) : "";
+	}
+
+	return "";
+}
+
+function verifyNormalizeRoomXmlId($value)
+{
+	$value = trim((string)$value);
+	if ($value === "") {
+		return "";
+	}
+
+	$valueLower = mb_strtolower($value);
+	if ($valueLower === "studio" || preg_match("/студ/iu", $value)) {
+		return "studio";
+	}
+	if ($valueLower === "2e" || preg_match("/евро\\s*дв|евродв|\\b2\\s*[еe]\\b/iu", $value)) {
+		return "2e";
+	}
+	if ($valueLower === "3e" || preg_match("/евро\\s*тр|евротр|\\b3\\s*[еe]\\b/iu", $value)) {
+		return "3e";
+	}
+	if (preg_match("/^1k$/iu", $value) || preg_match("/\\b1\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "1k";
+	}
+	if (preg_match("/^2k$/iu", $value) || preg_match("/\\b2\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "2k";
+	}
+	if (preg_match("/^3k$/iu", $value) || preg_match("/\\b3\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "3k";
+	}
+	if (preg_match("/^4k$/iu", $value) || preg_match("/\\b4\\s*(?:[- ]?ком|[кk])\\b/iu", $value)) {
+		return "4k";
+	}
+
+	return $valueLower;
+}
+
+function verifyNormalizeFinishXmlId($value)
+{
+	$value = trim((string)$value);
+	if ($value === "") {
+		return "";
+	}
+
+	$valueLower = mb_strtolower($value);
+	if ($valueLower === "no_finish" || preg_match("/без\\s+отделк/iu", $value)) {
+		return "no_finish";
+	}
+	if ($valueLower === "whitebox" || preg_match("/предчист/iu", $value)) {
+		return "whitebox";
+	}
+	if ($valueLower === "finish" || preg_match("/чистов/iu", $value)) {
+		return "finish";
+	}
+	if ($valueLower === "design" || preg_match("/дизайнер/iu", $value)) {
+		return "design";
+	}
+
+	return $valueLower;
+}
+
 function verifyGetHttpStatus($url)
 {
 	if (function_exists("curl_init")) {
@@ -254,7 +347,11 @@ $apartmentsSectionEntityId = $apartmentsIblockId > 0 ? ("IBLOCK_" . $apartmentsI
 
 $requiredProperties = array(
 	"PROJECT",
+	"FLOOR_TO",
+	"ROOMS",
 	"STATUS",
+	"BADGES",
+	"FINISH",
 	"PLAN_IMAGE",
 	"PLAN_ALT",
 	"FLOOR_SLIDE_IMAGE",
@@ -265,7 +362,7 @@ $requiredProperties = array(
 
 if ($apartmentsIblockId > 0) {
 	foreach ($requiredProperties as $propertyCode) {
-		$res = CIBlockProperty::GetList(array(), array("IBLOCK_ID" => $apartmentsIblockId, "CODE" => $propertyCode));
+		$res = CIBlockProperty::GetList(array(), array("IBLOCK_ID" => $apartmentsIblockId, "=CODE" => $propertyCode));
 		if ($row = $res->Fetch()) {
 			echo "[OK] Property exists: " . $propertyCode . " (ID=" . (int)$row["ID"] . ")" . PHP_EOL;
 			continue;
@@ -312,13 +409,22 @@ if ($apartmentsIblockId > 0) {
 		$entrance = isset($item["entrance"]) ? trim((string)$item["entrance"]) : "";
 		$floor = isset($item["floor"]) ? (int)$item["floor"] : 0;
 		$houseFloors = isset($item["house_floors"]) ? (int)$item["house_floors"] : 0;
+		$floorTo = isset($item["floor_to"]) ? (int)$item["floor_to"] : 0;
 		$apartmentNumber = isset($item["apartment_number"]) ? trim((string)$item["apartment_number"]) : "";
 		$expectedXmlId = isset($item["xml_id"]) && trim((string)$item["xml_id"]) !== ""
 			? trim((string)$item["xml_id"])
 			: verifyBuildApartmentCode($item);
 		$expectedCode = verifyBuildApartmentCode($item);
+		$expectedRoomsXmlId = verifyNormalizeRoomXmlId(isset($item["rooms"]) ? $item["rooms"] : "");
+		$expectedFinishXmlId = verifyNormalizeFinishXmlId(isset($item["finish"]) ? $item["finish"] : "");
 		$expectedPriceOld = isset($item["price_old"]) ? (float)$item["price_old"] : 0;
-		$expectedDiscountLabel = isset($item["discount_label"]) ? trim((string)$item["discount_label"]) : "";
+		$expectedBadges = array();
+		if (isset($item["badges"]) && is_array($item["badges"])) {
+			$expectedBadges = array_values(array_unique(array_filter(array_map("trim", $item["badges"]), static function ($value) {
+				return $value !== "";
+			})));
+			sort($expectedBadges);
+		}
 
 		$projectSection = null;
 		if ($projectCode !== "") {
@@ -405,10 +511,14 @@ if ($apartmentsIblockId > 0) {
 
 		$actualEntrance = trim((string)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "ENTRANCE"));
 		$actualFloor = (int)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "FLOOR");
+		$actualFloorTo = (int)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "FLOOR_TO");
 		$actualHouseFloors = (int)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "HOUSE_FLOORS");
 		$actualApartmentNumber = trim((string)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "APARTMENT_NUMBER"));
 		$actualPriceOld = (float)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "PRICE_OLD");
-		$actualDiscountLabel = trim((string)verifyGetElementPropertyValue($apartmentsIblockId, (int)$row["ID"], "DISCOUNT_LABEL"));
+		$actualRoomsXmlId = verifyGetElementPropertyXmlId($apartmentsIblockId, (int)$row["ID"], "ROOMS");
+		$actualFinishXmlId = verifyGetElementPropertyXmlId($apartmentsIblockId, (int)$row["ID"], "FINISH");
+		$actualBadges = verifyGetElementPropertyValues($apartmentsIblockId, (int)$row["ID"], "BADGES");
+		sort($actualBadges);
 
 		if ($entrance !== "" && $actualEntrance !== $entrance) {
 			$errors[] = "Apartment entrance mismatch for XML_ID=" . $expectedXmlId . ": expected " . $entrance . ", got " . $actualEntrance;
@@ -416,6 +526,14 @@ if ($apartmentsIblockId > 0) {
 		}
 		if ($floor > 0 && $actualFloor !== $floor) {
 			$errors[] = "Apartment floor mismatch for XML_ID=" . $expectedXmlId . ": expected " . $floor . ", got " . $actualFloor;
+			continue;
+		}
+		if ($floorTo > 0 && $actualFloorTo !== $floorTo) {
+			$errors[] = "Apartment floor_to mismatch for XML_ID=" . $expectedXmlId . ": expected " . $floorTo . ", got " . $actualFloorTo;
+			continue;
+		}
+		if ($floorTo <= 0 && $actualFloorTo > 0) {
+			$errors[] = "Apartment floor_to mismatch for XML_ID=" . $expectedXmlId . ": expected empty, got " . $actualFloorTo;
 			continue;
 		}
 		if ($houseFloors > 0 && $actualHouseFloors !== $houseFloors) {
@@ -426,12 +544,20 @@ if ($apartmentsIblockId > 0) {
 			$errors[] = "Apartment number mismatch for XML_ID=" . $expectedXmlId . ": expected " . $apartmentNumber . ", got " . $actualApartmentNumber;
 			continue;
 		}
-		if ($expectedPriceOld > 0 && abs($actualPriceOld - $expectedPriceOld) > 0.0001) {
+		if (abs($actualPriceOld - $expectedPriceOld) > 0.0001) {
 			$errors[] = "Apartment price_old mismatch for XML_ID=" . $expectedXmlId . ": expected " . $expectedPriceOld . ", got " . $actualPriceOld;
 			continue;
 		}
-		if ($expectedDiscountLabel !== "" && $actualDiscountLabel !== $expectedDiscountLabel) {
-			$errors[] = "Apartment discount_label mismatch for XML_ID=" . $expectedXmlId . ": expected " . $expectedDiscountLabel . ", got " . $actualDiscountLabel;
+		if ($expectedRoomsXmlId !== "" && $actualRoomsXmlId !== $expectedRoomsXmlId) {
+			$errors[] = "Apartment rooms mismatch for XML_ID=" . $expectedXmlId . ": expected " . $expectedRoomsXmlId . ", got " . $actualRoomsXmlId;
+			continue;
+		}
+		if ($expectedFinishXmlId !== "" && $actualFinishXmlId !== $expectedFinishXmlId) {
+			$errors[] = "Apartment finish mismatch for XML_ID=" . $expectedXmlId . ": expected " . $expectedFinishXmlId . ", got " . $actualFinishXmlId;
+			continue;
+		}
+		if ($actualBadges !== $expectedBadges) {
+			$errors[] = "Apartment badges mismatch for XML_ID=" . $expectedXmlId . ": expected [" . implode(", ", $expectedBadges) . "], got [" . implode(", ", $actualBadges) . "]";
 			continue;
 		}
 
