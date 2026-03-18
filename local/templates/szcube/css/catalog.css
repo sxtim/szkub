@@ -13,6 +13,23 @@
   margin-bottom: 36px;
 }
 
+.catalog__empty {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.55;
+  color: rgba(64, 64, 64, 0.72);
+}
+
+.catalog__empty[hidden],
+.catalog-grid[hidden] {
+  display: none !important;
+}
+
 .catalog__results {
   background: #f3f3f3;
   padding: 32px 0 72px;
@@ -128,6 +145,10 @@
   flex-direction: column;
   gap: 16px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+}
+
+.apartment-card[data-card-url] {
+  cursor: pointer;
 }
 
 .catalog-grid.is-list .apartment-card {
@@ -283,6 +304,13 @@
   color: rgba(64, 64, 64, 0.6);
 }
 
+.apartment-card__delivery-project {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(64, 64, 64, 0.85);
+  margin-bottom: 4px;
+}
+
 .apartment-card__list-price {
   font-size: 18px;
   font-weight: 600;
@@ -341,6 +369,9 @@
     flex-wrap: wrap;
     justify-content: center;
     text-align: center;
+  }
+  .catalog__sort {
+    width: 100%;
   }
   .catalog-grid {
     grid-template-columns: repeat(2, 1fr);

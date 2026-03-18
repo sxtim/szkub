@@ -909,6 +909,11 @@ a {
   margin-top: 0;
   min-width: 189px;
 }
+.filters__summary {
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(64, 64, 64, 0.7);
+}
 .filters__actions .btn--primary {
   width: 189px;
   height: 46px;
@@ -984,6 +989,13 @@ a {
   background: var(--blue);
   color: var(--white);
   border-color: var(--blue);
+}
+.filter__room.is-disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+  background: #fff;
+  color: rgba(64, 64, 64, 0.55);
 }
 .filter__range {
   display: grid;
@@ -1100,6 +1112,11 @@ a {
 .filter__dropdown-content .input_field:hover {
   background: rgba(26, 59, 136, 0.08);
 }
+.filter__dropdown-content .input_field.is-disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
 
 .custom-checkbox {
   appearance: none;
@@ -1141,6 +1158,10 @@ a {
   gap: 8px;
   font-size: 14px;
   color: var(--gray-800);
+}
+.filter__checkbox.is-disabled {
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .filters-popup {

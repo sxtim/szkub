@@ -18,6 +18,7 @@ $projectDocumentsIblockId = 0;
 
 $code = isset($_REQUEST["code"]) ? trim((string)$_REQUEST["code"]) : "";
 $code = preg_replace("/[^a-z0-9_-]/i", "", $code);
+$apartmentFilterRaw = isset($_REQUEST["apartment_filter"]) ? trim((string)$_REQUEST["apartment_filter"]) : "";
 $project = null;
 
 if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
@@ -302,6 +303,7 @@ if ($project) {
           "MAP_URL" => $projectDetail["selector"]["map_url"],
           "MAP_LABEL" => $projectDetail["selector"]["map_label"],
           "SCENE_CONFIG" => $projectDetail["selector"]["scene_config"],
+          "APARTMENT_FILTER" => $apartmentFilterRaw,
           "CONSTRUCTION_SUBTITLE" => $projectDetail["construction_subtitle"],
           "CACHE_TIME" => "36000000",
         ),

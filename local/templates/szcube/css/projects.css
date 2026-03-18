@@ -311,6 +311,25 @@
   --selector-scene-mobile-center-x: 62%;
 }
 
+.projects-selector--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: 32px;
+  border: 1px solid rgba(26, 59, 136, 0.12);
+  border-radius: 2px;
+  background: linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
+}
+
+.projects-selector__empty-message {
+  max-width: 520px;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--gray-800);
+}
+
 .projects-selector__viewport {
   position: relative;
   min-height: 0;

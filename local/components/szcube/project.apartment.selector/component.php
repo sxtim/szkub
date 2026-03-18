@@ -59,16 +59,18 @@ if (!function_exists("szcubeProjectSelectorReadSvg")) {
 if (!function_exists("szcubeProjectSelectorRoomSort")) {
     function szcubeProjectSelectorRoomSort($value)
     {
-        $value = trim((string)$value);
-        if ($value === "") {
-            return 999;
-        }
+        $map = array(
+            "studio" => 0,
+            "1k" => 10,
+            "2k" => 20,
+            "2e" => 21,
+            "3k" => 30,
+            "3e" => 31,
+            "4k" => 40,
+        );
 
-        if (preg_match("/(\\d+)/", $value, $matches)) {
-            return (int)$matches[1];
-        }
-
-        return 999;
+        $key = szcubeProjectSelectorRoomBucketKey($value);
+        return isset($map[$key]) ? (int)$map[$key] : 999;
     }
 }
 
@@ -80,15 +82,97 @@ if (!function_exists("szcubeProjectSelectorRoomShort")) {
             return "";
         }
 
+        $key = szcubeProjectSelectorRoomBucketKey($value);
+        $map = array(
+            "studio" => "СТ",
+            "1k" => "1К",
+            "2k" => "2К",
+            "2e" => "2Е",
+            "3k" => "3К",
+            "3e" => "3Е",
+            "4k" => "4К",
+        );
+
+        if ($key !== "" && isset($map[$key])) {
+            return $map[$key];
+        }
+
         if (preg_match("/ст|stud|studio/iu", $value)) {
             return "СТ";
         }
 
-        if (preg_match("/(\\d+)/", $value, $matches)) {
-            return (string)$matches[1];
+        return mb_substr($value, 0, 1);
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorRoomLabel")) {
+    function szcubeProjectSelectorRoomLabel($value)
+    {
+        $map = array(
+            "studio" => "Студия",
+            "1k" => "1-комнатная",
+            "2k" => "2-комнатная",
+            "2e" => "Евродвушка",
+            "3k" => "3-комнатная",
+            "3e" => "Евротрешка",
+            "4k" => "4-комнатная",
+        );
+
+        $key = szcubeProjectSelectorRoomBucketKey($value);
+        if ($key !== "" && isset($map[$key])) {
+            return $map[$key];
         }
 
-        return mb_substr($value, 0, 1);
+        return trim((string)$value);
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorRoomBucketKey")) {
+    function szcubeProjectSelectorRoomBucketKey($value)
+    {
+        $value = trim((string)$value);
+        if ($value === "") {
+            return "";
+        }
+
+        if (preg_match("/ст|stud|studio/iu", $value)) {
+            return "studio";
+        }
+
+        if (preg_match("/евро\\s*дв|евродв|\\b2\\s*[еe]\\b|\\b2e\\b/iu", $value)) {
+            return "2e";
+        }
+
+        if (preg_match("/евро\\s*тр|евротр|\\b3\\s*[еe]\\b|\\b3e\\b/iu", $value)) {
+            return "3e";
+        }
+
+        if (preg_match("/\\b1\\s*(?:[- ]?ком|[кk])\\b|\\b1k\\b/iu", $value)) {
+            return "1k";
+        }
+
+        if (preg_match("/\\b2\\s*(?:[- ]?ком|[кk])\\b|\\b2k\\b/iu", $value)) {
+            return "2k";
+        }
+
+        if (preg_match("/\\b3\\s*(?:[- ]?ком|[кk])\\b|\\b3k\\b/iu", $value)) {
+            return "3k";
+        }
+
+        if (preg_match("/\\b4\\s*(?:[- ]?ком|[кk])\\b|\\b4k\\b/iu", $value)) {
+            return "4k";
+        }
+
+        if (preg_match("/(\d+)/", $value, $matches)) {
+            $number = (int)$matches[1];
+            if ($number >= 4) {
+                return "4k";
+            }
+
+            return $number . "k";
+        }
+
+        return "";
     }
 }
 
@@ -101,6 +185,175 @@ if (!function_exists("szcubeProjectSelectorFlatSort")) {
         }
 
         return isset($flat["id"]) ? (int)$flat["id"] : 0;
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorNormalizeKey")) {
+    function szcubeProjectSelectorNormalizeKey($value)
+    {
+        $value = trim((string)$value);
+        $value = mb_strtolower($value);
+        $value = preg_replace("/[^a-z0-9а-яё_-]+/iu", "-", $value);
+        $value = preg_replace("/-+/u", "-", $value);
+
+        return trim((string)$value, "-");
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorMultiPropertyValues")) {
+    function szcubeProjectSelectorMultiPropertyValues(array $property)
+    {
+        $value = isset($property["VALUE"]) ? $property["VALUE"] : array();
+        if (!is_array($value)) {
+            $value = array($value);
+        }
+
+        $result = array();
+        foreach ($value as $item) {
+            $item = trim((string)$item);
+            if ($item !== "") {
+                $result[] = $item;
+            }
+        }
+
+        return array_values(array_unique($result));
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorNormalizeFilterState")) {
+    function szcubeProjectSelectorNormalizeFilterState($value)
+    {
+        if (is_string($value)) {
+            $value = trim($value);
+            if ($value === "") {
+                return array();
+            }
+
+            $value = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, "UTF-8");
+
+            $decoded = json_decode($value, true);
+            if (!is_array($decoded)) {
+                return array();
+            }
+            $value = $decoded;
+        }
+
+        if (!is_array($value)) {
+            return array();
+        }
+
+        $normalizeValues = static function ($items) {
+            if (!is_array($items)) {
+                return array();
+            }
+
+            $result = array();
+            foreach ($items as $item) {
+                $item = trim((string)$item);
+                if ($item !== "") {
+                    $result[] = $item;
+                }
+            }
+
+            return array_values(array_unique($result));
+        };
+
+        $normalizeNumber = static function ($item) {
+            if ($item === null || $item === "") {
+                return null;
+            }
+
+            $number = (float)$item;
+            return is_finite($number) ? $number : null;
+        };
+
+        return array(
+            "projects" => $normalizeValues(isset($value["projects"]) ? $value["projects"] : array()),
+            "rooms" => $normalizeValues(isset($value["rooms"]) ? $value["rooms"] : array()),
+            "statuses" => $normalizeValues(isset($value["statuses"]) ? $value["statuses"] : array()),
+            "finishes" => $normalizeValues(isset($value["finishes"]) ? $value["finishes"] : array()),
+            "features" => $normalizeValues(isset($value["features"]) ? $value["features"] : array()),
+            "priceFrom" => $normalizeNumber(isset($value["priceFrom"]) ? $value["priceFrom"] : null),
+            "priceTo" => $normalizeNumber(isset($value["priceTo"]) ? $value["priceTo"] : null),
+            "floorFrom" => $normalizeNumber(isset($value["floorFrom"]) ? $value["floorFrom"] : null),
+            "floorTo" => $normalizeNumber(isset($value["floorTo"]) ? $value["floorTo"] : null),
+            "areaFrom" => $normalizeNumber(isset($value["areaFrom"]) ? $value["areaFrom"] : null),
+            "areaTo" => $normalizeNumber(isset($value["areaTo"]) ? $value["areaTo"] : null),
+            "ceilingFrom" => $normalizeNumber(isset($value["ceilingFrom"]) ? $value["ceilingFrom"] : null),
+            "ceilingTo" => $normalizeNumber(isset($value["ceilingTo"]) ? $value["ceilingTo"] : null),
+        );
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorFilterHasCriteria")) {
+    function szcubeProjectSelectorFilterHasCriteria(array $filter)
+    {
+        foreach (array("projects", "rooms", "statuses", "finishes", "features") as $key) {
+            if (!empty($filter[$key])) {
+                return true;
+            }
+        }
+
+        foreach (array("priceFrom", "priceTo", "floorFrom", "floorTo", "areaFrom", "areaTo", "ceilingFrom", "ceilingTo") as $key) {
+            if (isset($filter[$key]) && $filter[$key] !== null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorFlatMatchesFilter")) {
+    function szcubeProjectSelectorFlatMatchesFilter(array $flat, array $filter, array $allowedProjectCodes)
+    {
+        $allowedProjectCodes = array_values(array_unique(array_filter(array_map("strval", $allowedProjectCodes))));
+        if (!empty($filter["projects"])) {
+            if (empty(array_intersect($filter["projects"], $allowedProjectCodes))) {
+                return false;
+            }
+        }
+
+        if (!empty($filter["rooms"]) && !in_array((string)$flat["rooms_bucket"], $filter["rooms"], true)) {
+            return false;
+        }
+        if (!empty($filter["statuses"]) && !in_array((string)$flat["status"], $filter["statuses"], true)) {
+            return false;
+        }
+        if (!empty($filter["finishes"]) && !in_array((string)$flat["finish"], $filter["finishes"], true)) {
+            return false;
+        }
+        if (!empty($filter["features"])) {
+            $tags = isset($flat["feature_tags"]) && is_array($flat["feature_tags"]) ? $flat["feature_tags"] : array();
+            if (empty(array_intersect($filter["features"], $tags))) {
+                return false;
+            }
+        }
+
+        $ranges = array(
+            array("flat" => "price_total", "from" => "priceFrom", "to" => "priceTo"),
+            array("flat" => "floor", "from" => "floorFrom", "to" => "floorTo"),
+            array("flat" => "area_total", "from" => "areaFrom", "to" => "areaTo"),
+            array("flat" => "ceiling", "from" => "ceilingFrom", "to" => "ceilingTo"),
+        );
+
+        foreach ($ranges as $range) {
+            $flatValue = isset($flat[$range["flat"]]) ? (float)$flat[$range["flat"]] : 0.0;
+            if ($flatValue <= 0) {
+                continue;
+            }
+
+            $from = isset($filter[$range["from"]]) ? $filter[$range["from"]] : null;
+            $to = isset($filter[$range["to"]]) ? $filter[$range["to"]] : null;
+            if ($from !== null && $flatValue + 0.0001 < (float)$from) {
+                return false;
+            }
+            if ($to !== null && $flatValue - 0.0001 > (float)$to) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
@@ -117,6 +370,9 @@ $mapUrl = isset($arParams["MAP_URL"]) ? trim((string)$arParams["MAP_URL"]) : "";
 $mapLabel = isset($arParams["MAP_LABEL"]) && trim((string)$arParams["MAP_LABEL"]) !== "" ? trim((string)$arParams["MAP_LABEL"]) : "На карте";
 $constructionSubtitle = isset($arParams["CONSTRUCTION_SUBTITLE"]) ? trim((string)$arParams["CONSTRUCTION_SUBTITLE"]) : "";
 $sceneConfig = isset($arParams["SCENE_CONFIG"]) && is_array($arParams["SCENE_CONFIG"]) ? $arParams["SCENE_CONFIG"] : array();
+$apartmentFilterRaw = isset($arParams["APARTMENT_FILTER"]) ? (string)$arParams["APARTMENT_FILTER"] : "";
+$apartmentFilterState = szcubeProjectSelectorNormalizeFilterState($apartmentFilterRaw);
+$hasAppliedFilter = szcubeProjectSelectorFilterHasCriteria($apartmentFilterState);
 $boardConfig = isset($sceneConfig["board"]) && is_array($sceneConfig["board"]) ? $sceneConfig["board"] : array();
 $cacheTime = isset($arParams["CACHE_TIME"]) ? (int)$arParams["CACHE_TIME"] : 36000000;
 
@@ -124,7 +380,7 @@ if ($projectCode === "" || $dataProjectCode === "") {
     return;
 }
 
-$cacheId = array($projectId, $projectCode, $dataProjectCode, $sceneMode, $sceneImage, $sceneSvgPath, $mapUrl, $mapLabel, $constructionSubtitle, $sceneConfig);
+$cacheId = array($projectId, $projectCode, $dataProjectCode, $sceneMode, $sceneImage, $sceneSvgPath, $mapUrl, $mapLabel, $constructionSubtitle, $sceneConfig, $apartmentFilterRaw);
 if ($this->StartResultCache(false, $cacheId)) {
     if (!Loader::includeModule("iblock")) {
         $this->AbortResultCache();
@@ -157,6 +413,7 @@ if ($this->StartResultCache(false, $cacheId)) {
     }
 
     $entrances = array();
+    $filteredLotsCount = 0;
     $entranceRes = CIBlockSection::GetList(
         array("SORT" => "ASC", "ID" => "ASC"),
         array(
@@ -249,13 +506,40 @@ if ($this->StartResultCache(false, $cacheId)) {
                 }
 
                 $rooms = isset($flatProperties["ROOMS"]["VALUE"]) ? trim((string)$flatProperties["ROOMS"]["VALUE"]) : "";
+                $roomsLabel = szcubeProjectSelectorRoomLabel($rooms);
                 $houseFloors = isset($flatProperties["HOUSE_FLOORS"]["VALUE"]) ? (int)$flatProperties["HOUSE_FLOORS"]["VALUE"] : 0;
                 $planImage = szcubeProjectSelectorFilePath(isset($flatProperties["PLAN_IMAGE"]["VALUE"]) ? $flatProperties["PLAN_IMAGE"]["VALUE"] : 0);
                 $flatNumber = isset($flatProperties["APARTMENT_NUMBER"]["VALUE"]) ? trim((string)$flatProperties["APARTMENT_NUMBER"]["VALUE"]) : "";
                 $finish = isset($flatProperties["FINISH"]["VALUE"]) ? trim((string)$flatProperties["FINISH"]["VALUE"]) : "";
+                $finishKey = $finish !== "" ? szcubeProjectSelectorNormalizeKey($finish) : "";
                 $priceOld = isset($flatProperties["PRICE_OLD"]["VALUE"]) ? (float)$flatProperties["PRICE_OLD"]["VALUE"] : 0;
                 $discountLabel = isset($flatProperties["DISCOUNT_LABEL"]["VALUE"]) ? trim((string)$flatProperties["DISCOUNT_LABEL"]["VALUE"]) : "";
                 $planAlt = isset($flatProperties["PLAN_ALT"]["VALUE"]) ? trim((string)$flatProperties["PLAN_ALT"]["VALUE"]) : "";
+                $areaTotal = isset($flatProperties["AREA_TOTAL"]["VALUE"]) ? (float)$flatProperties["AREA_TOTAL"]["VALUE"] : 0.0;
+                $ceiling = isset($flatProperties["CEILING"]["VALUE"]) ? (float)$flatProperties["CEILING"]["VALUE"] : 0.0;
+                $featureTags = szcubeProjectSelectorMultiPropertyValues(isset($flatProperties["FEATURE_TAGS"]) && is_array($flatProperties["FEATURE_TAGS"]) ? $flatProperties["FEATURE_TAGS"] : array());
+                $featureTagKeys = array();
+                foreach ($featureTags as $featureTag) {
+                    $featureKey = szcubeProjectSelectorNormalizeKey($featureTag);
+                    if ($featureKey !== "") {
+                        $featureTagKeys[] = $featureKey;
+                    }
+                }
+                $featureTagKeys = array_values(array_unique($featureTagKeys));
+
+                $flatFilterData = array(
+                    "rooms_bucket" => szcubeProjectSelectorRoomBucketKey($rooms),
+                    "price_total" => $priceTotal,
+                    "floor" => $floorNumber,
+                    "area_total" => $areaTotal,
+                    "ceiling" => $ceiling,
+                    "status" => $statusXmlId !== "" ? $statusXmlId : "free",
+                    "finish" => $finishKey,
+                    "feature_tags" => $featureTagKeys,
+                );
+                if ($hasAppliedFilter && !szcubeProjectSelectorFlatMatchesFilter($flatFilterData, $apartmentFilterState, array($projectCode, $dataProjectCode))) {
+                    continue;
+                }
 
                 $flatData = array(
                     "id" => (int)$flatFields["ID"],
@@ -264,6 +548,7 @@ if ($this->StartResultCache(false, $cacheId)) {
                     "url" => (string)$flatUrl,
                     "number" => $flatNumber,
                     "rooms" => $rooms,
+                    "rooms_label" => $roomsLabel,
                     "rooms_short" => szcubeProjectSelectorRoomShort($rooms),
                     "area_total" => isset($flatProperties["AREA_TOTAL"]["VALUE"]) ? trim((string)$flatProperties["AREA_TOTAL"]["VALUE"]) : "",
                     "price_total" => $priceTotal,
@@ -285,6 +570,7 @@ if ($this->StartResultCache(false, $cacheId)) {
                 $entranceData["floors_map"][$floorNumber][] = $flatData;
 
                 $entranceData["stats"]["count"]++;
+                $filteredLotsCount++;
                 if (isset($entranceData["stats"][$flatData["status_xml_id"]])) {
                     $entranceData["stats"][$flatData["status_xml_id"]]++;
                 }
@@ -295,10 +581,10 @@ if ($this->StartResultCache(false, $cacheId)) {
                     $entranceData["house_floors"] = $houseFloors;
                 }
 
-                $roomGroupKey = $rooms !== "" ? $rooms : "other";
+                $roomGroupKey = $rooms !== "" ? szcubeProjectSelectorRoomBucketKey($rooms) : "other";
                 if (!isset($entranceData["room_groups"][$roomGroupKey])) {
                     $entranceData["room_groups"][$roomGroupKey] = array(
-                        "label" => $rooms !== "" ? $rooms : "Квартиры",
+                        "label" => $rooms !== "" ? $roomsLabel : "Квартиры",
                         "count" => 0,
                         "min_price" => 0,
                         "sort" => szcubeProjectSelectorRoomSort($rooms),
@@ -309,6 +595,10 @@ if ($this->StartResultCache(false, $cacheId)) {
                     $entranceData["room_groups"][$roomGroupKey]["min_price"] = $priceTotal;
                 }
             }
+        }
+
+        if ($hasAppliedFilter && empty($entranceData["floors_map"])) {
+            continue;
         }
 
         if (!empty($entranceData["floors_map"])) {
@@ -388,7 +678,26 @@ if ($this->StartResultCache(false, $cacheId)) {
     }
 
     if (empty($entrances)) {
-        $this->AbortResultCache();
+        $sceneSvgMarkup = szcubeProjectSelectorReadSvg($sceneSvgPath);
+        $arResult = array(
+            "PROJECT" => array(
+                "ID" => $projectId,
+                "CODE" => $projectCode,
+                "NAME" => $projectName,
+                "SCENE_MODE" => $sceneMode,
+                "SCENE_IMAGE" => $sceneImage,
+                "SCENE_SVG" => $sceneSvgMarkup,
+                "MAP_URL" => $mapUrl,
+                "MAP_LABEL" => $mapLabel,
+                "CONSTRUCTION_SUBTITLE" => $constructionSubtitle,
+                "SCENE_CONFIG" => $sceneConfig,
+            ),
+            "ENTRANCES" => array(),
+            "INITIAL_ENTRANCE_ID" => "",
+            "EMPTY_MESSAGE" => $hasAppliedFilter ? "По текущим параметрам квартиры не найдены." : "Квартиры пока не добавлены.",
+        );
+
+        $this->IncludeComponentTemplate();
         return;
     }
 
@@ -403,6 +712,7 @@ if ($this->StartResultCache(false, $cacheId)) {
         $initialEntranceId = (string)$entrances[0]["id"];
     }
     $sceneSvgMarkup = szcubeProjectSelectorReadSvg($sceneSvgPath);
+    $initialView = ($hasAppliedFilter && count($entrances) === 1 && $filteredLotsCount > 0) ? "board" : "scene";
 
     $arResult = array(
         "PROJECT" => array(
@@ -419,6 +729,8 @@ if ($this->StartResultCache(false, $cacheId)) {
         ),
         "ENTRANCES" => $entrances,
         "INITIAL_ENTRANCE_ID" => $initialEntranceId,
+        "INITIAL_VIEW" => $initialView,
+        "FILTER_STATE" => $apartmentFilterState,
     );
 
     $this->IncludeComponentTemplate();

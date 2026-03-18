@@ -1,6 +1,10 @@
 const formatNumber = (value, step) => {
   const rounded = step < 1 ? value : Math.round(value / step) * step;
-  return Math.round(rounded).toLocaleString("ru-RU");
+  const decimals = step < 1 ? ((step.toString().split(".")[1] || "").length || 2) : 0;
+  return Number(rounded).toLocaleString("ru-RU", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  });
 };
 
 const initRangeSliders = () => {
@@ -78,6 +82,11 @@ const initRangeSliders = () => {
           }
           target.noUiSlider.set(values);
         });
+
+      const eventTarget = fromInputs[0] || toInputs[0];
+      if (eventTarget) {
+        eventTarget.dispatchEvent(new Event("input", { bubbles: true }));
+      }
 
       syncingRanges.delete(rangeKey);
     });
@@ -212,6 +221,7 @@ const initFilterDropdowns = () => {
       if (!field) return;
       const checkbox = field.querySelector('input[type="checkbox"]');
       if (!checkbox) return;
+      if (checkbox.disabled || field.classList.contains("is-disabled")) return;
       const clickedControl = event.target.closest('input[type="checkbox"], label');
       if (!clickedControl) {
         checkbox.checked = !checkbox.checked;
@@ -233,8 +243,8 @@ const initFilterPills = () => {
     container.addEventListener("click", (event) => {
       const pill = event.target.closest(".filter__room");
       if (!pill || !container.contains(pill)) return;
+      if (pill.classList.contains("is-disabled")) return;
       const nextState = !pill.classList.contains("is-active");
-      pill.classList.toggle("is-active", nextState);
 
       const syncGroup = pill.dataset.syncGroup;
       const syncValue = pill.dataset.syncValue;
@@ -245,8 +255,201 @@ const initFilterPills = () => {
         .forEach((item) => {
           item.classList.toggle("is-active", nextState);
         });
+
+      pill.dispatchEvent(new Event("input", { bubbles: true }));
     });
   });
+};
+
+const apartmentFilterParsePayload = (root) => {
+  const payloadEl = root.querySelector("[data-apartment-filter-payload]");
+  if (!payloadEl) return null;
+
+  try {
+    return JSON.parse(payloadEl.textContent || "{}");
+  } catch (error) {
+    console.error("Apartment filter payload parse error", error);
+    return null;
+  }
+};
+
+const apartmentFilterUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
+
+const apartmentFilterReadRangeValue = (root, key, fallback) => {
+  const input = root.querySelector(`[data-range-input="${key}"]`);
+  const value = input ? Number(input.value) : Number.NaN;
+  return Number.isFinite(value) ? value : fallback;
+};
+
+const apartmentFilterPluralize = (count) => {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+
+  if (mod10 === 1 && mod100 !== 11) {
+    return "квартира";
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return "квартиры";
+  }
+  return "квартир";
+};
+
+const apartmentFilterBuildState = (root, payload) => {
+  const projects = apartmentFilterUniqueValues(
+    Array.from(root.querySelectorAll('.custom-checkbox[data-sync-group="project"]:checked')).map(
+      (checkbox) => checkbox.dataset.syncValue || ""
+    )
+  );
+  const rooms = apartmentFilterUniqueValues(
+    Array.from(root.querySelectorAll('.filter__room.is-active[data-sync-group="rooms"]')).map(
+      (pill) => pill.dataset.syncValue || ""
+    )
+  );
+  const statuses = apartmentFilterUniqueValues(
+    Array.from(root.querySelectorAll('.custom-checkbox[data-sync-group="status"]:checked')).map(
+      (checkbox) => checkbox.dataset.syncValue || ""
+    )
+  );
+  const finishes = apartmentFilterUniqueValues(
+    Array.from(root.querySelectorAll('.custom-checkbox[data-sync-group="finish"]:checked')).map(
+      (checkbox) => checkbox.dataset.syncValue || ""
+    )
+  );
+  const features = apartmentFilterUniqueValues(
+    Array.from(root.querySelectorAll('.custom-checkbox[data-sync-group="feature"]:checked')).map(
+      (checkbox) => checkbox.dataset.syncValue || ""
+    )
+  );
+
+  const ranges = payload.ranges || {};
+
+  return {
+    projects,
+    rooms,
+    statuses,
+    finishes,
+    features,
+    priceFrom: apartmentFilterReadRangeValue(root, "price-from", ranges.price?.actual_min ?? 0),
+    priceTo: apartmentFilterReadRangeValue(root, "price-to", ranges.price?.actual_max ?? 0),
+    floorFrom: apartmentFilterReadRangeValue(root, "floors-from", ranges.floor?.actual_min ?? 0),
+    floorTo: apartmentFilterReadRangeValue(root, "floors-to", ranges.floor?.actual_max ?? 0),
+    areaFrom: apartmentFilterReadRangeValue(root, "square-from", ranges.area?.actual_min ?? 0),
+    areaTo: apartmentFilterReadRangeValue(root, "square-to", ranges.area?.actual_max ?? 0),
+    ceilingFrom: apartmentFilterReadRangeValue(root, "height-from", ranges.ceiling?.actual_min ?? 0),
+    ceilingTo: apartmentFilterReadRangeValue(root, "height-to", ranges.ceiling?.actual_max ?? 0),
+  };
+};
+
+const apartmentFilterMatchesFlat = (flat, state) => {
+  if (state.projects.length && !state.projects.includes(flat.project_code)) {
+    return false;
+  }
+  if (state.rooms.length && !state.rooms.includes(flat.rooms_bucket)) {
+    return false;
+  }
+  if (flat.price_total > 0 && (flat.price_total < state.priceFrom || flat.price_total > state.priceTo)) {
+    return false;
+  }
+  if (flat.floor > 0 && (flat.floor < state.floorFrom || flat.floor > state.floorTo)) {
+    return false;
+  }
+  if (flat.area_total > 0 && (flat.area_total + 0.0001 < state.areaFrom || flat.area_total - 0.0001 > state.areaTo)) {
+    return false;
+  }
+  if (flat.ceiling > 0 && (flat.ceiling + 0.0001 < state.ceilingFrom || flat.ceiling - 0.0001 > state.ceilingTo)) {
+    return false;
+  }
+  if (state.statuses.length && !state.statuses.includes(flat.status)) {
+    return false;
+  }
+  if (state.finishes.length && !state.finishes.includes(flat.finish)) {
+    return false;
+  }
+  if (state.features.length) {
+    const tags = Array.isArray(flat.feature_tags) ? flat.feature_tags : [];
+    if (!state.features.some((feature) => tags.includes(feature))) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const initApartmentFilter = () => {
+  const root = document.querySelector("[data-apartment-filter]");
+  if (!root) return;
+
+  const payload = apartmentFilterParsePayload(root);
+  if (!payload || !Array.isArray(payload.flats)) return;
+
+  const summaryEl = root.querySelector("[data-apartment-filter-summary]");
+  const submitButton = root.querySelector("[data-apartment-filter-submit]");
+  if (!submitButton) return;
+
+  const projectIndex = {};
+  (payload.projects || []).forEach((project) => {
+    if (project?.code) {
+      projectIndex[project.code] = project;
+    }
+  });
+
+  const updateState = () => {
+    const state = apartmentFilterBuildState(root, payload);
+    const matches = payload.flats.filter((flat) => apartmentFilterMatchesFlat(flat, state));
+    root.apartmentFilterState = state;
+    root.apartmentFilterMatches = matches;
+
+    const count = matches.length;
+    submitButton.disabled = count <= 0;
+    if (count <= 0) {
+      submitButton.textContent = "Квартиры не найдены";
+    } else if (count === 1) {
+      submitButton.textContent = "Выбрать квартиру";
+    } else {
+      submitButton.textContent = `Показать ${count} ${apartmentFilterPluralize(count)}`;
+    }
+
+    if (summaryEl) {
+      summaryEl.textContent = count > 0
+        ? `Найдено ${count} ${apartmentFilterPluralize(count)}`
+        : "Квартиры не найдены";
+    }
+  };
+
+  root.addEventListener("change", updateState);
+  root.addEventListener("input", updateState);
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-apartment-filter-submit]");
+    if (!button || !root.contains(button)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const state = apartmentFilterBuildState(root, payload);
+    const matches = payload.flats.filter((flat) => apartmentFilterMatchesFlat(flat, state));
+    if (!matches.length) {
+      return;
+    }
+
+    if (matches.length === 1 && matches[0].url) {
+      window.location.href = matches[0].url;
+      return;
+    }
+
+    const encodedState = encodeURIComponent(JSON.stringify(state));
+    if (payload.catalog_page_url) {
+      const glue = payload.catalog_page_url.includes("?") ? "&" : "?";
+      window.location.href = `${payload.catalog_page_url}${glue}apartment_filter=${encodedState}`;
+      return;
+    }
+
+    if (payload.projects_page_url) {
+      window.location.href = payload.projects_page_url;
+    }
+  });
+
+  updateState();
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -254,4 +457,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initFiltersPopup();
   initFilterDropdowns();
   initFilterPills();
+  initApartmentFilter();
 });

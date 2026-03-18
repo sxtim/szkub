@@ -220,8 +220,21 @@ if (!function_exists("apartmentDetailRoomsLabel")) {
 			return "Студия";
 		}
 
+		if (preg_match("/евро\\s*дв|евродв|\\b2\\s*[еe]\\b|\\b2e\\b/iu", $rooms)) {
+			return "Евродвушка";
+		}
+
+		if (preg_match("/евро\\s*тр|евротр|\\b3\\s*[еe]\\b|\\b3e\\b/iu", $rooms)) {
+			return "Евротрешка";
+		}
+
 		if (preg_match("/^(\d+)/", $rooms, $matches)) {
-			return $matches[1] . "-комнатная";
+			$number = (int)$matches[1];
+			if ($number >= 4) {
+				return "4-комнатная";
+			}
+
+			return $number . "-комнатная";
 		}
 
 		return $rooms;

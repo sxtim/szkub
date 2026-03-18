@@ -1147,7 +1147,7 @@ const initProjectApartmentSelector = () => {
       }
     });
 
-    setView("scene");
+    setView(state.initialView === "board" ? "board" : "scene");
     hideSceneCards();
 
     window.addEventListener("resize", () => {

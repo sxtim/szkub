@@ -88,22 +88,12 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
     <h2 class="section-title">Проекты</h2>
     <?php
     $APPLICATION->IncludeComponent(
-      "bitrix:catalog.smart.filter",
-      "filters",
+      "szcube:apartment.filter",
+      "",
       array(
-        "IBLOCK_TYPE" => "",
-        "IBLOCK_ID" => "",
-        "FILTER_NAME" => "arrFilter",
-        "CACHE_TYPE" => "A",
         "CACHE_TIME" => "36000000",
-        "CACHE_GROUPS" => "Y",
-        "SAVE_IN_SESSION" => "N",
-        "PAGER_PARAMS_NAME" => "arrPager",
-        "XML_EXPORT" => "N",
-        "SECTION_ID" => "",
-        "SECTION_CODE" => "",
-        "SMART_FILTER_PATH" => "",
-        "INSTANT_RELOAD" => "N"
+        "PROJECTS_PAGE_URL" => "/projects/",
+        "CATALOG_PAGE_URL" => "/apartments/",
       ),
       false
     );

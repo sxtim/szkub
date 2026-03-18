@@ -5,12 +5,21 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 
 $project = isset($arResult["PROJECT"]) && is_array($arResult["PROJECT"]) ? $arResult["PROJECT"] : array();
 $entrances = isset($arResult["ENTRANCES"]) && is_array($arResult["ENTRANCES"]) ? $arResult["ENTRANCES"] : array();
+$emptyMessage = isset($arResult["EMPTY_MESSAGE"]) ? trim((string)$arResult["EMPTY_MESSAGE"]) : "";
 if (empty($entrances)) {
+    if ($emptyMessage !== ""): ?>
+      <section class="projects-genplan" aria-label="Выбор квартиры в проекте">
+        <div class="projects-selector projects-selector--empty">
+          <div class="projects-selector__empty-message"><?= htmlspecialcharsbx($emptyMessage) ?></div>
+        </div>
+      </section>
+    <?php endif;
     return;
 }
 
 $state = array(
     "initialEntranceId" => isset($arResult["INITIAL_ENTRANCE_ID"]) ? (string)$arResult["INITIAL_ENTRANCE_ID"] : "",
+    "initialView" => isset($arResult["INITIAL_VIEW"]) ? (string)$arResult["INITIAL_VIEW"] : "scene",
 );
 $sceneConfig = isset($project["SCENE_CONFIG"]) && is_array($project["SCENE_CONFIG"]) ? $project["SCENE_CONFIG"] : array();
 $sceneSettings = isset($sceneConfig["scene"]) && is_array($sceneConfig["scene"]) ? $sceneConfig["scene"] : array();
@@ -101,7 +110,9 @@ $popupPlanAlt = is_array($previewFlat) && isset($previewFlat["plan_alt"]) && tri
 $popupProjectName = trim((string)$project["NAME"]);
 $popupDeliveryLabel = trim((string)$project["CONSTRUCTION_SUBTITLE"]);
 $previewFlatMeta = array();
-if (is_array($previewFlat) && isset($previewFlat["rooms"]) && trim((string)$previewFlat["rooms"]) !== "") {
+if (is_array($previewFlat) && isset($previewFlat["rooms_label"]) && trim((string)$previewFlat["rooms_label"]) !== "") {
+    $previewFlatMeta[] = trim((string)$previewFlat["rooms_label"]);
+} elseif (is_array($previewFlat) && isset($previewFlat["rooms"]) && trim((string)$previewFlat["rooms"]) !== "") {
     $previewFlatMeta[] = trim((string)$previewFlat["rooms"]);
 }
 if (is_array($previewFlat) && isset($previewFlat["area_total"]) && trim((string)$previewFlat["area_total"]) !== "") {
