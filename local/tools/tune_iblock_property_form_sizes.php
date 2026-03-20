@@ -201,6 +201,8 @@ $matrix = array(
 		"CORPUS" => array("ROW_COUNT" => 1, "COL_COUNT" => 20),
 		"ENTRANCE" => array("ROW_COUNT" => 1, "COL_COUNT" => 20),
 		"APARTMENT_NUMBER" => array("ROW_COUNT" => 1, "COL_COUNT" => 20),
+		"DISCOUNT_PERCENT" => array("ROW_COUNT" => 1, "COL_COUNT" => 20),
+		"DISCOUNT_AMOUNT" => array("ROW_COUNT" => 1, "COL_COUNT" => 20),
 		"BADGES" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
 		"VIEW_TEXT" => array("ROW_COUNT" => 4, "COL_COUNT" => 90),
 		"WINDOW_SIDES" => array("ROW_COUNT" => 1, "COL_COUNT" => 50),

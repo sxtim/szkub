@@ -67,7 +67,6 @@ foreach ($entrances as $entrance) {
 $scenePins = $entrances;
 $sceneCards = $entrances;
 $virtualEntranceOne = null;
-$previewFlat = null;
 
 if (!$hasEntranceOne && !empty($entrances)) {
     $virtualEntranceOne = $entrances[0];
@@ -82,61 +81,9 @@ if (!$hasEntranceOne && !empty($entrances)) {
     $scenePins[] = $virtualEntranceOne;
     $sceneCards[] = $virtualEntranceOne;
 }
-
-foreach ($entrances as $entrance) {
-    if (!isset($entrance["checkerboard"]["rows"]) || !is_array($entrance["checkerboard"]["rows"])) {
-        continue;
-    }
-
-    foreach ($entrance["checkerboard"]["rows"] as $row) {
-        if (!isset($row["cells"]) || !is_array($row["cells"])) {
-            continue;
-        }
-
-        foreach ($row["cells"] as $cell) {
-            if (is_array($cell)) {
-                $previewFlat = $cell;
-                break 3;
-            }
-        }
-    }
-}
-
-$popupPlanSrc = is_array($previewFlat) && isset($previewFlat["plan_image"]) && trim((string)$previewFlat["plan_image"]) !== ""
-    ? trim((string)$previewFlat["plan_image"])
-    : SITE_TEMPLATE_PATH . "/img/apartments/" . rawurlencode("1 этаж 2е 92.8 с антресолью 1.jpg");
-$popupPlanAlt = is_array($previewFlat) && isset($previewFlat["plan_alt"]) && trim((string)$previewFlat["plan_alt"]) !== ""
-    ? trim((string)$previewFlat["plan_alt"])
-    : "Планировка";
 $popupProjectName = trim((string)$project["NAME"]);
 $popupDeliveryLabel = trim((string)$project["CONSTRUCTION_SUBTITLE"]);
-$previewFlatMeta = array();
-if (is_array($previewFlat) && isset($previewFlat["rooms_label"]) && trim((string)$previewFlat["rooms_label"]) !== "") {
-    $previewFlatMeta[] = trim((string)$previewFlat["rooms_label"]);
-} elseif (is_array($previewFlat) && isset($previewFlat["rooms"]) && trim((string)$previewFlat["rooms"]) !== "") {
-    $previewFlatMeta[] = trim((string)$previewFlat["rooms"]);
-}
-if (is_array($previewFlat) && isset($previewFlat["area_total"]) && trim((string)$previewFlat["area_total"]) !== "") {
-    $previewFlatMeta[] = trim((string)$previewFlat["area_total"]) . " м²";
-}
-if (is_array($previewFlat) && isset($previewFlat["floor_display"]) && trim((string)$previewFlat["floor_display"]) !== "") {
-    $previewFlatMeta[] = trim((string)$previewFlat["floor_display"]);
-}
-$popupMeta = !empty($previewFlatMeta) ? implode(" • ", $previewFlatMeta) : "";
-$popupPriceMain = is_array($previewFlat) && isset($previewFlat["price_total"]) && (float)$previewFlat["price_total"] > 0
-    ? number_format((float)$previewFlat["price_total"], 0, ".", " ") . " ₽"
-    : "";
-$popupPriceOld = is_array($previewFlat) && isset($previewFlat["price_old"]) && (float)$previewFlat["price_old"] > 0
-    ? number_format((float)$previewFlat["price_old"], 0, ".", " ") . " ₽"
-    : "";
-$popupBadges = is_array($previewFlat) && isset($previewFlat["badges"]) && is_array($previewFlat["badges"])
-    ? array_values(array_filter(array_map("trim", $previewFlat["badges"]), static function ($badge) {
-        return $badge !== "";
-    }))
-    : array();
-$popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string)$previewFlat["url"]) !== ""
-    ? trim((string)$previewFlat["url"])
-    : "#";
+$popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 ?>
 <section class="projects-genplan" aria-label="Выбор квартиры в проекте">
   <div
@@ -250,18 +197,43 @@ $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string
 
               <div class="projects-selector__building-card-groups">
                 <?php foreach ($entrance["room_groups"] as $group): ?>
-                  <div class="projects-selector__building-group">
-                    <div class="projects-selector__building-group-main">
-                      <span class="projects-selector__building-group-line">
-                        <?= htmlspecialcharsbx((string)$group["label"]) ?>
-                      </span>
+                  <?php
+                  $groupFilterValue = isset($group["filter_value"]) ? trim((string)$group["filter_value"]) : "";
+                  $groupHref = "";
+                  if ($groupFilterValue !== "" && trim((string)$project["CODE"]) !== "") {
+                      $groupHref = "/apartments/?" . http_build_query(array(
+                          "project" => (string)$project["CODE"],
+                          "rooms" => $groupFilterValue,
+                      ));
+                  }
+                  ?>
+                  <?php if ($groupHref !== ""): ?>
+                    <a class="projects-selector__building-group projects-selector__building-group--link" href="<?= htmlspecialcharsbx($groupHref) ?>">
+                      <div class="projects-selector__building-group-main">
+                        <span class="projects-selector__building-group-line">
+                          <?= htmlspecialcharsbx((string)$group["label"]) ?> <?= (int)$group["count"] ?>
+                        </span>
+                      </div>
+                      <div class="projects-selector__building-group-price">
+                        <?php if ((float)$group["min_price"] > 0): ?>
+                          от <?= htmlspecialcharsbx(szcubeProjectSelectorMoney($group["min_price"])) ?> &#8381;
+                        <?php endif; ?>
+                      </div>
+                    </a>
+                  <?php else: ?>
+                    <div class="projects-selector__building-group">
+                      <div class="projects-selector__building-group-main">
+                        <span class="projects-selector__building-group-line">
+                          <?= htmlspecialcharsbx((string)$group["label"]) ?> <?= (int)$group["count"] ?>
+                        </span>
+                      </div>
+                      <div class="projects-selector__building-group-price">
+                        <?php if ((float)$group["min_price"] > 0): ?>
+                          от <?= htmlspecialcharsbx(szcubeProjectSelectorMoney($group["min_price"])) ?> &#8381;
+                        <?php endif; ?>
+                      </div>
                     </div>
-                    <div class="projects-selector__building-group-price">
-                      <?php if ((float)$group["min_price"] > 0): ?>
-                        от <?= htmlspecialcharsbx(szcubeProjectSelectorMoney($group["min_price"])) ?> &#8381;
-                      <?php endif; ?>
-                    </div>
-                  </div>
+                  <?php endif; ?>
                 <?php endforeach; ?>
               </div>
 
@@ -315,7 +287,7 @@ $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string
               >
                 ×
               </button>
-              <a class="projects-selector__lot-card-link" data-lot-detail href="<?= htmlspecialcharsbx($popupUrl) ?>">
+              <a class="projects-selector__lot-card-link" data-lot-detail href="#">
                 <article class="apartment-card">
                   <div class="apartment-card__head">
                     <div>
@@ -330,21 +302,23 @@ $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string
                   </div>
 
                   <div class="apartment-card__plan">
-                    <img class="apartment-card__plan-image" data-lot-image src="<?= htmlspecialcharsbx($popupPlanSrc) ?>" alt="<?= htmlspecialcharsbx($popupPlanAlt) ?>" />
+                    <img
+                      class="apartment-card__plan-image"
+                      data-lot-image
+                      src="<?= htmlspecialcharsbx($popupPlaceholderImage) ?>"
+                      alt=""
+                      hidden
+                    />
                   </div>
 
-                  <div class="apartment-card__meta" data-lot-meta<?= $popupMeta === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupMeta) ?></div>
+                  <div class="apartment-card__meta" data-lot-meta hidden></div>
 
                   <div class="apartment-card__price">
-                    <span class="apartment-card__price-main" data-lot-price-main<?= $popupPriceMain === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupPriceMain) ?></span>
-                    <span class="apartment-card__price-old" data-lot-price-old<?= $popupPriceOld === "" ? " hidden" : "" ?>><?= htmlspecialcharsbx($popupPriceOld) ?></span>
+                    <span class="apartment-card__price-main" data-lot-price-main hidden></span>
+                    <span class="apartment-card__price-old" data-lot-price-old hidden></span>
                   </div>
 
-                  <div class="apartment-card__badges" data-lot-badges<?= empty($popupBadges) ? " hidden" : "" ?>>
-                    <?php foreach ($popupBadges as $popupBadge): ?>
-                      <span class="apartment-card__badge"><?= htmlspecialcharsbx($popupBadge) ?></span>
-                    <?php endforeach; ?>
-                  </div>
+                  <div class="apartment-card__badges" data-lot-badges hidden></div>
                 </article>
               </a>
             </div>
@@ -363,9 +337,9 @@ $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string
                           <div class="projects-selector__checkerboard-floor"><?= htmlspecialcharsbx(isset($row["label"]) ? (string)$row["label"] : (string)$row["number"]) ?></div>
                           <div
                             class="projects-selector__checkerboard-cells"
-                            style="--checkerboard-columns: <?= (int)$entrance["checkerboard"]["max_columns"] ?>;"
+                            style="--checkerboard-columns: <?= isset($row["visible_columns"]) ? (int)$row["visible_columns"] : (int)$entrance["checkerboard"]["max_columns"] ?>;"
                           >
-                            <?php foreach ($row["cells"] as $cell): ?>
+                            <?php foreach ((isset($row["visible_cells"]) && is_array($row["visible_cells"]) ? $row["visible_cells"] : $row["cells"]) as $cell): ?>
                               <?php if (is_array($cell)): ?>
                                 <button
                                   class="projects-selector__lot is-<?= htmlspecialcharsbx((string)$cell["status_xml_id"]) ?>"
@@ -387,6 +361,7 @@ $popupUrl = is_array($previewFlat) && isset($previewFlat["url"]) && trim((string
                                   data-flat-floor-display="<?= htmlspecialcharsbx((string)$cell["floor_display"]) ?>"
                                   data-flat-house-floors="<?= (int)$cell["house_floors"] ?>"
                                   data-flat-number="<?= htmlspecialcharsbx((string)$cell["number"]) ?>"
+                                  data-flat-slot-id="<?= htmlspecialcharsbx((string)$cell["slot_id"]) ?>"
                                   data-flat-url="<?= htmlspecialcharsbx((string)$cell["url"]) ?>"
                                   data-flat-status="<?= htmlspecialcharsbx((string)$cell["status_xml_id"]) ?>"
                                   data-flat-delivery="<?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?>"

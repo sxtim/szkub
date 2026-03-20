@@ -662,6 +662,33 @@ $apartmentsProperties = array(
 		"IS_REQUIRED" => "Y",
 	),
 	array(
+		"CODE" => "DISCOUNT_MODE",
+		"NAME" => "Способ скидки",
+		"PROPERTY_TYPE" => "L",
+		"SORT" => 205,
+		"MULTIPLE" => "N",
+		"VALUES" => array(
+			array("VALUE" => "Без скидки", "XML_ID" => "none", "SORT" => 100, "DEF" => "Y"),
+			array("VALUE" => "Старая цена", "XML_ID" => "old_price", "SORT" => 200, "DEF" => "N"),
+			array("VALUE" => "Скидка, %", "XML_ID" => "percent", "SORT" => 300, "DEF" => "N"),
+			array("VALUE" => "Скидка, ₽", "XML_ID" => "amount", "SORT" => 400, "DEF" => "N"),
+		),
+	),
+	array(
+		"CODE" => "DISCOUNT_PERCENT",
+		"NAME" => "Скидка, %",
+		"PROPERTY_TYPE" => "N",
+		"SORT" => 206,
+		"MULTIPLE" => "N",
+	),
+	array(
+		"CODE" => "DISCOUNT_AMOUNT",
+		"NAME" => "Скидка, ₽",
+		"PROPERTY_TYPE" => "N",
+		"SORT" => 207,
+		"MULTIPLE" => "N",
+	),
+	array(
 		"CODE" => "PRICE_OLD",
 		"NAME" => "Старая цена",
 		"PROPERTY_TYPE" => "N",

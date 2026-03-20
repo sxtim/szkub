@@ -770,6 +770,8 @@ const initProjectApartmentSelector = () => {
     const lotClose = lotCard?.querySelector("[data-selector-close-lot]") || null;
     const lots = Array.from(root.querySelectorAll("[data-flat-id]"));
     const sceneSections = Array.from(root.querySelectorAll("[data-section-overlay]"));
+    const lotPlaceholderImage =
+      "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
     let activeEntranceId =
       state.initialEntranceId || entrancePins[0]?.dataset.entranceTrigger || "";
@@ -924,8 +926,12 @@ const initProjectApartmentSelector = () => {
       }
 
       if (lotImage) {
-        lotImage.src = button.dataset.flatImage || lotImage.getAttribute("src") || "";
-        lotImage.alt = button.dataset.flatImageAlt || button.dataset.flatTitle || "Планировка";
+        const imageSrc = button.dataset.flatImage || "";
+        lotImage.src = imageSrc || lotPlaceholderImage;
+        lotImage.alt = imageSrc
+          ? button.dataset.flatImageAlt || button.dataset.flatTitle || "Планировка"
+          : "";
+        lotImage.hidden = !imageSrc;
       }
 
       if (lotMeta) {

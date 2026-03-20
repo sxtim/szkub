@@ -299,6 +299,16 @@ function verifyGetHttpStatus($url)
 	return 0;
 }
 
+function verifyNormalizeApartmentHouseFloors($floor, $floorTo, $houseFloors)
+{
+	$floor = (int)$floor;
+	$floorTo = (int)$floorTo;
+	$houseFloors = (int)$houseFloors;
+	$upperFloor = $floorTo > $floor ? $floorTo : 0;
+
+	return max($houseFloors, $floor, $upperFloor);
+}
+
 function verifyFindApartmentFieldsByCode($iblockId, $code)
 {
 	$res = CIBlockElement::GetList(
@@ -350,6 +360,9 @@ $requiredProperties = array(
 	"FLOOR_TO",
 	"ROOMS",
 	"STATUS",
+	"DISCOUNT_MODE",
+	"DISCOUNT_PERCENT",
+	"DISCOUNT_AMOUNT",
 	"BADGES",
 	"FINISH",
 	"PLAN_IMAGE",
@@ -408,8 +421,12 @@ if ($apartmentsIblockId > 0) {
 		$projectCode = isset($item["project_code"]) ? trim((string)$item["project_code"]) : "";
 		$entrance = isset($item["entrance"]) ? trim((string)$item["entrance"]) : "";
 		$floor = isset($item["floor"]) ? (int)$item["floor"] : 0;
-		$houseFloors = isset($item["house_floors"]) ? (int)$item["house_floors"] : 0;
 		$floorTo = isset($item["floor_to"]) ? (int)$item["floor_to"] : 0;
+		$houseFloors = verifyNormalizeApartmentHouseFloors(
+			$floor,
+			$floorTo,
+			isset($item["house_floors"]) ? (int)$item["house_floors"] : 0
+		);
 		$apartmentNumber = isset($item["apartment_number"]) ? trim((string)$item["apartment_number"]) : "";
 		$expectedXmlId = isset($item["xml_id"]) && trim((string)$item["xml_id"]) !== ""
 			? trim((string)$item["xml_id"])

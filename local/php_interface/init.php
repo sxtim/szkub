@@ -230,6 +230,29 @@ if (!function_exists("szcubeExtractSinglePropertyValueFromFields")) {
     }
 }
 
+if (!function_exists("szcubeSetSinglePropertyValueInFields")) {
+    function szcubeSetSinglePropertyValueInFields(array &$fields, $propertyId, $value)
+    {
+        $propertyId = (int)$propertyId;
+        if ($propertyId <= 0) {
+            return;
+        }
+
+        if (!isset($fields["PROPERTY_VALUES"]) || !is_array($fields["PROPERTY_VALUES"])) {
+            $fields["PROPERTY_VALUES"] = array();
+        }
+
+        if ($value === false || $value === null || $value === "") {
+            $fields["PROPERTY_VALUES"][$propertyId] = false;
+            return;
+        }
+
+        $fields["PROPERTY_VALUES"][$propertyId] = array(
+            "VALUE" => $value,
+        );
+    }
+}
+
 if (!function_exists("szcubeGetElementPropertyValueByCode")) {
     function szcubeGetElementPropertyValueByCode($iblockId, $elementId, $propertyCode)
     {
@@ -252,6 +275,108 @@ if (!function_exists("szcubeGetElementPropertyValueByCode")) {
         );
         if ($row = $res->Fetch()) {
             return trim((string)$row["VALUE"]);
+        }
+
+        return "";
+    }
+}
+
+if (!function_exists("szcubeGetElementPropertyXmlIdByCode")) {
+    function szcubeGetElementPropertyXmlIdByCode($iblockId, $elementId, $propertyCode)
+    {
+        $iblockId = (int)$iblockId;
+        $elementId = (int)$elementId;
+        $propertyCode = trim((string)$propertyCode);
+        if ($iblockId <= 0 || $elementId <= 0 || $propertyCode === "") {
+            return "";
+        }
+
+        if (!CModule::IncludeModule("iblock")) {
+            return "";
+        }
+
+        $res = CIBlockElement::GetProperty(
+            $iblockId,
+            $elementId,
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array("CODE" => $propertyCode)
+        );
+        if ($row = $res->Fetch()) {
+            return trim((string)$row["VALUE_XML_ID"]);
+        }
+
+        return "";
+    }
+}
+
+if (!function_exists("szcubeGetPropertyEnumIdByXmlId")) {
+    function szcubeGetPropertyEnumIdByXmlId($iblockId, $propertyCode, $xmlId)
+    {
+        static $cache = array();
+
+        $iblockId = (int)$iblockId;
+        $propertyCode = trim((string)$propertyCode);
+        $xmlId = trim((string)$xmlId);
+        if ($iblockId <= 0 || $propertyCode === "" || $xmlId === "") {
+            return 0;
+        }
+
+        $cacheKey = $iblockId . ":" . $propertyCode . ":" . mb_strtolower($xmlId);
+        if (array_key_exists($cacheKey, $cache)) {
+            return $cache[$cacheKey];
+        }
+
+        $cache[$cacheKey] = 0;
+        if (!CModule::IncludeModule("iblock")) {
+            return 0;
+        }
+
+        $res = CIBlockPropertyEnum::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "CODE" => $propertyCode,
+            )
+        );
+        while ($row = $res->Fetch()) {
+            if (trim((string)$row["XML_ID"]) === $xmlId) {
+                $cache[$cacheKey] = (int)$row["ID"];
+                break;
+            }
+        }
+
+        return $cache[$cacheKey];
+    }
+}
+
+if (!function_exists("szcubeResolvePropertyEnumXmlId")) {
+    function szcubeResolvePropertyEnumXmlId($iblockId, $propertyCode, $rawValue)
+    {
+        $iblockId = (int)$iblockId;
+        $propertyCode = trim((string)$propertyCode);
+        $rawValue = trim((string)$rawValue);
+        if ($iblockId <= 0 || $propertyCode === "" || $rawValue === "") {
+            return "";
+        }
+
+        if (!ctype_digit($rawValue)) {
+            return $rawValue;
+        }
+
+        if (!CModule::IncludeModule("iblock")) {
+            return "";
+        }
+
+        $res = CIBlockPropertyEnum::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "CODE" => $propertyCode,
+                "ID" => (int)$rawValue,
+            )
+        );
+        if ($row = $res->Fetch()) {
+            return trim((string)$row["XML_ID"]);
         }
 
         return "";
@@ -609,11 +734,156 @@ if (!function_exists("szcubeEnsureApartmentSectionBeforeSave")) {
     }
 }
 
+if (!function_exists("szcubeNormalizeApartmentDiscountNumeric")) {
+    function szcubeNormalizeApartmentDiscountNumeric($value)
+    {
+        if (is_string($value)) {
+            $value = str_replace(array(" ", "\xc2\xa0", ","), array("", "", "."), $value);
+        }
+
+        return (float)$value;
+    }
+}
+
+if (!function_exists("szcubeResolveApartmentDiscountMode")) {
+    function szcubeResolveApartmentDiscountMode($iblockId, $elementId, array $fields, array $propertyMap)
+    {
+        $rawMode = isset($propertyMap["DISCOUNT_MODE"])
+            ? szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["DISCOUNT_MODE"])
+            : "";
+        $mode = szcubeResolvePropertyEnumXmlId($iblockId, "DISCOUNT_MODE", $rawMode);
+
+        if ($mode !== "") {
+            return $mode;
+        }
+
+        if ((int)$elementId > 0) {
+            $existingMode = szcubeGetElementPropertyXmlIdByCode($iblockId, (int)$elementId, "DISCOUNT_MODE");
+            if ($existingMode !== "") {
+                return $existingMode;
+            }
+        }
+
+        $priceOld = isset($propertyMap["PRICE_OLD"])
+            ? szcubeNormalizeApartmentDiscountNumeric(szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["PRICE_OLD"]))
+            : 0.0;
+        $percent = isset($propertyMap["DISCOUNT_PERCENT"])
+            ? szcubeNormalizeApartmentDiscountNumeric(szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["DISCOUNT_PERCENT"]))
+            : 0.0;
+        $amount = isset($propertyMap["DISCOUNT_AMOUNT"])
+            ? szcubeNormalizeApartmentDiscountNumeric(szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["DISCOUNT_AMOUNT"]))
+            : 0.0;
+
+        if ($percent > 0) {
+            return "percent";
+        }
+        if ($amount > 0) {
+            return "amount";
+        }
+        if ($priceOld > 0) {
+            return "old_price";
+        }
+
+        return "none";
+    }
+}
+
+if (!function_exists("szcubePrepareApartmentDiscountBeforeSave")) {
+    function szcubePrepareApartmentDiscountBeforeSave(&$fields)
+    {
+        $iblockId = isset($fields["IBLOCK_ID"]) ? (int)$fields["IBLOCK_ID"] : 0;
+        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("apartments")) {
+            return;
+        }
+
+        $hasPropertyValuesPayload = isset($fields["PROPERTY_VALUES"]) && is_array($fields["PROPERTY_VALUES"]);
+        if (!$hasPropertyValuesPayload) {
+            return;
+        }
+
+        $propertyMap = szcubeGetApartmentPropertyMap($iblockId);
+        if (empty($propertyMap)) {
+            return;
+        }
+
+        $elementId = isset($fields["ID"]) ? (int)$fields["ID"] : 0;
+        $priceTotal = isset($propertyMap["PRICE_TOTAL"])
+            ? szcubeNormalizeApartmentDiscountNumeric(szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["PRICE_TOTAL"]))
+            : 0.0;
+        if ($priceTotal <= 0 && $elementId > 0) {
+            $priceTotal = szcubeNormalizeApartmentDiscountNumeric(szcubeGetElementPropertyValueByCode($iblockId, $elementId, "PRICE_TOTAL"));
+        }
+
+        $priceOldInput = isset($propertyMap["PRICE_OLD"])
+            ? szcubeNormalizeApartmentDiscountNumeric(szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["PRICE_OLD"]))
+            : 0.0;
+        if ($priceOldInput <= 0 && $elementId > 0) {
+            $priceOldInput = szcubeNormalizeApartmentDiscountNumeric(szcubeGetElementPropertyValueByCode($iblockId, $elementId, "PRICE_OLD"));
+        }
+
+        $discountPercent = isset($propertyMap["DISCOUNT_PERCENT"])
+            ? szcubeNormalizeApartmentDiscountNumeric(szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["DISCOUNT_PERCENT"]))
+            : 0.0;
+        if ($discountPercent <= 0 && $elementId > 0) {
+            $discountPercent = szcubeNormalizeApartmentDiscountNumeric(szcubeGetElementPropertyValueByCode($iblockId, $elementId, "DISCOUNT_PERCENT"));
+        }
+
+        $discountAmount = isset($propertyMap["DISCOUNT_AMOUNT"])
+            ? szcubeNormalizeApartmentDiscountNumeric(szcubeExtractSinglePropertyValueFromFields($fields, $propertyMap["DISCOUNT_AMOUNT"]))
+            : 0.0;
+        if ($discountAmount <= 0 && $elementId > 0) {
+            $discountAmount = szcubeNormalizeApartmentDiscountNumeric(szcubeGetElementPropertyValueByCode($iblockId, $elementId, "DISCOUNT_AMOUNT"));
+        }
+
+        $mode = szcubeResolveApartmentDiscountMode($iblockId, $elementId, $fields, $propertyMap);
+        $normalizedOldPrice = 0.0;
+
+        if ($mode === "percent" && $priceTotal > 0 && $discountPercent > 0 && $discountPercent < 100) {
+            $normalizedOldPrice = round($priceTotal / (1 - ($discountPercent / 100)));
+        } elseif ($mode === "amount" && $priceTotal > 0 && $discountAmount > 0) {
+            $normalizedOldPrice = round($priceTotal + $discountAmount);
+        } elseif ($mode === "old_price" && $priceOldInput > 0) {
+            $normalizedOldPrice = round($priceOldInput);
+        }
+
+        if ($normalizedOldPrice > 0 && $priceTotal > 0 && $normalizedOldPrice <= $priceTotal) {
+            $normalizedOldPrice = 0.0;
+        }
+
+        if ($mode === "none" || $normalizedOldPrice <= 0) {
+            $mode = "none";
+        }
+
+        if (isset($propertyMap["DISCOUNT_MODE"])) {
+            $modeEnumId = szcubeGetPropertyEnumIdByXmlId($iblockId, "DISCOUNT_MODE", $mode);
+            szcubeSetSinglePropertyValueInFields($fields, $propertyMap["DISCOUNT_MODE"], $modeEnumId > 0 ? $modeEnumId : false);
+        }
+        if (isset($propertyMap["PRICE_OLD"])) {
+            szcubeSetSinglePropertyValueInFields($fields, $propertyMap["PRICE_OLD"], $normalizedOldPrice > 0 ? $normalizedOldPrice : false);
+        }
+        if (isset($propertyMap["DISCOUNT_PERCENT"])) {
+            szcubeSetSinglePropertyValueInFields(
+                $fields,
+                $propertyMap["DISCOUNT_PERCENT"],
+                ($mode === "percent" && $discountPercent > 0) ? $discountPercent : false
+            );
+        }
+        if (isset($propertyMap["DISCOUNT_AMOUNT"])) {
+            szcubeSetSinglePropertyValueInFields(
+                $fields,
+                $propertyMap["DISCOUNT_AMOUNT"],
+                ($mode === "amount" && $discountAmount > 0) ? $discountAmount : false
+            );
+        }
+    }
+}
+
 if (!function_exists("szcubePrepareApartmentBeforeSave")) {
     function szcubePrepareApartmentBeforeSave(&$fields)
     {
         szcubeEnsureApartmentCodeBeforeSave($fields);
         szcubeEnsureApartmentXmlIdBeforeSave($fields);
+        szcubePrepareApartmentDiscountBeforeSave($fields);
         szcubeEnsureApartmentSectionBeforeSave($fields);
     }
 }
@@ -697,6 +967,226 @@ if (!function_exists("szcubeGetElementSectionIds")) {
     }
 }
 
+if (!function_exists("szcubeGetSectionById")) {
+    function szcubeGetSectionById($sectionId)
+    {
+        static $cache = array();
+
+        $sectionId = (int)$sectionId;
+        if ($sectionId <= 0) {
+            return null;
+        }
+
+        if (array_key_exists($sectionId, $cache)) {
+            return $cache[$sectionId];
+        }
+
+        $cache[$sectionId] = null;
+        $res = CIBlockSection::GetList(
+            array("ID" => "ASC"),
+            array("ID" => $sectionId),
+            false,
+            array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "NAME", "CODE", "UF_NODE_TYPE", "UF_ENTRANCE_NUMBER", "UF_FLOOR_NUMBER")
+        );
+        if ($row = $res->Fetch()) {
+            $cache[$sectionId] = $row;
+        }
+
+        return $cache[$sectionId];
+    }
+}
+
+if (!function_exists("szcubeResolveApartmentEntranceSectionId")) {
+    function szcubeResolveApartmentEntranceSectionId($sectionId)
+    {
+        $sectionId = (int)$sectionId;
+        if ($sectionId <= 0) {
+            return 0;
+        }
+
+        $section = szcubeGetSectionById($sectionId);
+        if (!is_array($section)) {
+            return 0;
+        }
+
+        if (trim((string)$section["UF_ENTRANCE_NUMBER"]) !== "") {
+            return (int)$section["ID"];
+        }
+
+        if ((int)$section["UF_FLOOR_NUMBER"] > 0 && (int)$section["IBLOCK_SECTION_ID"] > 0) {
+            return (int)$section["IBLOCK_SECTION_ID"];
+        }
+
+        $code = trim((string)$section["CODE"]);
+        if ($code !== "" && strpos($code, "podezd-") === 0) {
+            return (int)$section["ID"];
+        }
+
+        return 0;
+    }
+}
+
+if (!function_exists("szcubeGetApartmentEntranceSectionIdByElement")) {
+    function szcubeGetApartmentEntranceSectionIdByElement($elementId)
+    {
+        $elementId = (int)$elementId;
+        if ($elementId <= 0) {
+            return 0;
+        }
+
+        $sectionIds = szcubeGetElementSectionIds($elementId);
+        foreach ($sectionIds as $sectionId) {
+            $entranceId = szcubeResolveApartmentEntranceSectionId($sectionId);
+            if ($entranceId > 0) {
+                return $entranceId;
+            }
+        }
+
+        return 0;
+    }
+}
+
+if (!function_exists("szcubeNormalizeApartmentChessRowLabel")) {
+    function szcubeNormalizeApartmentChessRowLabel($value)
+    {
+        $value = trim((string)$value);
+        if ($value === "") {
+            return "";
+        }
+
+        if (preg_match("/^(\\d+)\\s*-\\s*(\\d+)$/", $value, $matches)) {
+            return ((int)$matches[1]) . "-" . ((int)$matches[2]);
+        }
+
+        if (preg_match("/^\\d+$/", $value)) {
+            return (string)((int)$value);
+        }
+
+        return "";
+    }
+}
+
+if (!function_exists("szcubeBuildApartmentChessSlotId")) {
+    function szcubeBuildApartmentChessSlotId($rowLabel, $columnNumber)
+    {
+        $rowLabel = szcubeNormalizeApartmentChessRowLabel($rowLabel);
+        $columnNumber = (int)$columnNumber;
+        if ($rowLabel === "" || $columnNumber <= 0) {
+            return "";
+        }
+
+        return "r" . $rowLabel . "-c" . str_pad((string)$columnNumber, 2, "0", STR_PAD_LEFT);
+    }
+}
+
+if (!function_exists("szcubeParseApartmentChessSlotId")) {
+    function szcubeParseApartmentChessSlotId($slotId)
+    {
+        $slotId = trim((string)$slotId);
+        if ($slotId === "") {
+            return null;
+        }
+
+        if (!preg_match("/^r(\\d+(?:-\\d+)?)-c(\\d+)$/i", $slotId, $matches)) {
+            return null;
+        }
+
+        $rowLabel = szcubeNormalizeApartmentChessRowLabel($matches[1]);
+        $columnNumber = (int)$matches[2];
+        if ($rowLabel === "" || $columnNumber <= 0) {
+            return null;
+        }
+
+        return array(
+            "slot_id" => szcubeBuildApartmentChessSlotId($rowLabel, $columnNumber),
+            "row_label" => $rowLabel,
+            "column" => $columnNumber,
+        );
+    }
+}
+
+if (!function_exists("szcubeBuildApartmentChessAdminUrl")) {
+    function szcubeBuildApartmentChessAdminUrl($entranceId, $iblockId = 0, $backUrl = "")
+    {
+        $entranceId = (int)$entranceId;
+        $iblockId = (int)$iblockId;
+        if ($entranceId <= 0) {
+            return "";
+        }
+
+        if ($iblockId <= 0) {
+            $iblockId = szcubeGetIblockIdByCode("apartments");
+        }
+
+        $query = array(
+            "lang" => defined("LANGUAGE_ID") ? LANGUAGE_ID : "ru",
+            "IBLOCK_ID" => $iblockId,
+            "ENTRANCE_ID" => $entranceId,
+        );
+
+        $backUrl = trim((string)$backUrl);
+        if ($backUrl !== "") {
+            $query["back_url"] = $backUrl;
+        }
+
+        return "/local/tools/apartment_chess_admin.php?" . http_build_query($query, "", "&");
+    }
+}
+
+if (!function_exists("szcubeAddApartmentChessAdminContextButton")) {
+    function szcubeAddApartmentChessAdminContextButton(&$items)
+    {
+        global $APPLICATION;
+
+        if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+            return;
+        }
+
+        $currentPage = $APPLICATION->GetCurPage(true);
+        if (!in_array($currentPage, array("/bitrix/admin/iblock_element_edit.php", "/bitrix/admin/iblock_section_edit.php"), true)) {
+            return;
+        }
+
+        $iblockId = isset($_REQUEST["IBLOCK_ID"]) ? (int)$_REQUEST["IBLOCK_ID"] : 0;
+        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("apartments")) {
+            return;
+        }
+
+        $entranceId = 0;
+        if ($currentPage === "/bitrix/admin/iblock_element_edit.php") {
+            $elementId = isset($_REQUEST["ID"]) ? (int)$_REQUEST["ID"] : 0;
+            if ($elementId > 0) {
+                $entranceId = szcubeGetApartmentEntranceSectionIdByElement($elementId);
+            }
+        } else {
+            $sectionId = isset($_REQUEST["ID"]) ? (int)$_REQUEST["ID"] : 0;
+            if ($sectionId <= 0 && isset($_REQUEST["find_section_section"])) {
+                $sectionId = (int)$_REQUEST["find_section_section"];
+            }
+            if ($sectionId > 0) {
+                $entranceId = szcubeResolveApartmentEntranceSectionId($sectionId);
+            }
+        }
+
+        if ($entranceId <= 0) {
+            return;
+        }
+
+        $backUrl = (string)($_SERVER["REQUEST_URI"] ?? "");
+        $link = szcubeBuildApartmentChessAdminUrl($entranceId, $iblockId, $backUrl);
+        if ($link === "") {
+            return;
+        }
+
+        $items[] = array(
+            "TEXT" => "Управление шахматкой",
+            "TITLE" => "Открыть шахматку подъезда",
+            "LINK" => $link,
+            "ICON" => "btn_new",
+        );
+    }
+}
+
 if (!function_exists("szcubeSyncProjectDynamicElementSection")) {
     function szcubeSyncProjectDynamicElementSection(&$fields)
     {
@@ -748,7 +1238,204 @@ if (!function_exists("szcubeSyncProjectDynamicElementSection")) {
     }
 }
 
+if (!function_exists("szcubeInjectApartmentSectionAdminUiTweaks")) {
+    function szcubeInjectApartmentSectionAdminUiTweaks()
+    {
+        global $APPLICATION;
+
+        if (!is_object($APPLICATION)) {
+            return;
+        }
+
+        $currentPage = $APPLICATION->GetCurPage(true);
+        if ($currentPage !== "/bitrix/admin/iblock_section_edit.php") {
+            return;
+        }
+
+        $iblockId = isset($_REQUEST["IBLOCK_ID"]) ? (int)$_REQUEST["IBLOCK_ID"] : 0;
+        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("apartments")) {
+            return;
+        }
+
+        $script = <<<'HTML'
+<script>
+BX.ready(function () {
+    var hiddenCodes = ["UF_CHESS_SVG", "UF_CHESS_IMAGE", "UF_PIN_X", "UF_PIN_Y", "UF_PIN_LABEL"];
+    var entranceOnlyCodes = ["UF_ENTRANCE_NUMBER"];
+    var floorOnlyCodes = ["UF_FLOOR_NUMBER"];
+
+    function findFieldRow(code) {
+        var directRow = document.getElementById("tr_" + code);
+        if (directRow) {
+            return directRow;
+        }
+
+        var control = document.querySelector('[name="' + code + '"]')
+            || document.querySelector('[name="' + code + '[]"]')
+            || document.getElementById(code);
+        if (!control) {
+            return null;
+        }
+
+        return control.closest("tr")
+            || control.closest(".adm-detail-content-row")
+            || control.closest(".adm-detail-content-item-block")
+            || control.parentElement;
+    }
+
+    function setFieldVisible(code, visible) {
+        var row = findFieldRow(code);
+        if (!row) {
+            return;
+        }
+
+        row.style.display = visible ? "" : "none";
+    }
+
+    function getNodeTypeMode() {
+        var select = document.querySelector('[name="UF_NODE_TYPE"]');
+        if (!select) {
+            return "";
+        }
+
+        var option = select.options && select.selectedIndex >= 0 ? select.options[select.selectedIndex] : null;
+        var text = option && option.text ? option.text.toLowerCase() : "";
+
+        if (text.indexOf("подъезд") !== -1) {
+            return "entrance";
+        }
+        if (text.indexOf("этаж") !== -1) {
+            return "floor";
+        }
+
+        return "";
+    }
+
+    function applyApartmentSectionUiTweaks() {
+        hiddenCodes.forEach(function (code) {
+            setFieldVisible(code, false);
+        });
+
+        var mode = getNodeTypeMode();
+        entranceOnlyCodes.forEach(function (code) {
+            setFieldVisible(code, mode === "entrance");
+        });
+        floorOnlyCodes.forEach(function (code) {
+            setFieldVisible(code, mode === "floor");
+        });
+    }
+
+    applyApartmentSectionUiTweaks();
+
+    var nodeTypeSelect = document.querySelector('[name="UF_NODE_TYPE"]');
+    if (nodeTypeSelect) {
+        nodeTypeSelect.addEventListener("change", applyApartmentSectionUiTweaks);
+    }
+});
+</script>
+HTML;
+
+        $APPLICATION->AddHeadString($script, true);
+    }
+}
+
+if (!function_exists("szcubeInjectApartmentElementAdminUiTweaks")) {
+    function szcubeInjectApartmentElementAdminUiTweaks()
+    {
+        global $APPLICATION;
+
+        if (!is_object($APPLICATION)) {
+            return;
+        }
+
+        $currentPage = $APPLICATION->GetCurPage(true);
+        if ($currentPage !== "/bitrix/admin/iblock_element_edit.php") {
+            return;
+        }
+
+        $iblockId = isset($_REQUEST["IBLOCK_ID"]) ? (int)$_REQUEST["IBLOCK_ID"] : 0;
+        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("apartments")) {
+            return;
+        }
+
+        $propertyMap = szcubeGetApartmentPropertyMap($iblockId);
+        $discountModePropertyId = isset($propertyMap["DISCOUNT_MODE"]) ? (int)$propertyMap["DISCOUNT_MODE"] : 0;
+        $priceOldPropertyId = isset($propertyMap["PRICE_OLD"]) ? (int)$propertyMap["PRICE_OLD"] : 0;
+        $discountPercentPropertyId = isset($propertyMap["DISCOUNT_PERCENT"]) ? (int)$propertyMap["DISCOUNT_PERCENT"] : 0;
+        $discountAmountPropertyId = isset($propertyMap["DISCOUNT_AMOUNT"]) ? (int)$propertyMap["DISCOUNT_AMOUNT"] : 0;
+        if ($discountModePropertyId <= 0 || $priceOldPropertyId <= 0 || $discountPercentPropertyId <= 0 || $discountAmountPropertyId <= 0) {
+            return;
+        }
+
+        $modeValueToXml = array();
+        $enumRes = CIBlockPropertyEnum::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "CODE" => "DISCOUNT_MODE",
+            )
+        );
+        while ($enum = $enumRes->Fetch()) {
+            $modeValueToXml[(string)$enum["ID"]] = trim((string)$enum["XML_ID"]);
+        }
+
+        $script = '<script>BX.ready(function(){'
+            . 'var discountConfig=' . CUtil::PhpToJSObject(array(
+                "modePropertyId" => $discountModePropertyId,
+                "priceOldPropertyId" => $priceOldPropertyId,
+                "discountPercentPropertyId" => $discountPercentPropertyId,
+                "discountAmountPropertyId" => $discountAmountPropertyId,
+                "modeMap" => $modeValueToXml,
+            )) . ';'
+            . 'function findPropertyRow(propertyId){'
+                . 'var directRow=document.getElementById("tr_PROPERTY_"+propertyId);'
+                . 'if(directRow){return directRow;}'
+                . 'var control=document.querySelector(\'[name^="PROPERTY_\'+propertyId+\'"]\')||document.getElementById("PROPERTY_"+propertyId);'
+                . 'if(!control){return null;}'
+                . 'return control.closest("tr")||control.closest(".adm-detail-content-row")||control.closest(".adm-detail-content-item-block")||control.parentElement;'
+            . '}'
+            . 'function findPropertyControl(propertyId){'
+                . 'return document.querySelector(\'[name^="PROPERTY_\'+propertyId+\'"]\')||document.getElementById("PROPERTY_"+propertyId);'
+            . '}'
+            . 'function setFieldState(propertyId, enabled){'
+                . 'var row=findPropertyRow(propertyId);'
+                . 'var control=findPropertyControl(propertyId);'
+                . 'if(row){row.style.opacity=enabled?"":"0.45";}'
+                . 'if(control){control.disabled=!enabled;}'
+            . '}'
+            . 'function inferMode(select){'
+                . 'var oldControl=findPropertyControl(discountConfig.priceOldPropertyId);'
+                . 'var percentControl=findPropertyControl(discountConfig.discountPercentPropertyId);'
+                . 'var amountControl=findPropertyControl(discountConfig.discountAmountPropertyId);'
+                . 'var currentMode=select? (discountConfig.modeMap[select.value]||"none") : "none";'
+                . 'if(select && currentMode==="none"){'
+                    . 'if(percentControl && percentControl.value){select.value=Object.keys(discountConfig.modeMap).find(function(key){return discountConfig.modeMap[key]==="percent";})||select.value;}'
+                    . 'else if(amountControl && amountControl.value){select.value=Object.keys(discountConfig.modeMap).find(function(key){return discountConfig.modeMap[key]==="amount";})||select.value;}'
+                    . 'else if(oldControl && oldControl.value){select.value=Object.keys(discountConfig.modeMap).find(function(key){return discountConfig.modeMap[key]==="old_price";})||select.value;}'
+                . '}'
+            . '}'
+            . 'function applyDiscountUi(){'
+                . 'var select=findPropertyControl(discountConfig.modePropertyId);'
+                . 'if(!select){return;}'
+                . 'inferMode(select);'
+                . 'var mode=discountConfig.modeMap[select.value]||"none";'
+                . 'setFieldState(discountConfig.priceOldPropertyId, mode==="old_price");'
+                . 'setFieldState(discountConfig.discountPercentPropertyId, mode==="percent");'
+                . 'setFieldState(discountConfig.discountAmountPropertyId, mode==="amount");'
+            . '}'
+            . 'applyDiscountUi();'
+            . 'var modeSelect=findPropertyControl(discountConfig.modePropertyId);'
+            . 'if(modeSelect){modeSelect.addEventListener("change",applyDiscountUi);}'
+        . '});</script>';
+
+        $APPLICATION->AddHeadString($script, true);
+    }
+}
+
 AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnAfterIBlockElementAdd", "szcubeSyncProjectDynamicElementSection");
 AddEventHandler("iblock", "OnAfterIBlockElementUpdate", "szcubeSyncProjectDynamicElementSection");
+AddEventHandler("main", "OnAdminContextMenuShow", "szcubeAddApartmentChessAdminContextButton");
+AddEventHandler("main", "OnProlog", "szcubeInjectApartmentSectionAdminUiTweaks");
+AddEventHandler("main", "OnProlog", "szcubeInjectApartmentElementAdminUiTweaks");

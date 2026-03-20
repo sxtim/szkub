@@ -220,6 +220,16 @@ function normalizeFinishXmlIdForApartmentImport($value)
 	return $valueLower;
 }
 
+function normalizeHouseFloorsForApartmentImport($floor, $floorTo, $houseFloors)
+{
+	$floor = (int)$floor;
+	$floorTo = (int)$floorTo;
+	$houseFloors = (int)$houseFloors;
+	$upperFloor = $floorTo > $floor ? $floorTo : 0;
+
+	return max($houseFloors, $floor, $upperFloor);
+}
+
 function makeFileArrayForApartmentImport($path)
 {
 	$path = trim((string)$path);
@@ -697,13 +707,20 @@ foreach ($items as $itemIndex => $item) {
 		$fields["PREVIEW_PICTURE"] = $planFile;
 	}
 
+	$normalizedFloorTo = isset($item["floor_to"]) && (int)$item["floor_to"] > $floor ? (int)$item["floor_to"] : 0;
+	$normalizedHouseFloors = normalizeHouseFloorsForApartmentImport(
+		$floor,
+		$normalizedFloorTo,
+		isset($item["house_floors"]) ? (int)$item["house_floors"] : 0
+	);
+
 	$propertyValues = array(
 		"PROJECT" => $projectId,
 		"CORPUS" => isset($item["corpus"]) ? trim((string)$item["corpus"]) : "",
 		"ENTRANCE" => $entrance,
 		"FLOOR" => $floor,
-		"FLOOR_TO" => isset($item["floor_to"]) && (int)$item["floor_to"] > $floor ? (int)$item["floor_to"] : false,
-		"HOUSE_FLOORS" => isset($item["house_floors"]) ? (int)$item["house_floors"] : 0,
+		"FLOOR_TO" => $normalizedFloorTo > $floor ? $normalizedFloorTo : false,
+		"HOUSE_FLOORS" => $normalizedHouseFloors,
 		"APARTMENT_NUMBER" => $apartmentNumber,
 		"ROOMS" => $roomsEnumId,
 		"AREA_TOTAL" => isset($item["area_total"]) ? (float)$item["area_total"] : 0,

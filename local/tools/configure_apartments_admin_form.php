@@ -132,9 +132,13 @@ addPropertyFieldForAdminForm($mainFields, $propertyMap, "FLOOR");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "FLOOR_TO");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "HOUSE_FLOORS");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "APARTMENT_NUMBER");
+addPropertyFieldForAdminForm($mainFields, $propertyMap, "SVG_SLOT_ID");
 
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "PRICE_TOTAL");
+addPropertyFieldForAdminForm($mainFields, $propertyMap, "DISCOUNT_MODE");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "PRICE_OLD");
+addPropertyFieldForAdminForm($mainFields, $propertyMap, "DISCOUNT_PERCENT");
+addPropertyFieldForAdminForm($mainFields, $propertyMap, "DISCOUNT_AMOUNT");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "PRICE_M2");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "STATUS");
 addPropertyFieldForAdminForm($mainFields, $propertyMap, "BADGES");

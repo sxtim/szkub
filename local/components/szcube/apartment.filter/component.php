@@ -255,11 +255,21 @@ if (!function_exists("szcubeApartmentFilterFloorMax")) {
     }
 }
 
+if (!function_exists("szcubeApartmentFilterNormalizeHouseFloors")) {
+    function szcubeApartmentFilterNormalizeHouseFloors($floor, $floorTo, $houseFloors)
+    {
+        $houseFloors = (int)$houseFloors;
+        $floorMax = szcubeApartmentFilterFloorMax($floor, $floorTo);
+
+        return max($houseFloors, $floorMax);
+    }
+}
+
 if (!function_exists("szcubeApartmentFilterFloorLabel")) {
     function szcubeApartmentFilterFloorLabel($floor, $floorTo, $houseFloors, $compact = false)
     {
         $floor = (int)$floor;
-        $houseFloors = (int)$houseFloors;
+        $houseFloors = szcubeApartmentFilterNormalizeHouseFloors($floor, $floorTo, $houseFloors);
         $normalizedFloorTo = szcubeApartmentFilterNormalizeUpperFloor($floor, $floorTo);
         if ($normalizedFloorTo > 0) {
             return $floor > 0 ? ($floor . "-" . $normalizedFloorTo . " этаж") : "";
@@ -415,7 +425,11 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl))) {
         $finishKey = isset($flatProperties["FINISH"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["FINISH"]["VALUE_XML_ID"]) : "";
         $flatFeatureTags = szcubeApartmentFilterMultiPropertyValues(isset($flatProperties["FEATURE_TAGS"]) && is_array($flatProperties["FEATURE_TAGS"]) ? $flatProperties["FEATURE_TAGS"] : array());
         $priceOld = isset($flatProperties["PRICE_OLD"]["VALUE"]) ? (float)$flatProperties["PRICE_OLD"]["VALUE"] : 0.0;
-        $houseFloors = isset($flatProperties["HOUSE_FLOORS"]["VALUE"]) ? (int)$flatProperties["HOUSE_FLOORS"]["VALUE"] : 0;
+        $houseFloors = szcubeApartmentFilterNormalizeHouseFloors(
+            $floor,
+            $floorTo,
+            isset($flatProperties["HOUSE_FLOORS"]["VALUE"]) ? (int)$flatProperties["HOUSE_FLOORS"]["VALUE"] : 0
+        );
         $planImage = szcubeApartmentFilterFilePath(isset($flatProperties["PLAN_IMAGE"]["VALUE"]) ? $flatProperties["PLAN_IMAGE"]["VALUE"] : 0);
         $planAlt = isset($flatProperties["PLAN_ALT"]["VALUE"]) ? trim((string)$flatProperties["PLAN_ALT"]["VALUE"]) : "";
         $manualBadges = szcubeApartmentFilterMultiPropertyValues(isset($flatProperties["BADGES"]) && is_array($flatProperties["BADGES"]) ? $flatProperties["BADGES"] : array());

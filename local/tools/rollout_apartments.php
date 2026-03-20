@@ -23,12 +23,14 @@ if (PHP_SAPI === "cli") {
 	$options = getopt("", array(
 		"source::",
 		"admin-user-id::",
+		"with-seed-import::",
+		"with-slot-autofill::",
 		"dry-run::",
 		"help::",
 	));
 
 	if (isset($options["help"])) {
-		echo "Usage: php local/tools/rollout_apartments.php [--source=/local/tools/data/apartments-seed.php] [--admin-user-id=1] [--dry-run=1]\n";
+		echo "Usage: php local/tools/rollout_apartments.php [--source=/local/tools/data/apartments-seed.php] [--admin-user-id=1] [--with-seed-import=0] [--with-slot-autofill=0] [--dry-run=1]\n";
 		exit(0);
 	}
 
@@ -41,13 +43,26 @@ $documentRoot = rtrim((string)$_SERVER["DOCUMENT_ROOT"], "/");
 $phpBinary = defined("PHP_BINARY") && PHP_BINARY ? PHP_BINARY : "php";
 $sourceRel = isset($_REQUEST["source"]) && $_REQUEST["source"] !== "" ? (string)$_REQUEST["source"] : "/local/tools/data/apartments-seed.php";
 $adminUserId = isset($_REQUEST["admin_user_id"]) ? (int)$_REQUEST["admin_user_id"] : 1;
+$withSeedImport = isset($_REQUEST["with_seed_import"]) && ((string)$_REQUEST["with_seed_import"] === "1" || strtolower((string)$_REQUEST["with_seed_import"]) === "y");
+$withSlotAutofill = isset($_REQUEST["with_slot_autofill"])
+	? ((string)$_REQUEST["with_slot_autofill"] === "1" || strtolower((string)$_REQUEST["with_slot_autofill"]) === "y")
+	: $withSeedImport;
 $dryRun = !isset($_REQUEST["dry_run"]) || (string)$_REQUEST["dry_run"] === "" || (string)$_REQUEST["dry_run"] === "1" || strtolower((string)$_REQUEST["dry_run"]) === "y";
 
 echo "DOCUMENT_ROOT: " . $documentRoot . PHP_EOL;
 echo "PHP binary: " . $phpBinary . PHP_EOL;
 echo "Source: " . $sourceRel . PHP_EOL;
 echo "Admin user ID: " . $adminUserId . PHP_EOL;
+echo "with-seed-import: " . ($withSeedImport ? "Y" : "N") . PHP_EOL;
+echo "with-slot-autofill: " . ($withSlotAutofill ? "Y" : "N") . PHP_EOL;
 echo "dry-run: " . ($dryRun ? "Y" : "N") . PHP_EOL;
+
+if (!$withSeedImport) {
+	echo "[SKIP] Seed import disabled: rollout will not overwrite existing apartments." . PHP_EOL;
+}
+if (!$withSlotAutofill) {
+	echo "[SKIP] SVG slot autofill disabled: existing/manual slot mapping will be preserved." . PHP_EOL;
+}
 
 function rolloutRunApartmentStep($label, array $command)
 {
@@ -92,14 +107,6 @@ $steps = array(
 		),
 	),
 	array(
-		"label" => "Import apartments from seed",
-		"script" => "/local/tools/import_apartments_from_seed.php",
-		"args" => array(
-			"--source=" . $sourceRel,
-			"--dry-run=" . ($dryRun ? "1" : "0"),
-		),
-	),
-	array(
 		"label" => "Cleanup legacy apartment samples",
 		"script" => "/local/tools/cleanup_legacy_apartment_samples.php",
 		"args" => array(
@@ -116,6 +123,41 @@ $steps = array(
 		),
 	),
 );
+
+if ($withSeedImport) {
+	array_splice(
+		$steps,
+		2,
+		0,
+		array(
+			array(
+				"label" => "Import apartments from seed",
+				"script" => "/local/tools/import_apartments_from_seed.php",
+				"args" => array(
+					"--source=" . $sourceRel,
+					"--dry-run=" . ($dryRun ? "1" : "0"),
+				),
+			),
+		)
+	);
+}
+
+if ($withSlotAutofill) {
+	array_splice(
+		$steps,
+		$withSeedImport ? 3 : 2,
+		0,
+		array(
+			array(
+				"label" => "Autofill apartment SVG slot ids",
+				"script" => "/local/tools/fill_apartment_svg_slot_ids.php",
+				"args" => array(
+					"--dry-run=" . ($dryRun ? "1" : "0"),
+				),
+			),
+		)
+	);
+}
 
 foreach ($steps as $step) {
 	$scriptAbs = $documentRoot . $step["script"];

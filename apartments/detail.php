@@ -176,12 +176,23 @@ if (!function_exists("apartmentDetailIsDuplex")) {
 	}
 }
 
+if (!function_exists("apartmentDetailNormalizeHouseFloors")) {
+	function apartmentDetailNormalizeHouseFloors($floor, $floorTo, $houseFloors)
+	{
+		$floorNumber = (int)$floor;
+		$houseFloorsNumber = (int)$houseFloors;
+		$upperFloor = apartmentDetailNormalizeUpperFloor($floorNumber, $floorTo);
+
+		return max($houseFloorsNumber, $floorNumber, $upperFloor);
+	}
+}
+
 if (!function_exists("apartmentDetailFloorDisplay")) {
 	function apartmentDetailFloorDisplay($floor, $floorTo, $houseFloors)
 	{
 		$floor = trim((string)$floor);
-		$houseFloors = trim((string)$houseFloors);
 		$floorNumber = (int)$floor;
+		$houseFloors = (string)apartmentDetailNormalizeHouseFloors($floorNumber, $floorTo, $houseFloors);
 		$upperFloor = apartmentDetailNormalizeUpperFloor($floorNumber, $floorTo);
 		if ($upperFloor > 0 && $floorNumber > 0) {
 			return $floorNumber . "-" . $upperFloor . " этаж";
@@ -740,7 +751,11 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 				"building" => apartmentDetailPropertyScalar($apartmentProperties, "CORPUS", ""),
 				"floor" => apartmentDetailPropertyScalar($apartmentProperties, "FLOOR", ""),
 				"floor_to" => apartmentDetailPropertyScalar($apartmentProperties, "FLOOR_TO", ""),
-				"house_floors" => apartmentDetailPropertyScalar($apartmentProperties, "HOUSE_FLOORS", ""),
+				"house_floors" => apartmentDetailNormalizeHouseFloors(
+					apartmentDetailPropertyScalar($apartmentProperties, "FLOOR", ""),
+					apartmentDetailPropertyScalar($apartmentProperties, "FLOOR_TO", ""),
+					apartmentDetailPropertyScalar($apartmentProperties, "HOUSE_FLOORS", "")
+				),
 				"handover" => $handover,
 				"lot" => trim((string)$apartmentFields["CODE"]),
 				"apartment_number" => apartmentDetailPropertyScalar($apartmentProperties, "APARTMENT_NUMBER", ""),

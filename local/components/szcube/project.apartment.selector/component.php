@@ -263,11 +263,21 @@ if (!function_exists("szcubeProjectSelectorFloorMax")) {
     }
 }
 
+if (!function_exists("szcubeProjectSelectorNormalizeHouseFloors")) {
+    function szcubeProjectSelectorNormalizeHouseFloors($floor, $floorTo, $houseFloors)
+    {
+        $houseFloors = (int)$houseFloors;
+        $floorMax = szcubeProjectSelectorFloorMax($floor, $floorTo);
+
+        return max($houseFloors, $floorMax);
+    }
+}
+
 if (!function_exists("szcubeProjectSelectorFloorLabel")) {
     function szcubeProjectSelectorFloorLabel($floor, $floorTo, $houseFloors, $compact = false)
     {
         $floor = (int)$floor;
-        $houseFloors = (int)$houseFloors;
+        $houseFloors = szcubeProjectSelectorNormalizeHouseFloors($floor, $floorTo, $houseFloors);
         $normalizedFloorTo = szcubeProjectSelectorNormalizeUpperFloor($floor, $floorTo);
         if ($normalizedFloorTo > 0) {
             return $floor > 0 ? ($floor . "-" . $normalizedFloorTo . " этаж") : "";
@@ -282,6 +292,176 @@ if (!function_exists("szcubeProjectSelectorFloorLabel")) {
         }
 
         return $houseFloors > 0 ? ($floor . " этаж из " . $houseFloors) : ($floor . " этаж");
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorBuildSlotId")) {
+    function szcubeProjectSelectorBuildSlotId($rowLabel, $columnNumber)
+    {
+        $rowLabel = trim((string)$rowLabel);
+        if (preg_match("/^(\\d+)\\s*-\\s*(\\d+)$/", $rowLabel, $matches)) {
+            $rowLabel = ((int)$matches[1]) . "-" . ((int)$matches[2]);
+        } elseif (preg_match("/^\\d+$/", $rowLabel)) {
+            $rowLabel = (string)((int)$rowLabel);
+        }
+        $columnNumber = (int)$columnNumber;
+        if ($rowLabel === "" || $columnNumber <= 0) {
+            return "";
+        }
+
+        return "r" . $rowLabel . "-c" . str_pad((string)$columnNumber, 2, "0", STR_PAD_LEFT);
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorParseSlotId")) {
+    function szcubeProjectSelectorParseSlotId($slotId)
+    {
+        $slotId = trim((string)$slotId);
+        if ($slotId === "") {
+            return null;
+        }
+
+        if (!preg_match("/^r(\\d+(?:-\\d+)?)-c(\\d+)$/i", $slotId, $matches)) {
+            return null;
+        }
+
+        $rowLabel = trim((string)$matches[1]);
+        if (preg_match("/^(\\d+)\\s*-\\s*(\\d+)$/", $rowLabel, $rowMatches)) {
+            $rowLabel = ((int)$rowMatches[1]) . "-" . ((int)$rowMatches[2]);
+        } elseif (preg_match("/^\\d+$/", $rowLabel)) {
+            $rowLabel = (string)((int)$rowLabel);
+        }
+        $columnNumber = (int)$matches[2];
+        if ($rowLabel === "" || $columnNumber <= 0) {
+            return null;
+        }
+
+        return array(
+            "row_label" => $rowLabel,
+            "column" => $columnNumber,
+            "slot_id" => szcubeProjectSelectorBuildSlotId($rowLabel, $columnNumber),
+        );
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorBuildRowCells")) {
+    function szcubeProjectSelectorBuildRowCells($rowLabel, array $rowFlats, $maxColumns)
+    {
+        $maxColumns = max(1, (int)$maxColumns);
+        $cells = array_fill(0, $maxColumns, null);
+        $explicit = array();
+        $implicit = array();
+
+        foreach ($rowFlats as $flat) {
+            $slotMeta = szcubeProjectSelectorParseSlotId(isset($flat["slot_id"]) ? $flat["slot_id"] : "");
+            if (is_array($slotMeta) && (string)$slotMeta["row_label"] === (string)$rowLabel) {
+                $columnIndex = (int)$slotMeta["column"] - 1;
+                if ($columnIndex >= 0 && $columnIndex < $maxColumns && !isset($explicit[$columnIndex])) {
+                    $explicit[$columnIndex] = $flat;
+                    continue;
+                }
+            }
+
+            $implicit[] = $flat;
+        }
+
+        foreach ($explicit as $columnIndex => $flat) {
+            $cells[$columnIndex] = $flat;
+        }
+
+        if (empty($implicit)) {
+            return $cells;
+        }
+
+        $freeIndexes = array();
+        foreach ($cells as $columnIndex => $cell) {
+            if ($cell === null) {
+                $freeIndexes[] = $columnIndex;
+            }
+        }
+
+        if (empty($freeIndexes)) {
+            return $cells;
+        }
+
+        $startOffset = max(0, (int)floor((count($freeIndexes) - count($implicit)) / 2));
+        foreach ($implicit as $index => $flat) {
+            $freeIndexPosition = $startOffset + $index;
+            if (!isset($freeIndexes[$freeIndexPosition])) {
+                $freeIndexPosition = $index;
+            }
+            if (!isset($freeIndexes[$freeIndexPosition])) {
+                break;
+            }
+
+            $cells[$freeIndexes[$freeIndexPosition]] = $flat;
+        }
+
+        return $cells;
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorBuildCoveredDuplexFloors")) {
+    function szcubeProjectSelectorBuildCoveredDuplexFloors(array $duplexRows)
+    {
+        $coveredFloors = array();
+
+        foreach ($duplexRows as $duplexRow) {
+            $label = "";
+            if (is_array($duplexRow) && isset($duplexRow["label"])) {
+                $label = trim((string)$duplexRow["label"]);
+            } elseif (is_string($duplexRow)) {
+                $label = trim($duplexRow);
+            }
+
+            if (!preg_match("/^(\\d+)\\s*-\\s*(\\d+)$/", $label, $matches)) {
+                continue;
+            }
+
+            $from = (int)$matches[1];
+            $to = (int)$matches[2];
+            if ($to < $from) {
+                $tmp = $from;
+                $from = $to;
+                $to = $tmp;
+            }
+
+            for ($floor = $from; $floor <= $to; $floor++) {
+                $coveredFloors[$floor] = true;
+            }
+        }
+
+        return $coveredFloors;
+    }
+}
+
+if (!function_exists("szcubeProjectSelectorVisibleRowCells")) {
+    function szcubeProjectSelectorVisibleRowCells(array $cells)
+    {
+        $firstOccupiedIndex = -1;
+        $lastOccupiedIndex = -1;
+        foreach ($cells as $index => $cell) {
+            if (is_array($cell)) {
+                if ($firstOccupiedIndex < 0) {
+                    $firstOccupiedIndex = (int)$index;
+                }
+                $lastOccupiedIndex = (int)$index;
+            }
+        }
+
+        if ($firstOccupiedIndex < 0 || $lastOccupiedIndex < 0) {
+            return array(
+                "columns" => 1,
+                "cells" => array_slice($cells, 0, 1),
+            );
+        }
+
+        $length = ($lastOccupiedIndex - $firstOccupiedIndex) + 1;
+
+        return array(
+            "columns" => max(1, $length),
+            "cells" => array_slice($cells, $firstOccupiedIndex, $length),
+        );
     }
 }
 
@@ -618,8 +798,20 @@ if ($this->StartResultCache(false, $cacheId)) {
                     $roomsBucket = szcubeProjectSelectorRoomBucketKey($rooms);
                 }
                 $roomsLabel = $rooms !== "" ? $rooms : szcubeProjectSelectorRoomLabel($roomsBucket);
-                $floorTo = isset($flatProperties["FLOOR_TO"]["VALUE"]) ? (int)$flatProperties["FLOOR_TO"]["VALUE"] : 0;
-                $houseFloors = isset($flatProperties["HOUSE_FLOORS"]["VALUE"]) ? (int)$flatProperties["HOUSE_FLOORS"]["VALUE"] : 0;
+                $flatFloor = function_exists("szcubeGetElementPropertyValueByCode")
+                    ? (int)szcubeGetElementPropertyValueByCode($apartmentsIblockId, (int)$flatFields["ID"], "FLOOR")
+                    : (isset($flatProperties["FLOOR"]["VALUE"]) ? (int)$flatProperties["FLOOR"]["VALUE"] : 0);
+                if ($flatFloor <= 0) {
+                    $flatFloor = $floorNumber;
+                }
+                $floorTo = function_exists("szcubeGetElementPropertyValueByCode")
+                    ? (int)szcubeGetElementPropertyValueByCode($apartmentsIblockId, (int)$flatFields["ID"], "FLOOR_TO")
+                    : (isset($flatProperties["FLOOR_TO"]["VALUE"]) ? (int)$flatProperties["FLOOR_TO"]["VALUE"] : 0);
+                $houseFloors = szcubeProjectSelectorNormalizeHouseFloors(
+                    $flatFloor,
+                    $floorTo,
+                    isset($flatProperties["HOUSE_FLOORS"]["VALUE"]) ? (int)$flatProperties["HOUSE_FLOORS"]["VALUE"] : 0
+                );
                 $planImage = szcubeProjectSelectorFilePath(isset($flatProperties["PLAN_IMAGE"]["VALUE"]) ? $flatProperties["PLAN_IMAGE"]["VALUE"] : 0);
                 $flatNumber = isset($flatProperties["APARTMENT_NUMBER"]["VALUE"]) ? trim((string)$flatProperties["APARTMENT_NUMBER"]["VALUE"]) : "";
                 $finish = isset($flatProperties["FINISH"]["VALUE"]) ? trim((string)$flatProperties["FINISH"]["VALUE"]) : "";
@@ -630,6 +822,9 @@ if ($this->StartResultCache(false, $cacheId)) {
                 $ceiling = isset($flatProperties["CEILING"]["VALUE"]) ? (float)$flatProperties["CEILING"]["VALUE"] : 0.0;
                 $featureTags = szcubeProjectSelectorMultiPropertyValues(isset($flatProperties["FEATURE_TAGS"]) && is_array($flatProperties["FEATURE_TAGS"]) ? $flatProperties["FEATURE_TAGS"] : array());
                 $manualBadges = szcubeProjectSelectorMultiPropertyValues(isset($flatProperties["BADGES"]) && is_array($flatProperties["BADGES"]) ? $flatProperties["BADGES"] : array());
+                $slotId = function_exists("szcubeGetElementPropertyValueByCode")
+                    ? trim((string)szcubeGetElementPropertyValueByCode($apartmentsIblockId, (int)$flatFields["ID"], "SVG_SLOT_ID"))
+                    : (isset($flatProperties["SVG_SLOT_ID"]["VALUE"]) ? trim((string)$flatProperties["SVG_SLOT_ID"]["VALUE"]) : "");
                 $featureTagKeys = array();
                 foreach ($featureTags as $featureTag) {
                     $featureKey = szcubeProjectSelectorNormalizeKey($featureTag);
@@ -638,15 +833,15 @@ if ($this->StartResultCache(false, $cacheId)) {
                     }
                 }
                 $featureTagKeys = array_values(array_unique($featureTagKeys));
-                $normalizedFloorTo = szcubeProjectSelectorNormalizeUpperFloor($floorNumber, $floorTo);
-                $floorDisplay = szcubeProjectSelectorFloorLabel($floorNumber, $normalizedFloorTo, $houseFloors, false);
-                $floorShort = szcubeProjectSelectorFloorLabel($floorNumber, $normalizedFloorTo, $houseFloors, true);
-                $badges = szcubeProjectSelectorBuildBadges($manualBadges, $priceTotal, $priceOld, $floorNumber, $normalizedFloorTo);
+                $normalizedFloorTo = szcubeProjectSelectorNormalizeUpperFloor($flatFloor, $floorTo);
+                $floorDisplay = szcubeProjectSelectorFloorLabel($flatFloor, $normalizedFloorTo, $houseFloors, false);
+                $floorShort = szcubeProjectSelectorFloorLabel($flatFloor, $normalizedFloorTo, $houseFloors, true);
+                $badges = szcubeProjectSelectorBuildBadges($manualBadges, $priceTotal, $priceOld, $flatFloor, $normalizedFloorTo);
 
                 $flatFilterData = array(
                     "rooms_bucket" => $roomsBucket,
                     "price_total" => $priceTotal,
-                    "floor" => $floorNumber,
+                    "floor" => $flatFloor,
                     "floor_to" => $normalizedFloorTo,
                     "area_total" => $areaTotal,
                     "ceiling" => $ceiling,
@@ -682,28 +877,29 @@ if ($this->StartResultCache(false, $cacheId)) {
                     "floor_short" => $floorShort,
                     "house_floors" => $houseFloors,
                     "entrance" => $entranceData["number"],
+                    "slot_id" => $slotId,
                 );
 
                 if ($targetFlatCode !== "" && strcasecmp($flatData["code"], $targetFlatCode) === 0) {
                     $matchedTargetEntranceId = (string)$entranceData["id"];
                 }
 
-                if ($normalizedFloorTo > $floorNumber) {
-                    $duplexRowKey = $floorNumber . "-" . $normalizedFloorTo;
+                if ($normalizedFloorTo > $flatFloor) {
+                    $duplexRowKey = $flatFloor . "-" . $normalizedFloorTo;
                     if (!isset($entranceData["duplex_rows_map"][$duplexRowKey])) {
                         $entranceData["duplex_rows_map"][$duplexRowKey] = array(
                             "key" => $duplexRowKey,
                             "number" => $normalizedFloorTo,
-                            "label" => $floorNumber . "-" . $normalizedFloorTo,
+                            "label" => $flatFloor . "-" . $normalizedFloorTo,
                             "cells" => array(),
                         );
                     }
                     $entranceData["duplex_rows_map"][$duplexRowKey]["cells"][] = $flatData;
                 } else {
-                    if (!isset($entranceData["floors_map"][$floorNumber])) {
-                        $entranceData["floors_map"][$floorNumber] = array();
+                    if (!isset($entranceData["floors_map"][$flatFloor])) {
+                        $entranceData["floors_map"][$flatFloor] = array();
                     }
-                    $entranceData["floors_map"][$floorNumber][] = $flatData;
+                    $entranceData["floors_map"][$flatFloor][] = $flatData;
                 }
 
                 $entranceData["stats"]["count"]++;
@@ -721,6 +917,7 @@ if ($this->StartResultCache(false, $cacheId)) {
                 $roomGroupKey = $rooms !== "" ? szcubeProjectSelectorRoomBucketKey($rooms) : "other";
                 if (!isset($entranceData["room_groups"][$roomGroupKey])) {
                     $entranceData["room_groups"][$roomGroupKey] = array(
+                        "filter_value" => $roomGroupKey,
                         "label" => $rooms !== "" ? $roomsLabel : "Квартиры",
                         "count" => 0,
                         "min_price" => 0,
@@ -760,9 +957,23 @@ if ($this->StartResultCache(false, $cacheId)) {
             foreach ($entranceData["floors_map"] as $floorNumber => $floorFlats) {
                 $maxColumns = max($maxColumns, count($floorFlats));
                 $maxFloorNumber = max($maxFloorNumber, (int)$floorNumber);
+                foreach ($floorFlats as $flat) {
+                    $slotMeta = szcubeProjectSelectorParseSlotId(isset($flat["slot_id"]) ? $flat["slot_id"] : "");
+                    if (is_array($slotMeta)) {
+                        $maxColumns = max($maxColumns, (int)$slotMeta["column"]);
+                    }
+                }
             }
             foreach ($entranceData["duplex_rows_map"] as $duplexRow) {
                 $maxColumns = max($maxColumns, count(isset($duplexRow["cells"]) && is_array($duplexRow["cells"]) ? $duplexRow["cells"] : array()));
+                if (isset($duplexRow["cells"]) && is_array($duplexRow["cells"])) {
+                    foreach ($duplexRow["cells"] as $flat) {
+                        $slotMeta = szcubeProjectSelectorParseSlotId(isset($flat["slot_id"]) ? $flat["slot_id"] : "");
+                        if (is_array($slotMeta)) {
+                            $maxColumns = max($maxColumns, (int)$slotMeta["column"]);
+                        }
+                    }
+                }
             }
 
             $renderFloors = max($entranceData["house_floors"], $maxFloorNumber);
@@ -775,34 +986,34 @@ if ($this->StartResultCache(false, $cacheId)) {
             usort($duplexRows, static function ($left, $right) {
                 return ((int)$right["number"]) <=> ((int)$left["number"]);
             });
+            $coveredDuplexFloors = szcubeProjectSelectorBuildCoveredDuplexFloors($duplexRows);
             foreach ($duplexRows as $duplexRow) {
                 $rowFlats = isset($duplexRow["cells"]) && is_array($duplexRow["cells"]) ? array_values($duplexRow["cells"]) : array();
-                $cells = array_fill(0, $maxColumns, null);
-                $filledCount = count($rowFlats);
-                $startIndex = $filledCount > 0 ? (int)floor(($maxColumns - $filledCount) / 2) : 0;
-                for ($column = 0; $column < $filledCount; $column++) {
-                    $cells[$startIndex + $column] = $rowFlats[$column];
-                }
+                $cells = szcubeProjectSelectorBuildRowCells((string)$duplexRow["label"], $rowFlats, $maxColumns);
+                $visibleRow = szcubeProjectSelectorVisibleRowCells($cells);
 
                 $rows[] = array(
                     "number" => (int)$duplexRow["number"],
                     "label" => (string)$duplexRow["label"],
                     "cells" => $cells,
+                    "visible_cells" => isset($visibleRow["cells"]) && is_array($visibleRow["cells"]) ? $visibleRow["cells"] : $cells,
+                    "visible_columns" => isset($visibleRow["columns"]) ? max(1, (int)$visibleRow["columns"]) : max(1, count($cells)),
                 );
             }
             for ($currentFloor = $renderFloors; $currentFloor >= 1; $currentFloor--) {
-                $rowFlats = isset($entranceData["floors_map"][$currentFloor]) ? array_values($entranceData["floors_map"][$currentFloor]) : array();
-                $cells = array_fill(0, $maxColumns, null);
-                $filledCount = count($rowFlats);
-                $startIndex = $filledCount > 0 ? (int)floor(($maxColumns - $filledCount) / 2) : 0;
-                for ($column = 0; $column < $filledCount; $column++) {
-                    $cells[$startIndex + $column] = $rowFlats[$column];
+                if (isset($coveredDuplexFloors[$currentFloor])) {
+                    continue;
                 }
+                $rowFlats = isset($entranceData["floors_map"][$currentFloor]) ? array_values($entranceData["floors_map"][$currentFloor]) : array();
+                $cells = szcubeProjectSelectorBuildRowCells((string)$currentFloor, $rowFlats, $maxColumns);
+                $visibleRow = szcubeProjectSelectorVisibleRowCells($cells);
 
                 $rows[] = array(
                     "number" => $currentFloor,
                     "label" => (string)$currentFloor,
                     "cells" => $cells,
+                    "visible_cells" => isset($visibleRow["cells"]) && is_array($visibleRow["cells"]) ? $visibleRow["cells"] : $cells,
+                    "visible_columns" => isset($visibleRow["columns"]) ? max(1, (int)$visibleRow["columns"]) : max(1, count($cells)),
                 );
             }
 
@@ -868,12 +1079,17 @@ if ($this->StartResultCache(false, $cacheId)) {
                 continue;
             }
 
+            $coveredDuplexFloors = szcubeProjectSelectorBuildCoveredDuplexFloors($projectDuplexRows);
             $rowsByLabel = array();
             $regularRows = array();
             foreach ($entrances[$entranceIndex]["checkerboard"]["rows"] as $row) {
                 $label = isset($row["label"]) ? trim((string)$row["label"]) : "";
                 if ($label !== "" && isset($projectDuplexRows[$label])) {
                     $rowsByLabel[$label] = $row;
+                    continue;
+                }
+
+                if ($label !== "" && preg_match("/^\\d+$/", $label) && isset($coveredDuplexFloors[(int)$label])) {
                     continue;
                 }
 
