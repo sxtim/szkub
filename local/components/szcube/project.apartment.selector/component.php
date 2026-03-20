@@ -1111,6 +1111,8 @@ if ($this->StartResultCache(false, $cacheId)) {
                     "number" => (int)$definition["number"],
                     "label" => (string)$definition["label"],
                     "cells" => array_fill(0, $maxColumns, null),
+                    "visible_cells" => array(null),
+                    "visible_columns" => 1,
                 );
             }
 
