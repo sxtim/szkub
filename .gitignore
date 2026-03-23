@@ -44,3 +44,5 @@ sync_config.jsonc
 
 # ignore docs filters
 docs/filters/
+
+/docs/
