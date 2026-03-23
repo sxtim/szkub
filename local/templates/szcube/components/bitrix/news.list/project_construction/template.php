@@ -24,6 +24,10 @@ if (empty($items)) {
 
 				$month = trim((string)$item["NAME"]);
 				$description = trim((string)$item["PREVIEW_TEXT"]);
+				$description = strip_tags(
+					$description,
+					"<br><p><ul><ol><li><strong><b><em><i>"
+				);
 				$dateText = "";
 				if (isset($item["DISPLAY_PROPERTIES"]["DATE_TEXT"]["VALUE"]) && !is_array($item["DISPLAY_PROPERTIES"]["DATE_TEXT"]["VALUE"])) {
 					$dateText = trim((string)$item["DISPLAY_PROPERTIES"]["DATE_TEXT"]["VALUE"]);

@@ -1,12 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const galleryRoot = document.querySelector("[data-apartment-gallery]");
   const swiperEl = document.querySelector("[data-apartment-swiper]");
   const prevButton = document.querySelector("[data-apartment-prev]");
   const nextButton = document.querySelector("[data-apartment-next]");
+  const zoomButton = document.querySelector('[data-apartment-action="zoom"]');
   const tabs = Array.from(document.querySelectorAll("[data-apartment-tab]"));
   const tabsScroller = document.querySelector(".apartment-hero__tabs");
   const paramsToggle = document.querySelector("[data-apartment-params-toggle]");
   const paramsBody = document.querySelector("[data-apartment-params]");
+  const lightbox = document.querySelector("[data-apartment-lightbox]");
+  const lightboxImage = document.querySelector("[data-apartment-lightbox-image]");
+  const lightboxCaption = document.querySelector("[data-apartment-lightbox-caption]");
+  const lightboxFigure = document.querySelector(".apartment-hero__lightbox-figure");
+  const lightboxPrev = document.querySelector("[data-apartment-lightbox-prev]");
+  const lightboxNext = document.querySelector("[data-apartment-lightbox-next]");
+  const lightboxCloseButtons = Array.from(
+    document.querySelectorAll("[data-apartment-lightbox-close]")
+  );
 
   const scrollActiveTabIntoView = (index) => {
     const activeTab = tabs[index];
@@ -35,6 +44,87 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let swiper = null;
+  let isLightboxOpen = false;
+
+  if (lightbox && document.body && lightbox.parentElement !== document.body) {
+    document.body.appendChild(lightbox);
+  }
+
+  const getSlideData = () => {
+    const slides = swiper?.slides?.length
+      ? Array.from(swiper.slides)
+      : Array.from(swiperEl?.querySelectorAll(".swiper-slide") || []);
+    const total = slides.length || 1;
+    const index = swiper?.activeIndex ?? 0;
+    const slide = slides[index] || slides[0] || null;
+    const image = slide?.querySelector("img") || null;
+    const title = slide?.querySelector(".apartment-hero__slide-title")?.textContent?.trim() || "";
+
+    return {
+      index,
+      total,
+      src: image?.getAttribute("src") || "",
+      alt: image?.getAttribute("alt") || "",
+      title,
+    };
+  };
+
+  const updateLightbox = () => {
+    if (!lightbox || !lightboxImage) {
+      return;
+    }
+
+    const slide = getSlideData();
+    if (!slide.src) {
+      return;
+    }
+
+    lightboxImage.src = slide.src;
+    lightboxImage.alt = slide.alt || slide.title || document.title;
+    if (lightboxFigure) {
+      lightboxFigure.scrollTop = 0;
+      lightboxFigure.scrollLeft = 0;
+    }
+
+    if (lightboxCaption) {
+      const caption = slide.title || slide.alt;
+      lightboxCaption.textContent = caption;
+      lightboxCaption.hidden = !caption;
+    }
+
+    if (lightboxPrev instanceof HTMLButtonElement) {
+      lightboxPrev.disabled = slide.index <= 0;
+    }
+
+    if (lightboxNext instanceof HTMLButtonElement) {
+      lightboxNext.disabled = slide.index >= slide.total - 1;
+    }
+  };
+
+  const closeLightbox = () => {
+    if (!lightbox || lightbox.hidden) {
+      return;
+    }
+
+    lightbox.hidden = true;
+    isLightboxOpen = false;
+    zoomButton?.classList.remove("is-active");
+    document.documentElement.classList.remove("is-apartment-lightbox-open");
+    document.body.classList.remove("is-apartment-lightbox-open");
+  };
+
+  const openLightbox = () => {
+    if (!lightbox) {
+      return;
+    }
+
+    updateLightbox();
+    lightbox.hidden = false;
+    isLightboxOpen = true;
+    zoomButton?.classList.add("is-active");
+    document.documentElement.classList.add("is-apartment-lightbox-open");
+    document.body.classList.add("is-apartment-lightbox-open");
+  };
 
   if (swiperEl && typeof window.Swiper !== "undefined") {
     swiper = new window.Swiper(swiperEl, {
@@ -54,6 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         slideChange(instance) {
           setActiveTab(instance.activeIndex);
+          if (isLightboxOpen) {
+            updateLightbox();
+          }
         },
       },
     });
@@ -71,8 +164,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     button.addEventListener("click", async () => {
       if (action === "zoom") {
-        galleryRoot?.classList.toggle("is-zoomed");
-        button.classList.toggle("is-active");
+        if (isLightboxOpen) {
+          closeLightbox();
+          return;
+        }
+
+        openLightbox();
         return;
       }
 
@@ -123,4 +220,30 @@ document.addEventListener("DOMContentLoaded", () => {
       paramsBody.hidden = expanded;
     });
   }
+
+  lightboxPrev?.addEventListener("click", () => swiper?.slidePrev());
+  lightboxNext?.addEventListener("click", () => swiper?.slideNext());
+  lightboxCloseButtons.forEach((button) => {
+    button.addEventListener("click", closeLightbox);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!isLightboxOpen) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      closeLightbox();
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      swiper?.slidePrev();
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      swiper?.slideNext();
+    }
+  });
 });

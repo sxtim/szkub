@@ -261,21 +261,19 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
 
       <div class="projects-selector__state projects-selector__state--board" data-selector-view="board" hidden>
         <div class="projects-selector__board-stage">
-          <div class="projects-selector__board-toolbar">
-            <button class="projects-selector__board-button projects-selector__board-button--back" type="button" data-selector-back>
-              Назад
-            </button>
+            <div class="projects-selector__board-toolbar">
+              <button class="projects-selector__board-button projects-selector__board-button--back" type="button" data-selector-back>
+                Назад
+              </button>
 
-            <div class="projects-selector__board-headings">
-              <div class="projects-selector__board-project-name"><?= htmlspecialcharsbx((string)$project["NAME"]) ?></div>
+              <div class="projects-selector__board-headings">
+                <div class="projects-selector__board-project-name"><?= htmlspecialcharsbx((string)$project["NAME"]) ?></div>
 
-              <?php if (trim((string)$project["CONSTRUCTION_SUBTITLE"]) !== ""): ?>
-                <div class="projects-selector__board-deadline"><?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?></div>
-              <?php endif; ?>
-
-              <div class="projects-selector__board-entrance-label" data-selector-active-entrance></div>
+                <?php if (trim((string)$project["CONSTRUCTION_SUBTITLE"]) !== ""): ?>
+                  <div class="projects-selector__board-deadline"><?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?></div>
+                <?php endif; ?>
+              </div>
             </div>
-          </div>
 
           <div class="projects-selector__board-content">
             <div class="projects-selector__lot-card" data-selector-lot-card hidden>
@@ -324,6 +322,8 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
             </div>
 
             <div class="projects-selector__checkerboards">
+              <div class="projects-selector__board-entrance-label" data-selector-active-entrance></div>
+
               <?php foreach ($entrances as $index => $entrance): ?>
                 <div
                   class="projects-selector__checkerboard<?= $index === 0 ? " is-active" : "" ?>"

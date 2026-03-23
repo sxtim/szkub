@@ -267,6 +267,7 @@ if (!function_exists("apartmentDetailFormatFloat")) {
 			return "";
 		}
 
+		$value = str_replace(array(" ", ","), array("", "."), $value);
 		$number = (float)$value;
 		$isInteger = abs($number - round($number)) < 0.00001;
 		return $isInteger
@@ -288,6 +289,28 @@ if (!function_exists("apartmentDetailFormatCeiling")) {
 	{
 		$formatted = apartmentDetailFormatFloat($value, 2);
 		return $formatted !== "" ? $formatted . " м" : "";
+	}
+}
+
+if (!function_exists("apartmentDetailFormatAddress")) {
+	function apartmentDetailFormatAddress($value)
+	{
+		$value = trim((string)$value);
+		if ($value === "") {
+			return "";
+		}
+
+		$value = (string)preg_replace(
+			"/\\b(г\\.|ул\\.|пер\\.|пр-т|просп\\.|бул\\.|б-р|наб\\.|ш\\.)\\s+/u",
+			"$1\xC2\xA0",
+			$value
+		);
+
+		return (string)preg_replace(
+			"/\\s+((?:дом\\s+)?[0-9]+[0-9A-Za-zА-Яа-я\\/-]*)$/u",
+			"\xC2\xA0$1",
+			$value
+		);
 	}
 }
 
@@ -725,7 +748,7 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 					$projectName = trim((string)$projectFields["NAME"]);
 					$projectCode = trim((string)$projectFields["CODE"]);
 					$projectUrl = $projectCode !== "" ? "/projects/" . $projectCode . "/" : "";
-					$street = apartmentDetailPropertyScalar($projectProperties, "ADDRESS", "");
+					$street = apartmentDetailFormatAddress(apartmentDetailPropertyScalar($projectProperties, "ADDRESS", ""));
 					$handover = apartmentDetailPropertyScalar($projectProperties, "DELIVERY_TEXT", "");
 				}
 			}
@@ -927,6 +950,35 @@ if (!$apartment) {
             </div>
           </div>
           <?php endif; ?>
+
+          <div class="apartment-hero__lightbox" data-apartment-lightbox hidden>
+            <button class="apartment-hero__lightbox-backdrop" type="button" data-apartment-lightbox-close aria-label="Закрыть просмотр"></button>
+            <div class="apartment-hero__lightbox-dialog" role="dialog" aria-modal="true" aria-label="Просмотр изображения квартиры">
+              <button class="apartment-hero__lightbox-close" type="button" data-apartment-lightbox-close aria-label="Закрыть">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+              </button>
+              <div class="apartment-hero__lightbox-stage">
+                <button class="apartment-hero__lightbox-nav apartment-hero__lightbox-nav--prev" type="button" data-apartment-lightbox-prev aria-label="Предыдущий слайд">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M10.5 4.5L6 9L10.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <figure class="apartment-hero__lightbox-figure">
+                  <img class="apartment-hero__lightbox-image" data-apartment-lightbox-image src="" alt="" />
+                  <figcaption class="apartment-hero__lightbox-caption" data-apartment-lightbox-caption hidden></figcaption>
+                </figure>
+                <button class="apartment-hero__lightbox-nav apartment-hero__lightbox-nav--next" type="button" data-apartment-lightbox-next aria-label="Следующий слайд">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M7.5 4.5L12 9L7.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <?php endif; ?>

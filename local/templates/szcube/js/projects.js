@@ -634,7 +634,7 @@ const initConstructionModal = () => {
     }
 
     if (textEl instanceof HTMLElement) {
-      textEl.textContent = payload?.description || "";
+      textEl.innerHTML = payload?.description || "";
     }
 
     mountSlides(payload?.images || []);
@@ -745,6 +745,7 @@ const initProjectApartmentSelector = () => {
 
   selectors.forEach((root) => {
     const state = parsePayload(root.getAttribute("data-project-selector-state")) || {};
+    const genplanSection = root.closest(".projects-genplan");
     const sceneView = root.querySelector('[data-selector-view="scene"]');
     const boardView = root.querySelector('[data-selector-view="board"]');
     const sceneStage = root.querySelector(".projects-selector__scene-stage");
@@ -781,6 +782,22 @@ const initProjectApartmentSelector = () => {
     let sceneCardFrame = 0;
 
     const desktopCardMedia = window.matchMedia("(max-width: 640px)");
+
+    const scrollSelectorIntoView = (behavior = "smooth") => {
+      if (!(genplanSection instanceof HTMLElement)) {
+        return;
+      }
+
+      const header = document.querySelector(".header");
+      const headerOffset = header instanceof HTMLElement ? header.offsetHeight : 0;
+      const top =
+        genplanSection.getBoundingClientRect().top + window.scrollY - headerOffset + 56;
+
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior,
+      });
+    };
 
     const setHoveredEntrance = (modifier) => {
       if (modifier) {
@@ -1208,6 +1225,13 @@ const initProjectApartmentSelector = () => {
     setView(state.initialView === "board" ? "board" : "scene");
     hideSceneCards();
     openInitialLot();
+    if (state.initialView === "board") {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollSelectorIntoView();
+        });
+      });
+    }
 
     window.addEventListener("resize", () => {
       if (currentView === "scene") {

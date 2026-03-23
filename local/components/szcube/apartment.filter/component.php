@@ -230,6 +230,20 @@ if (!function_exists("szcubeApartmentFilterDiscountBadge")) {
     }
 }
 
+if (!function_exists("szcubeApartmentFilterIsPubliclyHiddenStatus")) {
+    function szcubeApartmentFilterIsPubliclyHiddenStatus($statusKey, $statusLabel = "")
+    {
+        $statusKey = trim(mb_strtolower((string)$statusKey));
+        $statusLabel = trim(mb_strtolower((string)$statusLabel));
+
+        if ($statusKey === "sold") {
+            return true;
+        }
+
+        return $statusLabel !== "" && preg_match("/^продан[а-я]*$/u", $statusLabel) === 1;
+    }
+}
+
 if (!function_exists("szcubeApartmentFilterNormalizeUpperFloor")) {
     function szcubeApartmentFilterNormalizeUpperFloor($floor, $floorTo)
     {
@@ -401,6 +415,12 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl))) {
             $flatUrl = szcubeApartmentFilterElementUrl($apartmentsDetailTemplate, $flatFields, $catalogPageUrl);
         }
 
+        $statusKey = isset($flatProperties["STATUS"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["STATUS"]["VALUE_XML_ID"]) : "";
+        $statusLabel = isset($flatProperties["STATUS"]["VALUE"]) ? trim((string)$flatProperties["STATUS"]["VALUE"]) : "";
+        if (szcubeApartmentFilterIsPubliclyHiddenStatus($statusKey, $statusLabel)) {
+            continue;
+        }
+
         $roomsLabel = isset($flatProperties["ROOMS"]["VALUE"]) ? trim((string)$flatProperties["ROOMS"]["VALUE"]) : "";
         $roomBucket = isset($flatProperties["ROOMS"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["ROOMS"]["VALUE_XML_ID"]) : "";
         if ($roomBucket === "") {
@@ -419,8 +439,6 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl))) {
         $floorMax = szcubeApartmentFilterFloorMax($floor, $floorTo);
         $areaTotal = isset($flatProperties["AREA_TOTAL"]["VALUE"]) ? (float)$flatProperties["AREA_TOTAL"]["VALUE"] : 0.0;
         $ceiling = isset($flatProperties["CEILING"]["VALUE"]) ? (float)$flatProperties["CEILING"]["VALUE"] : 0.0;
-        $statusKey = isset($flatProperties["STATUS"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["STATUS"]["VALUE_XML_ID"]) : "";
-        $statusLabel = isset($flatProperties["STATUS"]["VALUE"]) ? trim((string)$flatProperties["STATUS"]["VALUE"]) : "";
         $finishLabel = isset($flatProperties["FINISH"]["VALUE"]) ? trim((string)$flatProperties["FINISH"]["VALUE"]) : "";
         $finishKey = isset($flatProperties["FINISH"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["FINISH"]["VALUE_XML_ID"]) : "";
         $flatFeatureTags = szcubeApartmentFilterMultiPropertyValues(isset($flatProperties["FEATURE_TAGS"]) && is_array($flatProperties["FEATURE_TAGS"]) ? $flatProperties["FEATURE_TAGS"] : array());

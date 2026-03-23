@@ -77,8 +77,8 @@
 .apartment-hero__viewer-shell {
   position: sticky;
   top: 14px;
-  height: min(630px, calc(100vh - 110px));
-  max-height: 630px;
+  height: min(700px, calc(100vh - 84px));
+  max-height: 700px;
   padding: 18px 18px 76px;
 }
 
@@ -89,7 +89,7 @@
   bottom: 76px;
   left: 18px;
   min-height: 0;
-  padding: 68px 88px 24px 18px;
+  padding: 60px 72px 18px 12px;
   overflow: hidden;
 }
 
@@ -127,7 +127,7 @@
 .apartment-hero__slide--scheme .apartment-hero__slide-media img {
   width: auto;
   height: 100%;
-  max-width: 94%;
+  max-width: 100%;
   max-height: 100%;
 }
 
@@ -143,12 +143,130 @@
   transform: scale(1.16);
 }
 
+.is-apartment-lightbox-open {
+  overflow: hidden;
+}
+
 .apartment-hero__slide-media img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
   filter: none;
+}
+
+.apartment-hero__lightbox[hidden] {
+  display: none !important;
+}
+
+.apartment-hero__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.apartment-hero__lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(10, 12, 20, 0.94);
+}
+
+.apartment-hero__lightbox-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1280px);
+  height: min(100%, 88vh);
+  display: flex;
+  flex-direction: column;
+}
+
+.apartment-hero__lightbox-close,
+.apartment-hero__lightbox-nav {
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease, opacity 0.22s ease;
+}
+
+.apartment-hero__lightbox-close:hover,
+.apartment-hero__lightbox-nav:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.apartment-hero__lightbox-close:disabled,
+.apartment-hero__lightbox-nav:disabled {
+  opacity: 0.34;
+  cursor: default;
+  transform: none;
+}
+
+.apartment-hero__lightbox-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+}
+
+.apartment-hero__lightbox-stage {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 18px;
+  padding: 52px 0 0;
+}
+
+.apartment-hero__lightbox-figure {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.apartment-hero__lightbox-nav {
+  align-self: center;
+}
+
+.apartment-hero__lightbox-image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.apartment-hero__lightbox-caption {
+  max-width: 760px;
+  margin: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .apartment-hero__slide--render .apartment-hero__slide-media img,
@@ -666,4 +784,29 @@
   .apartment-hero__action[data-apartment-action="print"] {
     display: none;
   }
+
+  .apartment-hero__lightbox {
+    padding: 16px;
+  }
+
+  .apartment-hero__lightbox-dialog {
+    height: min(100%, 92vh);
+  }
+
+  .apartment-hero__lightbox-stage {
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    gap: 10px;
+    padding-top: 44px;
+  }
+
+  .apartment-hero__lightbox-close,
+  .apartment-hero__lightbox-nav {
+    width: 44px;
+    height: 44px;
+  }
+
+  .apartment-hero__lightbox-caption {
+    font-size: 13px;
+  }
+
 }

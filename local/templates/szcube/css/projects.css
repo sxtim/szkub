@@ -759,7 +759,11 @@
 
 .projects-selector__checkerboards {
   width: 100%;
-  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 80px;
 }
 
 .projects-selector__checkerboard {
@@ -2434,6 +2438,24 @@ body.scroll-lock {
   line-height: 18px;
   color: #606060;
   max-width: 320px;
+}
+
+.construction-modal__text p {
+  margin: 0 0 14px;
+}
+
+.construction-modal__text p:last-child {
+  margin-bottom: 0;
+}
+
+.construction-modal__text ul,
+.construction-modal__text ol {
+  margin: 0 0 14px;
+  padding-left: 18px;
+}
+
+.construction-modal__text li + li {
+  margin-top: 6px;
 }
 
 .construction-modal__right {

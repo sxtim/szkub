@@ -830,7 +830,7 @@ if ($activeProjectCode !== "") {
 	        <p class="construction-modal__date" data-construction-modal-date></p>
 	      </div>
 
-	      <p class="construction-modal__text" data-construction-modal-text></p>
+	      <div class="construction-modal__text" data-construction-modal-text></div>
 	    </div>
 
 	    <div class="construction-modal__right">

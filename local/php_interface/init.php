@@ -986,7 +986,7 @@ if (!function_exists("szcubeGetSectionById")) {
             array("ID" => "ASC"),
             array("ID" => $sectionId),
             false,
-            array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "NAME", "CODE", "UF_NODE_TYPE", "UF_ENTRANCE_NUMBER", "UF_FLOOR_NUMBER")
+            array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "NAME", "CODE", "UF_*")
         );
         if ($row = $res->Fetch()) {
             $cache[$sectionId] = $row;
@@ -1013,11 +1013,21 @@ if (!function_exists("szcubeResolveApartmentEntranceSectionId")) {
             return (int)$section["ID"];
         }
 
-        if ((int)$section["UF_FLOOR_NUMBER"] > 0 && (int)$section["IBLOCK_SECTION_ID"] > 0) {
+        $parentSectionId = isset($section["IBLOCK_SECTION_ID"]) ? (int)$section["IBLOCK_SECTION_ID"] : 0;
+        $code = trim((string)$section["CODE"]);
+        $name = trim((string)$section["NAME"]);
+        $isFloorSection = (int)$section["UF_FLOOR_NUMBER"] > 0
+            || ($code !== "" && strpos($code, "floor-") === 0)
+            || ($name !== "" && mb_stripos($name, "этаж") !== false);
+
+        if ($isFloorSection && $parentSectionId > 0) {
+            return $parentSectionId;
+        }
+
+        if ((int)$section["UF_FLOOR_NUMBER"] > 0 && $parentSectionId > 0) {
             return (int)$section["IBLOCK_SECTION_ID"];
         }
 
-        $code = trim((string)$section["CODE"]);
         if ($code !== "" && strpos($code, "podezd-") === 0) {
             return (int)$section["ID"];
         }
@@ -1432,6 +1442,83 @@ if (!function_exists("szcubeInjectApartmentElementAdminUiTweaks")) {
     }
 }
 
+if (!function_exists("szcubeInjectApartmentChessAdminToolbarButton")) {
+    function szcubeInjectApartmentChessAdminToolbarButton()
+    {
+        global $APPLICATION;
+
+        if (!is_object($APPLICATION)) {
+            return;
+        }
+
+        $currentPage = $APPLICATION->GetCurPage(true);
+        if (!in_array($currentPage, array("/bitrix/admin/iblock_element_edit.php", "/bitrix/admin/iblock_section_edit.php"), true)) {
+            return;
+        }
+
+        $iblockId = isset($_REQUEST["IBLOCK_ID"]) ? (int)$_REQUEST["IBLOCK_ID"] : 0;
+        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("apartments")) {
+            return;
+        }
+
+        $entranceId = 0;
+        if ($currentPage === "/bitrix/admin/iblock_element_edit.php") {
+            $elementId = isset($_REQUEST["ID"]) ? (int)$_REQUEST["ID"] : 0;
+            if ($elementId > 0) {
+                $entranceId = szcubeGetApartmentEntranceSectionIdByElement($elementId);
+            }
+        } else {
+            $sectionId = isset($_REQUEST["ID"]) ? (int)$_REQUEST["ID"] : 0;
+            if ($sectionId <= 0 && isset($_REQUEST["find_section_section"])) {
+                $sectionId = (int)$_REQUEST["find_section_section"];
+            }
+            if ($sectionId > 0) {
+                $entranceId = szcubeResolveApartmentEntranceSectionId($sectionId);
+            }
+        }
+
+        if ($entranceId <= 0) {
+            return;
+        }
+
+        $backUrl = (string)($_SERVER["REQUEST_URI"] ?? "");
+        $link = szcubeBuildApartmentChessAdminUrl($entranceId, $iblockId, $backUrl);
+        if ($link === "") {
+            return;
+        }
+
+        $script = '<script>BX.ready(function(){'
+            . 'var link=' . CUtil::PhpToJSObject($link) . ';'
+            . 'if(!link || document.querySelector(".js-apartment-chess-toolbar-btn")){return;}'
+            . 'var toolbar=document.querySelector(".adm-detail-toolbar");'
+            . 'if(!toolbar){return;}'
+            . 'var right=toolbar.querySelector(".adm-detail-toolbar-right")||toolbar;'
+            . 'var host=right.querySelector(".adm-btns")||right;'
+            . 'if(!host){return;}'
+            . 'var hasNativeButton=Array.prototype.slice.call(host.querySelectorAll("a,button,span")).some(function(node){'
+                . 'return (node.textContent||"").trim()==="Управление шахматкой";'
+            . '});'
+            . 'if(hasNativeButton){return;}'
+            . 'var button=document.createElement("a");'
+            . 'button.href=link;'
+            . 'button.className="adm-btn js-apartment-chess-toolbar-btn";'
+            . 'button.textContent="Управление шахматкой";'
+            . 'button.title="Открыть шахматку подъезда";'
+            . 'var actionsTarget=Array.prototype.slice.call(host.querySelectorAll("a,button,span")).find(function(node){'
+                . 'var text=(node.textContent||"").trim().toLowerCase();'
+                . 'return text==="действия";'
+            . '});'
+            . 'if(actionsTarget && actionsTarget.parentNode===host){'
+                . 'host.insertBefore(button, actionsTarget);'
+            . '}else{'
+                . 'host.appendChild(button);'
+            . '}'
+        . '});</script>';
+
+        $APPLICATION->AddHeadString($script, true);
+    }
+}
+
 AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnAfterIBlockElementAdd", "szcubeSyncProjectDynamicElementSection");
@@ -1439,3 +1526,4 @@ AddEventHandler("iblock", "OnAfterIBlockElementUpdate", "szcubeSyncProjectDynami
 AddEventHandler("main", "OnAdminContextMenuShow", "szcubeAddApartmentChessAdminContextButton");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentSectionAdminUiTweaks");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentElementAdminUiTweaks");
+AddEventHandler("main", "OnProlog", "szcubeInjectApartmentChessAdminToolbarButton");
