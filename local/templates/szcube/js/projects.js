@@ -169,9 +169,9 @@ const initBenefitsModal = () => {
     }
   };
 
-  const updateNav = () => {
-    const total = swiper?.slides?.length || benefitList.length || 1;
-    const index = swiper?.activeIndex ?? 0;
+  const updateNav = (instance = swiper) => {
+    const total = instance?.slides?.length || benefitList.length || 1;
+    const index = instance?.activeIndex ?? 0;
 
     if (paginationEl) paginationEl.textContent = `${index + 1} / ${total}`;
     if (prevBtn instanceof HTMLButtonElement) prevBtn.disabled = index <= 0;
@@ -254,16 +254,18 @@ const initBenefitsModal = () => {
       resistanceRatio: 0,
       watchOverflow: true,
       on: {
-        init: () => {
-          updateNav();
+        init: function () {
+          updateNav(this);
           resetActiveScroll();
         },
-        slideChangeTransitionStart: () => {
-          updateNav();
+        slideChangeTransitionStart: function () {
+          updateNav(this);
           resetActiveScroll();
         },
       },
     });
+
+    updateNav(swiper);
 
     return swiper;
   };

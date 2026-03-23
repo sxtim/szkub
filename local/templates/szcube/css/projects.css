@@ -863,10 +863,11 @@
   background: #eef3f6;
   border-color: rgba(207, 217, 227, 0.72);
   color: rgba(18, 21, 45, 0.42);
+  cursor: default;
 }
 
-.projects-selector__lot:hover,
-.projects-selector__lot:focus {
+.projects-selector__lot:not(.projects-selector__lot--empty):not(.is-sold):hover,
+.projects-selector__lot:not(.projects-selector__lot--empty):not(.is-sold):focus {
   transform: scale(1.04);
   box-shadow: 0 10px 22px rgba(16, 28, 44, 0.1);
   border-color: rgba(18, 184, 168, 0.42);
@@ -892,7 +893,23 @@
 }
 
 .projects-selector__lot.is-selected.is-sold {
-  color: var(--blue);
+  transform: none;
+  background: #eef3f6;
+  border-color: rgba(207, 217, 227, 0.72);
+  color: rgba(18, 21, 45, 0.42);
+  box-shadow: none;
+}
+
+.projects-selector__lot.is-sold:hover,
+.projects-selector__lot.is-sold:focus,
+.projects-selector__lot.is-sold:disabled,
+.projects-selector__lot.is-sold[aria-disabled="true"] {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(207, 217, 227, 0.72);
+  background: #eef3f6;
+  color: rgba(18, 21, 45, 0.42);
+  outline: none;
 }
 
 .projects-selector__lot-card {

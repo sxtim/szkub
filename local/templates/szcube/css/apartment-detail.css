@@ -57,6 +57,12 @@
   color: #9255a6;
 }
 
+.apartment-hero__badge--sold {
+  border-color: rgba(104, 116, 132, 0.24);
+  background: rgba(207, 217, 227, 0.54);
+  color: #5a6472;
+}
+
 .apartment-hero__rail {
   position: absolute;
   top: 24px;
@@ -385,6 +391,19 @@
   max-width: none;
   height: 52px;
   font-size: 15px;
+}
+
+.apartment-hero__cta--sold,
+.apartment-hero__cta--sold:hover {
+  background: #bcc5cf;
+  color: #ffffff;
+  box-shadow: none;
+  transform: none;
+  cursor: default;
+}
+
+.apartment-hero__cta--sold::after {
+  display: none;
 }
 
 .apartment-hero__params {

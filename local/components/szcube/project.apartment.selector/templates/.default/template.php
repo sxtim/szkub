@@ -344,6 +344,11 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
                                 <button
                                   class="projects-selector__lot is-<?= htmlspecialcharsbx((string)$cell["status_xml_id"]) ?>"
                                   type="button"
+                                  <?php if ((string)$cell["status_xml_id"] === "sold"): ?>
+                                  disabled
+                                  aria-disabled="true"
+                                  tabindex="-1"
+                                  <?php endif; ?>
                                   data-flat-id="<?= (int)$cell["id"] ?>"
                                   data-flat-code="<?= htmlspecialcharsbx((string)$cell["code"]) ?>"
                                   data-flat-title="<?= htmlspecialcharsbx((string)$cell["title"]) ?>"

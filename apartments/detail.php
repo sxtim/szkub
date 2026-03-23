@@ -819,6 +819,7 @@ if (!$apartment) {
   </div>
 </section>
 <?php else: ?>
+<?php $isSoldApartment = isset($apartment["availability_status"]) && (string)$apartment["availability_status"] === "sold"; ?>
 <section class="apartment-detail">
   <div class="container">
 	    <div class="apartment-hero">
@@ -975,14 +976,19 @@ if (!$apartment) {
         </div>
 
         <button
-          class="btn btn--primary apartment-hero__cta"
+          class="btn btn--primary apartment-hero__cta<?= $isSoldApartment ? " apartment-hero__cta--sold" : "" ?>"
           type="button"
+          <?php if (!$isSoldApartment): ?>
           data-contact-open="contact"
           data-contact-title="Забронировать квартиру"
           data-contact-type="booking"
           data-contact-source="apartment_detail"
+          <?php else: ?>
+          disabled
+          aria-disabled="true"
+          <?php endif; ?>
         >
-          Забронировать
+          <?= $isSoldApartment ? "ПРОДАНО" : "Забронировать" ?>
         </button>
 
         <div class="apartment-hero__params">
