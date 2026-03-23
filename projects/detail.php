@@ -264,6 +264,24 @@ $projectDetail = array();
 if ($project) {
 	$projectProperties = isset($project["properties"]) && is_array($project["properties"]) ? $project["properties"] : array();
 
+	$projectSeoDescriptions = array(
+		"kollekciya" => "ЖК «Коллекция» — дом бизнес-класса в историческом центре Воронежа. Проект сочетает приватный формат, продуманные планировки и удобное расположение рядом с городской инфраструктурой. Выберите квартиру в новостройке от девелопера «КУБ» по приятной цене.",
+	);
+
+	$projectDescription = isset($projectSeoDescriptions[$project["code"]])
+		? trim((string)$projectSeoDescriptions[$project["code"]])
+		: trim((string)($project["fields"]["PREVIEW_TEXT"] ?? ""));
+
+	if ($projectDescription === "") {
+		$projectDescription = projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_1", "");
+	}
+
+	if ($projectDescription === "") {
+		$projectDescription = "ЖК «" . $project["name"] . "» — проект девелопера «КУБ» в Воронеже. Планировки, сроки сдачи и условия покупки на официальном сайте.";
+	}
+
+	$APPLICATION->SetPageProperty("description", $projectDescription);
+
 	$projectDetail["about"] = array(
 		"image" => projectDetailPropertyFileUrl($projectProperties, "ABOUT_IMAGE", SITE_TEMPLATE_PATH . "/img/projects/div.image-lazy__image.jpg"),
 		"title_suffix" => projectDetailPropertyScalar($projectProperties, "ABOUT_TITLE_SUFFIX", "ВАША СУПЕРСИЛА"),
