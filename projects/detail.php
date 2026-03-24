@@ -460,7 +460,8 @@ if ($project) {
             "PROPERTY_CODE" => array(
               0 => "PROJECT",
               1 => "LABEL",
-              2 => "",
+              2 => "CATEGORY",
+              3 => "",
             ),
             "CHECK_DATES" => "N",
             "ACTIVE_DATE_FORMAT" => "d.m.Y",

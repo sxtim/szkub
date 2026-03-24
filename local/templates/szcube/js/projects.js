@@ -1,3 +1,130 @@
+const BENEFITS_PREVIEW_LIMIT = 3;
+
+const scrollBenefitTabIntoView = (tab) => {
+  if (!(tab instanceof Element)) return;
+  tab.scrollIntoView({
+    behavior: "smooth",
+    block: "nearest",
+    inline: "center",
+  });
+};
+
+const getBenefitsSection = (element) =>
+  element instanceof Element ? element.closest(".projects-benefits") : null;
+
+const getBenefitsActiveCategory = (benefitsSection) => {
+  if (!(benefitsSection instanceof Element)) return "all";
+  const activeTab = benefitsSection.querySelector(
+    ".projects-benefits__tab.is-active[data-benefit-tab]"
+  );
+  if (!(activeTab instanceof HTMLElement)) return "all";
+  return activeTab.dataset.benefitTab || "all";
+};
+
+const applyBenefitsSectionState = (benefitsSection) => {
+  if (!(benefitsSection instanceof HTMLElement)) return;
+
+  const benefitsBody = benefitsSection.querySelector("[data-benefits-body]");
+  if (!(benefitsBody instanceof HTMLElement)) return;
+
+  const items = Array.from(
+    benefitsBody.querySelectorAll(".projects-benefits__item[data-benefit-category]")
+  );
+  const activeCategory = getBenefitsActiveCategory(benefitsSection);
+  const isExpanded = benefitsSection.dataset.benefitsExpanded === "1";
+
+  const categoryItems = items.filter((item) => {
+    const category = item.dataset.benefitCategory || "all";
+    return activeCategory === "all" || category === activeCategory;
+  });
+
+  categoryItems.forEach((item, index) => {
+    const isVisible = isExpanded || index < BENEFITS_PREVIEW_LIMIT;
+    item.toggleAttribute("hidden", !isVisible);
+  });
+
+  items.forEach((item) => {
+    if (categoryItems.includes(item)) return;
+    item.setAttribute("hidden", "");
+  });
+
+  const remaining = Math.max(0, categoryItems.length - BENEFITS_PREVIEW_LIMIT);
+  const actions = benefitsSection.querySelector("[data-benefits-actions]");
+  const moreButton = benefitsSection.querySelector("[data-benefits-more]");
+
+  if (!(actions instanceof HTMLElement) || !(moreButton instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  if (!isExpanded && remaining > 0) {
+    moreButton.textContent = `+ ${remaining} преимуществ`;
+    actions.hidden = false;
+  } else if (isExpanded && categoryItems.length > BENEFITS_PREVIEW_LIMIT) {
+    moreButton.textContent = "Скрыть";
+    actions.hidden = false;
+  } else {
+    moreButton.textContent = "";
+    actions.hidden = true;
+  }
+};
+
+const scrollBenefitsSectionIntoView = (benefitsSection) => {
+  if (!(benefitsSection instanceof HTMLElement)) return;
+
+  const header = document.querySelector(".header");
+  const headerOffset =
+    header instanceof HTMLElement ? header.getBoundingClientRect().height : 0;
+  const top =
+    benefitsSection.getBoundingClientRect().top + window.scrollY - headerOffset - 16;
+
+  window.scrollTo({
+    top: Math.max(0, top),
+    behavior: "smooth",
+  });
+};
+
+const updateBenefitsTabsOverflowState = (tabsContainer) => {
+  if (!(tabsContainer instanceof HTMLElement)) return;
+
+  const overflowWidth = tabsContainer.scrollWidth - tabsContainer.clientWidth;
+  const isScrollable = overflowWidth > 4;
+  const scrollLeft = tabsContainer.scrollLeft;
+
+  tabsContainer.classList.toggle("is-scrollable", isScrollable);
+  tabsContainer.classList.toggle("is-at-start", !isScrollable || scrollLeft <= 2);
+  tabsContainer.classList.toggle("is-at-end", !isScrollable || scrollLeft >= overflowWidth - 2);
+};
+
+const initBenefitsTabs = () => {
+  const benefitsSections = document.querySelectorAll(".projects-benefits");
+  const tabsContainers = document.querySelectorAll(".projects-benefits__tabs");
+
+  tabsContainers.forEach((tabsContainer) => {
+    if (!(tabsContainer instanceof HTMLElement)) return;
+
+    updateBenefitsTabsOverflowState(tabsContainer);
+    tabsContainer.addEventListener(
+      "scroll",
+      () => {
+        updateBenefitsTabsOverflowState(tabsContainer);
+      },
+      { passive: true }
+    );
+  });
+
+  benefitsSections.forEach((benefitsSection) => {
+    if (!(benefitsSection instanceof HTMLElement)) return;
+    benefitsSection.dataset.benefitsExpanded = "0";
+    applyBenefitsSectionState(benefitsSection);
+  });
+
+  window.addEventListener("resize", () => {
+    tabsContainers.forEach((tabsContainer) => {
+      updateBenefitsTabsOverflowState(tabsContainer);
+    });
+  });
+};
+
 document.addEventListener("click", (event) => {
   const tab = event.target.closest("[data-benefit-tab]");
   if (!tab) return;
@@ -16,12 +143,33 @@ document.addEventListener("click", (event) => {
     button.setAttribute("aria-selected", isActive ? "true" : "false");
   });
 
-  const activeCategory = tab.dataset.benefitTab;
-  items.forEach((item) => {
-    const category = item.dataset.benefitCategory;
-    const isVisible = activeCategory === "all" || category === activeCategory;
-    item.toggleAttribute("hidden", !isVisible);
+  if (benefitsSection instanceof HTMLElement) {
+    benefitsSection.dataset.benefitsExpanded = "0";
+    applyBenefitsSectionState(benefitsSection);
+  }
+
+  requestAnimationFrame(() => {
+    scrollBenefitTabIntoView(tab);
+    updateBenefitsTabsOverflowState(tabsContainer);
   });
+});
+
+document.addEventListener("click", (event) => {
+  const moreButton = event.target.closest("[data-benefits-more]");
+  if (!(moreButton instanceof HTMLButtonElement)) return;
+
+  const benefitsSection = getBenefitsSection(moreButton);
+  if (!(benefitsSection instanceof HTMLElement)) return;
+
+  const isExpanded = benefitsSection.dataset.benefitsExpanded === "1";
+  benefitsSection.dataset.benefitsExpanded = isExpanded ? "0" : "1";
+  applyBenefitsSectionState(benefitsSection);
+
+  if (isExpanded) {
+    requestAnimationFrame(() => {
+      scrollBenefitsSectionIntoView(benefitsSection);
+    });
+  }
 });
 
 const initBenefitsModal = () => {
@@ -34,6 +182,7 @@ const initBenefitsModal = () => {
   const paginationEl = modalWrap.querySelector("[data-modal-pagination]");
   const prevBtn = modalWrap.querySelector("[data-modal-prev]");
   const nextBtn = modalWrap.querySelector("[data-modal-next]");
+  const modalCategoryEl = modalWrap.querySelector("[data-modal-category]");
 
   if (!modalEl || !swiperEl || !swiperWrapperEl) return;
 
@@ -145,10 +294,7 @@ const initBenefitsModal = () => {
     });
   };
 
-  const getVisibleBenefits = () => {
-    const cards = document.querySelectorAll(
-      ".projects-benefits__item:not([hidden]) .projects-benefit-card[data-benefit]"
-    );
+  const getBenefitsFromCards = (cards) => {
     const list = [];
     cards.forEach((card) => {
       const payload = card.getAttribute("data-benefit");
@@ -160,6 +306,22 @@ const initBenefitsModal = () => {
       }
     });
     return list;
+  };
+
+  const getBenefitsByCategory = (category) => {
+    const normalizedCategory =
+      typeof category === "string" && category.trim() !== ""
+        ? category.trim()
+        : "all";
+    const safeCategory =
+      typeof CSS !== "undefined" && typeof CSS.escape === "function"
+        ? CSS.escape(normalizedCategory)
+        : normalizedCategory.replace(/"/g, '\\"');
+    const cards = document.querySelectorAll(
+      `.projects-benefits__item[data-benefit-category="${safeCategory}"] .projects-benefit-card[data-benefit]`
+    );
+
+    return getBenefitsFromCards(cards);
   };
 
   const destroySwiper = () => {
@@ -270,12 +432,19 @@ const initBenefitsModal = () => {
     return swiper;
   };
 
-  const openModal = (benefit, list) => {
+  const setModalCategory = (title) => {
+    if (!(modalCategoryEl instanceof HTMLElement)) return;
+    modalCategoryEl.textContent = typeof title === "string" ? title : "";
+    modalCategoryEl.hidden = modalCategoryEl.textContent.trim() === "";
+  };
+
+  const openModal = (benefit, list, categoryTitle = "") => {
     if (isClosing) return;
 
     lastActiveElement =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
     benefitList = Array.isArray(list) && list.length ? list : [benefit];
+    setModalCategory(categoryTitle);
 
     const initialIndex = Math.max(
       0,
@@ -303,6 +472,7 @@ const initBenefitsModal = () => {
       destroySwiper();
       swiperWrapperEl.textContent = "";
       benefitList = [];
+      setModalCategory("");
       unlockBodyScroll();
 
       if (lastActiveElement) lastActiveElement.focus();
@@ -346,7 +516,15 @@ const initBenefitsModal = () => {
 
     try {
       const benefit = JSON.parse(payload);
-      openModal(benefit, getVisibleBenefits());
+      const benefitItem = benefitCard.closest(".projects-benefits__item[data-benefit-category]");
+      const benefitCategory =
+        benefitItem instanceof HTMLElement && benefitItem.dataset.benefitCategory
+          ? benefitItem.dataset.benefitCategory
+          : "all";
+      const categoryTitle =
+        benefitCard.querySelector(".projects-benefit-card__tag")?.textContent?.trim() || "";
+
+      openModal(benefit, getBenefitsByCategory(benefitCategory), categoryTitle);
     } catch {
       // ignore invalid payload
     }
@@ -1242,6 +1420,7 @@ const initProjectApartmentSelector = () => {
 };
 
 const initProjectsPage = () => {
+  initBenefitsTabs();
   initProjectApartmentSelector();
   initBenefitsModal();
   initConstructionSlider();

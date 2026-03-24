@@ -122,6 +122,21 @@ echo "IBlock type: {$iblockType}" . PHP_EOL;
 
 $advantagesIblockId = ensureIblock($siteId, $iblockType, "project_advantages", "Преимущества ЖК");
 ensureProperty($advantagesIblockId, array(
+	"CODE" => "CATEGORY",
+	"NAME" => "Категория",
+	"PROPERTY_TYPE" => "L",
+	"SORT" => 105,
+	"MULTIPLE" => "N",
+	"VALUES" => array(
+		array("VALUE" => "Отделка", "XML_ID" => "finish", "SORT" => 100),
+		array("VALUE" => "Локация", "XML_ID" => "location", "SORT" => 200),
+		array("VALUE" => "Благоустройство", "XML_ID" => "landscape", "SORT" => 300),
+		array("VALUE" => "Инфраструктура", "XML_ID" => "infrastructure", "SORT" => 400),
+		array("VALUE" => "Фасад и материалы", "XML_ID" => "facade", "SORT" => 500),
+		array("VALUE" => "Планировки", "XML_ID" => "layouts", "SORT" => 600),
+	),
+));
+ensureProperty($advantagesIblockId, array(
 	"CODE" => "PROJECT",
 	"NAME" => "ЖК",
 	"PROPERTY_TYPE" => "E",
