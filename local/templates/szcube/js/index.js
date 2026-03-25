@@ -1,4 +1,41 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const cookieBanner = document.querySelector("[data-cookie-banner]");
+  const cookieBannerAccept = document.querySelector("[data-cookie-banner-accept]");
+  const cookieBannerStorageKey = "szcube_cookie_notice_accepted";
+
+  const getCookieBannerAccepted = () => {
+    try {
+      return window.localStorage.getItem(cookieBannerStorageKey) === "Y";
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const setCookieBannerAccepted = () => {
+    try {
+      window.localStorage.setItem(cookieBannerStorageKey, "Y");
+    } catch (error) {
+      return;
+    }
+  };
+
+  if (cookieBanner && !getCookieBannerAccepted()) {
+    cookieBanner.hidden = false;
+    requestAnimationFrame(() => {
+      cookieBanner.classList.add("is-visible");
+    });
+  }
+
+  if (cookieBanner && cookieBannerAccept) {
+    cookieBannerAccept.addEventListener("click", () => {
+      setCookieBannerAccepted();
+      cookieBanner.classList.remove("is-visible");
+      window.setTimeout(() => {
+        cookieBanner.hidden = true;
+      }, 220);
+    });
+  }
+
   const normalizeRuPhone = (value) => {
     const digits = String(value || "").replace(/\D+/g, "");
     if (!digits) return "";

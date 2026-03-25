@@ -35,8 +35,11 @@ $contactFormSuccessText = isset($contactFormSuccessText) && is_string($contactFo
   <p class="contact-form__message" data-contact-form-message aria-live="polite" hidden></p>
   <label class="contact-form__agree" data-contact-consent-label>
     <input type="checkbox" name="consent" value="Y" checked required />
-    Отправляя обращение, я принимаю условия Пользовательского соглашения и даю свое
-    согласие на обработку моих персональных данных в соответствии с Политикой
-    конфиденциальности
+    <span class="contact-form__agree-text">
+      Нажимая «Отправить», вы принимаете
+      <a class="contact-form__link" href="/personal-data-consent/">согласие на обработку персональных данных</a>
+      и
+      <a class="contact-form__link" href="/privacy-policy/">политику конфиденциальности</a>.
+    </span>
   </label>
 </form>

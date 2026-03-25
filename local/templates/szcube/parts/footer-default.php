@@ -38,7 +38,7 @@
                 Защита персональных данных
                 <br>
               </p>
-              <a class="footer__policy" href="#">Политика конфиденциальности</a>
+              <a class="footer__policy" href="/privacy-policy/">Политика конфиденциальности</a>
               <div class="footer__social">
                 <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-1.svg" alt="VK" />
                 <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-2.svg" alt="Telegram" />

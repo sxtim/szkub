@@ -79,7 +79,7 @@
               </p>
               <div class="footer__policy-links">
                 <span class="footer__policy-text">Защита персональных данных</span>
-                <a class="footer__policy" href="#">Политика конфиденциальности</a>
+                <a class="footer__policy" href="/privacy-policy/">Политика конфиденциальности</a>
               </div>
             </div>
             <div class="footer__social">

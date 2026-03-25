@@ -16,6 +16,27 @@
         false
       );
       ?>
+      <div class="cookie-banner" data-cookie-banner hidden>
+        <div class="cookie-banner__inner">
+          <div class="cookie-banner__text">
+            <?php
+            $APPLICATION->IncludeComponent(
+              "bitrix:main.include",
+              "",
+              array(
+                "AREA_FILE_SHOW" => "file",
+                "PATH" => SITE_DIR . "include/cookie-banner-content.php",
+                "EDIT_TEMPLATE" => "",
+              ),
+              false
+            );
+            ?>
+          </div>
+          <button class="btn btn--primary cookie-banner__button" type="button" data-cookie-banner-accept>
+            ОК
+          </button>
+        </div>
+      </div>
     </div>
   </body>
 </html>

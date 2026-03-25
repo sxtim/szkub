@@ -2291,8 +2291,13 @@ body.scroll-lock {
   display: block;
   height: 136px;
   padding: 20px 16px;
+  width: 100%;
+  border: 0;
   border-radius: 2px;
   overflow: hidden;
+  text-align: left;
+  font: inherit;
+  appearance: none;
   cursor: pointer;
 }
 

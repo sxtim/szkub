@@ -780,7 +780,14 @@ if ($activeProjectCode !== "") {
   <div class="container">
     <div class="projects-call__panel">
       <div class="projects-call__col">
-        <div class="projects-call__tile projects-call__tile--dark">
+        <button
+          class="projects-call__tile projects-call__tile--dark"
+          type="button"
+          data-contact-open="contact"
+          data-contact-title="Заказать обратный звонок"
+          data-contact-type="callback"
+          data-contact-source="projects_call"
+        >
           <div class="projects-call__text">
             <div class="projects-call__title">Получите консультацию</div>
             <div class="projects-call__subtitle">Заказать обратный звонок</div>
@@ -790,7 +797,7 @@ if ($activeProjectCode !== "") {
               <path d="M8.9 11.1c1.3 2.5 3.5 4.7 6 6l2-2c.3-.3.8-.4 1.2-.2 1 .4 2.1.7 3.2.8.5.1.8.5.8 1v3.2c0 .5-.4 1-.9 1-10.1 0-18.3-8.2-18.3-18.3 0-.5.4-.9 1-.9H7c.5 0 .9.3 1 .8.1 1.1.4 2.2.8 3.2.2.4.1.9-.2 1.2l-2 2z" fill="currentColor"/>
             </svg>
           </div>
-        </div>
+        </button>
       </div>
 
       <div class="projects-call__col">
