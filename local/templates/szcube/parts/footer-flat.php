@@ -65,7 +65,7 @@
               <a class="footer__link" href="#promo">Акции</a>
               <a class="footer__link" href="#news">Новости</a>
               <a class="footer__link" href="#mortgage">Ипотека</a>
-              <a class="footer__link" href="#company">О компании</a>
+              <a class="footer__link" href="/about-company/">О компании</a>
               <a class="footer__link" href="#commerce">Коммерция</a>
             </div>
           </div>

@@ -32,6 +32,10 @@ if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/swiper-bundle.min.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/projects.js");
 }
+if (defined("ABOUT_COMPANY_PAGE") && ABOUT_COMPANY_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/about-company.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/about-company.js");
+}
 if (
     (defined("NEWS_PAGE") && NEWS_PAGE === true)
     || (defined("PROMOTIONS_PAGE") && PROMOTIONS_PAGE === true)
@@ -116,7 +120,7 @@ if (!defined("ERROR_404")) {
               <li><a href="#commerce">Коммерция</a></li>
               <li><a href="/consulting/">Консалтинг</a></li>
               <li><a href="/tenders/">Тендеры</a></li>
-              <li><a href="#company">О компании</a></li>
+              <li><a href="/about-company/">О компании</a></li>
               <li><a href="#contacts">Контакты</a></li>
               <li class="nav__more">
                 <button
@@ -157,7 +161,7 @@ if (!defined("ERROR_404")) {
             <li><a href="/consulting/">Консалтинг</a></li>
             <li><a href="/tenders/">Тендеры</a></li>
             <li><a href="#promo">Акции</a></li>
-            <li><a href="#company">О компании</a></li>
+            <li><a href="/about-company/">О компании</a></li>
             <li><a href="#mortgage">Ипотека</a></li>
             <li><a href="#contacts">Контакты</a></li>
             <li>
