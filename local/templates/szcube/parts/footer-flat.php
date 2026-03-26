@@ -78,8 +78,10 @@
                 Любая информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ
               </p>
               <div class="footer__policy-links">
-                <span class="footer__policy-text">Защита персональных данных</span>
                 <a class="footer__policy" href="/privacy-policy/">Политика конфиденциальности</a>
+                <a class="footer__policy" href="/personal-data-consent/">Согласие на обработку ПДн</a>
+                <a class="footer__policy" href="/user-agreement/">Пользовательское соглашение</a>
+                <a class="footer__policy" href="/cookie-policy/">Политика cookies</a>
               </div>
             </div>
             <div class="footer__social">

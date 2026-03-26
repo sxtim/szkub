@@ -609,6 +609,9 @@
 }
 
 .projects-selector__building-group-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--gray-800);
   font-size: 13px;
   font-weight: 400;
@@ -617,17 +620,23 @@
 }
 
 .projects-selector__building-group-label {
-  order: 1;
   color: var(--gray-800);
   font-size: 13px;
   font-weight: 400;
 }
 
 .projects-selector__building-group-count {
-  order: 2;
-  color: var(--gray-800);
-  font-size: 13px;
-  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(26, 59, 136, 0.08);
+  color: rgba(18, 21, 45, 0.66);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
 }
 
 .projects-selector__building-group-price {
@@ -672,7 +681,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  min-height: 40px;
   padding: 0 20px;
   border: 0;
   border-radius: 2px;
@@ -685,7 +694,7 @@
 
 .projects-selector__board-stage {
   position: relative;
-  min-height: 820px;
+  min-height: 660px;
   padding: 102px 32px 44px;
   background:
     radial-gradient(circle at 50% 38%, rgba(18, 184, 168, 0.08), rgba(18, 184, 168, 0) 36%),
@@ -694,7 +703,7 @@
 
 .projects-selector__board-toolbar {
   position: absolute;
-  top: 22px;
+  top: 45px;
   left: 28px;
   right: 28px;
   z-index: 3;
@@ -754,7 +763,7 @@
 .projects-selector__board-content {
   position: relative;
   z-index: 2;
-  min-height: 620px;
+  min-height: 480px;
 }
 
 .projects-selector__checkerboards {
@@ -762,7 +771,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 30px;
   padding-top: 80px;
 }
 
@@ -825,7 +834,7 @@
   padding: 0;
   border: 1px solid rgba(207, 217, 227, 0.72);
   border-radius: 2px;
-  background: #edf3f6;
+  background: #dfeafb;
   color: var(--blue);
   font-size: 14px;
   font-weight: 700;
@@ -843,7 +852,7 @@
 }
 
 .projects-selector__lot.is-free {
-  background: #edf3f6;
+  background: #dfeafb;
   border-color: rgba(207, 217, 227, 0.72);
   color: var(--blue);
 }
@@ -889,7 +898,7 @@
 }
 
 .projects-selector__lot.is-selected.is-free {
-  background: #dfeafb;
+  background: rgba(46, 209, 194, 0.22);
 }
 
 .projects-selector__lot.is-selected.is-booked {
@@ -922,6 +931,7 @@
   top: 18px;
   z-index: 5;
   width: 325px;
+  overflow: visible;
 }
 
 .projects-selector__lot-card-link {
@@ -932,19 +942,21 @@
 
 .projects-selector__popup-close--lot {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  z-index: 3;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 8px 18px rgba(18, 21, 45, 0.12);
+  top: 0px;
+  right: -30px;
+  z-index: 4;
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--gray-900);
+  box-shadow: 0 10px 22px rgba(18, 21, 45, 0.14);
+  font-size: 16px;
 }
 
 .projects-selector__lot-card .apartment-card {
   position: relative;
-  width: 325px;
+  width: 100%;
   background: #fff;
   border-radius: 2px;
   padding: 16px 16px 20px;
@@ -1092,6 +1104,10 @@
   background: #eef3f6;
 }
 
+.projects-selector__legend-dot.is-free {
+  background: #dfeafb;
+}
+
 .projects-selector__legend-dot.is-booked {
   border-color: rgba(232, 149, 255, 0.42);
   background:
@@ -1111,16 +1127,12 @@
 
 @media (max-width: 1200px) {
   .projects-selector__lot-card {
-    position: static;
-    width: 100%;
-    max-width: 360px;
-    margin: 0 auto 28px;
-  }
-
-  .projects-selector__board-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: absolute;
+    left: 50%;
+    top: 128px;
+    width: min(360px, calc(100% - 32px));
+    margin: 0;
+    transform: translateX(-50%);
   }
 }
 
@@ -1142,13 +1154,12 @@
     width: min(360px, calc(100% - 48px));
   }
 
-  .projects-selector__popup-close--scene,
-  .projects-selector__popup-close--lot {
+  .projects-selector__popup-close--scene {
     right: 0;
   }
 
   .projects-selector__board-stage {
-    min-height: 760px;
+    min-height: 860px;
     padding: 86px 24px 36px;
   }
 }
@@ -1172,7 +1183,7 @@
   .projects-selector__scene-button {
     top: 16px;
     right: 16px;
-    min-height: 40px;
+    min-height: 30px;
     padding: 0 14px;
     font-size: 13px;
   }
@@ -1263,6 +1274,7 @@
   }
 
   .projects-selector__board-stage {
+    min-height: 760px;
     padding: 74px 16px 28px;
   }
 
@@ -1300,6 +1312,18 @@
     gap: 10px;
   }
 
+  .projects-selector__board-button--back {
+    position: static;
+    align-self: flex-start;
+    min-height: 36px;
+    padding: 0 12px;
+  }
+
+  .projects-selector__board-headings {
+    margin-top: 6px;
+    gap: 6px;
+  }
+
   .projects-selector__board-button {
     min-height: 40px;
     padding: 0 12px;
@@ -1307,7 +1331,15 @@
   }
 
   .projects-selector__board-project-name {
-    font-size: 18px;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .projects-selector__board-deadline {
+    font-size: 12px;
+    line-height: 1.25;
+    text-align: center;
   }
 
   .projects-selector__checkerboard-cells {
@@ -1334,6 +1366,90 @@
   }
 
   .projects-selector__checkerboard-floor {
+    font-size: 12px;
+  }
+
+  .projects-selector__lot-card {
+    top: 120px;
+    left: 0;
+    right: 30px;
+    width: auto;
+    transform: none;
+  }
+
+  .projects-selector__lot-card .apartment-card {
+    width: 100%;
+    padding: 14px 14px 18px;
+    gap: 14px;
+  }
+
+  .projects-selector__lot-card .apartment-card__head {
+    gap: 8px;
+  }
+
+  .projects-selector__lot-card .apartment-card__head > div:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+    padding-right: 24px;
+  }
+
+  .projects-selector__lot-card .apartment-card__fav {
+    flex: 0 0 18px;
+    padding: 0;
+  }
+
+  .projects-selector__lot-card .apartment-card__plan {
+    min-height: 250px;
+  }
+
+  .projects-selector__lot-card .apartment-card__price-main {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 390px) {
+  .projects-selector__board-stage {
+    min-height: 720px;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  .projects-selector__lot-card {
+    top: 112px;
+    left: 0;
+    right: 30px;
+    width: auto;
+  }
+  .projects-selector__lot-card .apartment-card {
+    padding: 12px 12px 16px;
+    gap: 12px;
+  }
+
+  .projects-selector__board-button--back {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .projects-selector__board-headings {
+    gap: 4px;
+  }
+
+  .projects-selector__board-project-name {
+    font-size: 15px;
+  }
+
+  .projects-selector__board-deadline {
+    font-size: 11px;
+  }
+
+  .projects-selector__lot-card .apartment-card__plan {
+    min-height: 216px;
+  }
+
+  .projects-selector__lot-card .apartment-card__meta,
+  .projects-selector__lot-card .apartment-card__price,
+  .projects-selector__lot-card .apartment-card__badges {
     font-size: 12px;
   }
 }

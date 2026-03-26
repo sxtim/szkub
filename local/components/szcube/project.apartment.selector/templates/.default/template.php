@@ -211,7 +211,12 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
                     <a class="projects-selector__building-group projects-selector__building-group--link" href="<?= htmlspecialcharsbx($groupHref) ?>">
                       <div class="projects-selector__building-group-main">
                         <span class="projects-selector__building-group-line">
-                          <?= htmlspecialcharsbx((string)$group["label"]) ?> <?= (int)$group["count"] ?>
+                          <span class="projects-selector__building-group-label">
+                            <?= htmlspecialcharsbx((string)$group["label"]) ?>
+                          </span>
+                          <span class="projects-selector__building-group-count" aria-label="<?= (int)$group["count"] ?> кв.">
+                            <?= (int)$group["count"] ?> кв.
+                          </span>
                         </span>
                       </div>
                       <div class="projects-selector__building-group-price">
@@ -224,7 +229,12 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
                     <div class="projects-selector__building-group">
                       <div class="projects-selector__building-group-main">
                         <span class="projects-selector__building-group-line">
-                          <?= htmlspecialcharsbx((string)$group["label"]) ?> <?= (int)$group["count"] ?>
+                          <span class="projects-selector__building-group-label">
+                            <?= htmlspecialcharsbx((string)$group["label"]) ?>
+                          </span>
+                          <span class="projects-selector__building-group-count" aria-label="<?= (int)$group["count"] ?> кв.">
+                            <?= (int)$group["count"] ?> кв.
+                          </span>
                         </span>
                       </div>
                       <div class="projects-selector__building-group-price">
@@ -389,6 +399,10 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
 
           <div class="projects-selector__board-footer">
             <div class="projects-selector__legend" aria-label="Обозначения статусов квартир">
+              <span class="projects-selector__legend-item">
+                <span class="projects-selector__legend-dot is-free" aria-hidden="true"></span>
+                <span>Свободно</span>
+              </span>
               <span class="projects-selector__legend-item">
                 <span class="projects-selector__legend-dot is-booked" aria-hidden="true"></span>
                 <span>Забронировано</span>

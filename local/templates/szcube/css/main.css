@@ -2266,6 +2266,13 @@ a {
   font-size: 10px;
 }
 
+.footer__policy-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
 .legal-page {
   padding: 0 0 88px;
 }
