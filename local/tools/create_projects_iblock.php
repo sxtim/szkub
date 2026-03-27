@@ -175,6 +175,64 @@ $requiredProperties = array(
 		"SORT" => 160,
 		"MULTIPLE" => "N",
 	),
+	array(
+		"CODE" => "ABOUT_COMPANY_SHOW",
+		"NAME" => "О компании: показывать в блоке «Наши проекты»",
+		"PROPERTY_TYPE" => "L",
+		"LIST_TYPE" => "L",
+		"SORT" => 200,
+		"MULTIPLE" => "N",
+		"VALUES" => array(
+			array("VALUE" => "Да", "XML_ID" => "Y", "SORT" => 100, "DEF" => "N"),
+			array("VALUE" => "Нет", "XML_ID" => "N", "SORT" => 200, "DEF" => "Y"),
+		),
+	),
+	array(
+		"CODE" => "ABOUT_COMPANY_SALE_SHOW",
+		"NAME" => "О компании: показывать в блоке «Проекты в продаже»",
+		"PROPERTY_TYPE" => "L",
+		"LIST_TYPE" => "L",
+		"SORT" => 205,
+		"MULTIPLE" => "N",
+		"VALUES" => array(
+			array("VALUE" => "Да", "XML_ID" => "Y", "SORT" => 100, "DEF" => "N"),
+			array("VALUE" => "Нет", "XML_ID" => "N", "SORT" => 200, "DEF" => "Y"),
+		),
+	),
+	array(
+		"CODE" => "ABOUT_COMPANY_STATUS",
+		"NAME" => "О компании: статус проекта",
+		"PROPERTY_TYPE" => "L",
+		"LIST_TYPE" => "L",
+		"SORT" => 210,
+		"MULTIPLE" => "N",
+		"VALUES" => array(
+			array("VALUE" => "Строится", "XML_ID" => "building", "SORT" => 100),
+			array("VALUE" => "В проекте", "XML_ID" => "planned", "SORT" => 200),
+			array("VALUE" => "Реализован", "XML_ID" => "completed", "SORT" => 300),
+		),
+	),
+	array(
+		"CODE" => "ABOUT_COMPANY_IMAGE",
+		"NAME" => "О компании: фото большого блока",
+		"PROPERTY_TYPE" => "F",
+		"SORT" => 220,
+		"MULTIPLE" => "N",
+	),
+	array(
+		"CODE" => "ABOUT_COMPANY_TEXT_1",
+		"NAME" => "О компании: описание, абзац 1",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 221,
+		"MULTIPLE" => "N",
+	),
+	array(
+		"CODE" => "ABOUT_COMPANY_TEXT_2",
+		"NAME" => "О компании: описание, абзац 2",
+		"PROPERTY_TYPE" => "S",
+		"SORT" => 222,
+		"MULTIPLE" => "N",
+	),
 );
 
 $requiredProperties[] = array(
@@ -288,6 +346,27 @@ foreach ($requiredProperties as $propertyDef) {
 		"IS_REQUIRED" => "N",
 		"SORT" => $propertyDef["SORT"],
 	);
+
+	$optionalPropertyFields = array(
+		"LINK_IBLOCK_ID",
+		"LIST_TYPE",
+		"USER_TYPE",
+		"USER_TYPE_SETTINGS",
+		"MULTIPLE_CNT",
+		"WITH_DESCRIPTION",
+		"FILTRABLE",
+		"SEARCHABLE",
+		"DEFAULT_VALUE",
+		"HINT",
+	);
+	foreach ($optionalPropertyFields as $fieldName) {
+		if (array_key_exists($fieldName, $propertyDef)) {
+			$fields[$fieldName] = $propertyDef[$fieldName];
+		}
+	}
+	if (isset($propertyDef["VALUES"]) && is_array($propertyDef["VALUES"])) {
+		$fields["VALUES"] = $propertyDef["VALUES"];
+	}
 
 	$propId = $ibp->Add($fields);
 	if (!$propId) {
