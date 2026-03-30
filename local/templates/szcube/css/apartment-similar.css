@@ -1,0 +1,86 @@
+.apartment-similar {
+  padding: 0 0 115px;
+}
+
+.apartment-similar__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.apartment-similar__head .section-title {
+  margin-bottom: 0;
+}
+
+.apartment-similar__nav {
+  display: flex;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.apartment-similar__nav-btn {
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(30, 40, 66, 0.16);
+  background: var(--white);
+  color: var(--gray-800);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.apartment-similar__nav-btn:hover,
+.apartment-similar__nav-btn:focus-visible {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.apartment-similar__nav-btn.swiper-button-disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.apartment-similar__swiper {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.apartment-similar__swiper .swiper-slide {
+  height: auto;
+}
+
+.apartment-similar__card {
+  height: 100%;
+}
+
+@media (max-width: 1024px) {
+  .apartment-similar {
+    padding-bottom: 90px;
+  }
+}
+
+@media (max-width: 767px) {
+  .apartment-similar {
+    padding-bottom: 70px;
+  }
+
+  .apartment-similar__head {
+    align-items: stretch;
+    flex-direction: column;
+    margin-bottom: 28px;
+  }
+
+  .apartment-similar__nav {
+    align-self: flex-start;
+  }
+
+  .apartment-similar__nav-btn {
+    width: 48px;
+    height: 48px;
+  }
+}

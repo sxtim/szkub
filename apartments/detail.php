@@ -347,6 +347,107 @@ if (!function_exists("apartmentDetailRoomsLabel")) {
 	}
 }
 
+if (!function_exists("apartmentDetailRoomBucketKey")) {
+	function apartmentDetailRoomBucketKey($value)
+	{
+		$value = trim((string)$value);
+		if ($value === "") {
+			return "";
+		}
+
+		if (preg_match("/ст|stud|studio/iu", $value)) {
+			return "studio";
+		}
+
+		if (preg_match("/евро\\s*дв|евродв|\\b2\\s*[еe]\\b|\\b2e\\b/iu", $value)) {
+			return "2e";
+		}
+
+		if (preg_match("/евро\\s*тр|евротр|\\b3\\s*[еe]\\b|\\b3e\\b/iu", $value)) {
+			return "3e";
+		}
+
+		if (preg_match("/\\b1\\s*(?:[- ]?ком|[кk])\\b|\\b1k\\b/iu", $value)) {
+			return "1k";
+		}
+
+		if (preg_match("/\\b2\\s*(?:[- ]?ком|[кk])\\b|\\b2k\\b/iu", $value)) {
+			return "2k";
+		}
+
+		if (preg_match("/\\b3\\s*(?:[- ]?ком|[кk])\\b|\\b3k\\b/iu", $value)) {
+			return "3k";
+		}
+
+		if (preg_match("/\\b4\\s*(?:[- ]?ком|[кk])\\b|\\b4k\\b/iu", $value)) {
+			return "4k";
+		}
+
+		if (preg_match("/(\\d+)/", $value, $matches)) {
+			$number = (int)$matches[1];
+			return $number >= 4 ? "4k" : ($number . "k");
+		}
+
+		return "";
+	}
+}
+
+if (!function_exists("apartmentDetailIsPubliclyHiddenStatus")) {
+	function apartmentDetailIsPubliclyHiddenStatus($statusKey, $statusLabel = "")
+	{
+		$statusKey = trim(mb_strtolower((string)$statusKey));
+		$statusLabel = trim(mb_strtolower((string)$statusLabel));
+
+		if ($statusKey === "sold") {
+			return true;
+		}
+
+		return $statusLabel !== "" && preg_match("/^продан[а-я]*$/u", $statusLabel) === 1;
+	}
+}
+
+if (!function_exists("apartmentDetailFloorShortDisplay")) {
+	function apartmentDetailFloorShortDisplay($floor, $floorTo, $houseFloors)
+	{
+		$floor = (int)$floor;
+		$houseFloors = apartmentDetailNormalizeHouseFloors($floor, $floorTo, $houseFloors);
+		$upperFloor = apartmentDetailNormalizeUpperFloor($floor, $floorTo);
+
+		if ($upperFloor > 0 && $floor > 0) {
+			return $floor . "-" . $upperFloor . " этаж";
+		}
+
+		if ($floor <= 0 || $houseFloors <= 0) {
+			return "";
+		}
+
+		return $floor . "/" . $houseFloors . " этаж";
+	}
+}
+
+if (!function_exists("apartmentDetailBuildBoardUrl")) {
+	function apartmentDetailBuildBoardUrl($projectFilterUrl, $projectUrl, $projectCode, $flatCode)
+	{
+		$baseUrl = trim((string)$projectFilterUrl);
+		if ($baseUrl === "") {
+			$baseUrl = trim((string)$projectUrl);
+		}
+		if ($baseUrl === "") {
+			$projectCode = trim((string)$projectCode);
+			$baseUrl = $projectCode !== "" ? "/projects/detail.php?code=" . rawurlencode($projectCode) : "/projects/";
+		}
+
+		$queryGlue = strpos($baseUrl, "?") === false ? "?" : "&";
+		$baseUrl .= $queryGlue . "selector_view=board";
+		$flatCode = trim((string)$flatCode);
+		if ($flatCode !== "") {
+			$baseUrl .= "&selector_flat=" . rawurlencode($flatCode);
+		}
+
+		return $baseUrl;
+	}
+}
+
 if (!function_exists("apartmentDetailNormalizeSlideKind")) {
 	function apartmentDetailNormalizeSlideKind($kind)
 	{
@@ -700,16 +801,39 @@ if (!function_exists("apartmentDetailBuildPrototype")) {
 
 $apartmentsIblockCode = "apartments";
 $projectsIblockCode = "projects";
+$projectAdvantagesIblockCode = "project_advantages";
+$projectAdvantagesIblockType = "";
+$projectAdvantagesIblockId = 0;
+$homePromotionsIblockType = "content";
+$homePromotionsIblockCode = "promotions";
+$homePromotionsIblockId = 0;
 $code = isset($_REQUEST["code"]) ? trim((string)$_REQUEST["code"]) : "";
 $code = preg_replace("/[^a-z0-9_-]/i", "", $code);
 $apartment = null;
+$projectId = 0;
+$projectCode = "";
+$projectExtraItems = array();
+$similarApartments = array();
 
 if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
 	$apartmentsIblock = CIBlock::GetList(array(), array("=CODE" => $apartmentsIblockCode, "ACTIVE" => "Y"), false)->Fetch();
 	$projectsIblock = CIBlock::GetList(array(), array("=CODE" => $projectsIblockCode, "ACTIVE" => "Y"), false)->Fetch();
+	$projectAdvantagesIblock = CIBlock::GetList(array(), array("=CODE" => $projectAdvantagesIblockCode, "ACTIVE" => "Y"), false)->Fetch();
+	$homePromotionsIblock = CIBlock::GetList(
+		array(),
+		array(
+			"TYPE" => $homePromotionsIblockType,
+			"=CODE" => $homePromotionsIblockCode,
+			"ACTIVE" => "Y",
+		),
+		false
+	)->Fetch();
 
 	$apartmentsIblockId = is_array($apartmentsIblock) ? (int)$apartmentsIblock["ID"] : 0;
 	$projectsIblockId = is_array($projectsIblock) ? (int)$projectsIblock["ID"] : 0;
+	$projectAdvantagesIblockId = is_array($projectAdvantagesIblock) ? (int)$projectAdvantagesIblock["ID"] : 0;
+	$projectAdvantagesIblockType = is_array($projectAdvantagesIblock) ? (string)$projectAdvantagesIblock["IBLOCK_TYPE_ID"] : "";
+	$homePromotionsIblockId = is_array($homePromotionsIblock) ? (int)$homePromotionsIblock["ID"] : 0;
 
 	if ($apartmentsIblockId > 0) {
 		$apartmentRes = CIBlockElement::GetList(
@@ -731,6 +855,7 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 			$projectId = (int)apartmentDetailPropertyScalar($apartmentProperties, "PROJECT", 0);
 			$projectName = "";
 			$projectUrl = "";
+			$projectFilterUrl = "";
 			$street = "";
 			$handover = "";
 			$buildingImage = $defaultBuildingImage;
@@ -748,12 +873,32 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 					$projectName = trim((string)$projectFields["NAME"]);
 					$projectCode = trim((string)$projectFields["CODE"]);
 					$projectUrl = $projectCode !== "" ? "/projects/" . $projectCode . "/" : "";
+					$projectFilterUrl = $projectCode !== "" ? "/projects/detail.php?code=" . rawurlencode($projectCode) : "";
 					$street = apartmentDetailFormatAddress(apartmentDetailPropertyScalar($projectProperties, "ADDRESS", ""));
 					$handover = apartmentDetailPropertyScalar($projectProperties, "DELIVERY_TEXT", "");
+
+					$extraDefaults = array(
+						array("title" => "Коммерция", "image" => SITE_TEMPLATE_PATH . "/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png", "url" => "/commerce/"),
+						array("title" => "Паркинг", "image" => SITE_TEMPLATE_PATH . "/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png", "url" => "/parking/"),
+						array("title" => "Кладовые", "image" => SITE_TEMPLATE_PATH . "/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png", "url" => "/storerooms/"),
+					);
+					foreach ($extraDefaults as $extraIndex => $extraDefault) {
+						$i = $extraIndex + 1;
+						$projectExtraItems[] = array(
+							"title" => apartmentDetailPropertyScalar($projectProperties, "EXTRA" . $i . "_TITLE", $extraDefault["title"]),
+							"image" => apartmentDetailPropertyFileUrl($projectProperties, "EXTRA" . $i . "_IMAGE", $extraDefault["image"]),
+							"url" => apartmentDetailPropertyScalar($projectProperties, "EXTRA" . $i . "_URL", $extraDefault["url"]),
+						);
+					}
 				}
 			}
 
 			$rooms = apartmentDetailPropertyEnumLabel($apartmentProperties, "ROOMS", "");
+			$roomBucket = apartmentDetailPropertyEnumXmlId($apartmentProperties, "ROOMS", "");
+			if ($roomBucket === "") {
+				$roomBucket = apartmentDetailRoomBucketKey($rooms);
+			}
+			$areaTotalRaw = (float)apartmentDetailPropertyScalar($apartmentProperties, "AREA_TOTAL", 0);
 			$areaTotal = apartmentDetailFormatArea(apartmentDetailPropertyScalar($apartmentProperties, "AREA_TOTAL", ""));
 			$titleLine1 = apartmentDetailRoomsLabel($rooms);
 			$titleLine2 = $areaTotal;
@@ -814,6 +959,119 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 				""
 			);
 			$apartment["slides"] = apartmentDetailBuildFixedSlidesFromProperties($apartmentFields, $apartmentProperties);
+
+			if ($apartmentsIblockId > 0 && $projectId > 0) {
+				$similarCandidates = array();
+				$similarRes = CIBlockElement::GetList(
+					array("SORT" => "ASC", "ID" => "ASC"),
+					array(
+						"IBLOCK_ID" => $apartmentsIblockId,
+						"ACTIVE" => "Y",
+						"PROPERTY_PROJECT" => $projectId,
+						"!ID" => $apartmentId,
+					),
+					false,
+					false,
+					array("ID", "IBLOCK_ID", "NAME", "CODE", "DETAIL_PAGE_URL", "PREVIEW_PICTURE", "SORT")
+				);
+
+				while ($similarFields = $similarRes->Fetch()) {
+					$similarProperties = apartmentDetailLoadProperties($apartmentsIblockId, (int)$similarFields["ID"]);
+					$statusKey = apartmentDetailPropertyEnumXmlId($similarProperties, "STATUS", "");
+					$statusLabel = apartmentDetailPropertyEnumLabel($similarProperties, "STATUS", "");
+					if (apartmentDetailIsPubliclyHiddenStatus($statusKey, $statusLabel)) {
+						continue;
+					}
+
+					$similarRoomsLabel = apartmentDetailPropertyEnumLabel($similarProperties, "ROOMS", "");
+					$similarRoomBucket = apartmentDetailPropertyEnumXmlId($similarProperties, "ROOMS", "");
+					if ($similarRoomBucket === "") {
+						$similarRoomBucket = apartmentDetailRoomBucketKey($similarRoomsLabel);
+					}
+
+					$similarAreaRaw = (float)apartmentDetailPropertyScalar($similarProperties, "AREA_TOTAL", 0);
+					$similarPriceRaw = (float)apartmentDetailPropertyScalar($similarProperties, "PRICE_TOTAL", 0);
+					$similarPriceOldRaw = (float)apartmentDetailPropertyScalar($similarProperties, "PRICE_OLD", 0);
+					$similarFloor = (int)apartmentDetailPropertyScalar($similarProperties, "FLOOR", 0);
+					$similarFloorTo = (int)apartmentDetailPropertyScalar($similarProperties, "FLOOR_TO", 0);
+					$similarHouseFloors = (int)apartmentDetailPropertyScalar($similarProperties, "HOUSE_FLOORS", 0);
+					$similarPlanImage = apartmentDetailPropertyFileUrl($similarProperties, "PLAN_IMAGE", "");
+					if ($similarPlanImage === "" && (int)$similarFields["PREVIEW_PICTURE"] > 0) {
+						$similarPlanImage = (string)CFile::GetPath((int)$similarFields["PREVIEW_PICTURE"]);
+					}
+
+					$manualBadges = apartmentDetailPropertyMultipleScalars($similarProperties, "BADGES");
+					$discountBadge = apartmentDetailDiscountBadge($similarPriceRaw, $similarPriceOldRaw);
+					if ($discountBadge !== "" && !in_array($discountBadge, $manualBadges, true)) {
+						$manualBadges[] = $discountBadge;
+					}
+
+					$similarUrl = trim((string)$similarFields["DETAIL_PAGE_URL"]);
+					if ($similarUrl === "" || strpos($similarUrl, "#") !== false) {
+						$similarUrl = "/apartments/" . trim((string)$similarFields["CODE"]) . "/";
+					}
+
+					$floorShort = apartmentDetailFloorShortDisplay($similarFloor, $similarFloorTo, $similarHouseFloors);
+					$listMeta = array();
+					if ($similarAreaRaw > 0) {
+						$listMeta[] = apartmentDetailFormatArea($similarAreaRaw);
+					}
+					if ($floorShort !== "") {
+						$listMeta[] = $floorShort;
+					}
+
+					$similarCandidates[] = array(
+						"id" => (int)$similarFields["ID"],
+						"sort" => isset($similarFields["SORT"]) ? (int)$similarFields["SORT"] : 500,
+						"room_match" => $roomBucket !== "" && $similarRoomBucket === $roomBucket ? 1 : 0,
+						"area_diff" => abs($similarAreaRaw - $areaTotalRaw),
+						"price_diff" => abs($similarPriceRaw - $priceTotalRaw),
+						"card" => array(
+							"url" => $similarUrl,
+							"project_name" => $projectName,
+							"project_delivery" => $handover,
+							"rooms_label" => $similarRoomsLabel !== "" ? apartmentDetailRoomsLabel($similarRoomsLabel) : "Квартира",
+							"list_meta" => implode(" • ", $listMeta),
+							"price_total_formatted" => apartmentDetailFormatMoney($similarPriceRaw),
+							"price_old_formatted" => apartmentDetailFormatMoney($similarPriceOldRaw),
+							"status_label" => $statusLabel,
+							"plan_image" => $similarPlanImage,
+							"plan_alt" => apartmentDetailPropertyScalar($similarProperties, "PLAN_ALT", trim((string)$similarFields["NAME"])),
+							"badges" => $manualBadges,
+							"board_url" => apartmentDetailBuildBoardUrl($projectFilterUrl, $projectUrl, $projectCode, trim((string)$similarFields["CODE"])),
+						),
+					);
+				}
+
+				usort($similarCandidates, static function ($left, $right) {
+					$roomMatchDiff = ((int)$right["room_match"] <=> (int)$left["room_match"]);
+					if ($roomMatchDiff !== 0) {
+						return $roomMatchDiff;
+					}
+
+					$areaDiff = ((float)$left["area_diff"] <=> (float)$right["area_diff"]);
+					if ($areaDiff !== 0) {
+						return $areaDiff;
+					}
+
+					$priceDiff = ((float)$left["price_diff"] <=> (float)$right["price_diff"]);
+					if ($priceDiff !== 0) {
+						return $priceDiff;
+					}
+
+					$sortDiff = ((int)$left["sort"] <=> (int)$right["sort"]);
+					if ($sortDiff !== 0) {
+						return $sortDiff;
+					}
+
+					return ((int)$left["id"] <=> (int)$right["id"]);
+				});
+
+				$similarCandidates = array_slice($similarCandidates, 0, 6);
+				foreach ($similarCandidates as $similarCandidate) {
+					$similarApartments[] = $similarCandidate["card"];
+				}
+			}
 		}
 	}
 }
@@ -1066,6 +1324,193 @@ if (!$apartment) {
     </div>
   </div>
 </section>
+<?php endif; ?>
+
+<?php if ($apartment): ?>
+  <?php
+  global $arrProjectAdvantagesFilter;
+  $arrProjectAdvantagesFilter = array();
+  if ($projectId > 0) {
+    $arrProjectAdvantagesFilter["PROPERTY_PROJECT"] = $projectId;
+  }
+
+  global $arrProjectPromotionsFilter;
+  $arrProjectPromotionsFilter = array();
+  if ($projectCode !== "") {
+    $arrProjectPromotionsFilter["PROPERTY_ZHK_CODE"] = $projectCode;
+  }
+  ?>
+
+  <?php if (!empty($projectExtraItems)): ?>
+  <section class="extra" id="apartments">
+    <div class="container">
+      <h2 class="section-title">Кроме квартир</h2>
+      <div class="extra__cards">
+        <?php foreach ($projectExtraItems as $extraItem): ?>
+          <a class="extra-card" href="<?= htmlspecialcharsbx($extraItem["url"] !== "" ? $extraItem["url"] : "#") ?>">
+            <img
+              src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
+              alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
+            />
+            <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
+            <div class="extra-card__overlay">
+              <div class="extra-card__link">
+                <img
+                  src="<?= SITE_TEMPLATE_PATH ?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+                  alt=""
+                />
+              </div>
+            </div>
+          </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <section class="projects-benefits" aria-label="Преимущества проекта">
+    <div class="container">
+      <h2 class="projects-benefits__title">Преимущества</h2>
+      <?php if ($projectAdvantagesIblockId > 0 && $projectId > 0): ?>
+        <?php
+        $APPLICATION->IncludeComponent(
+          "bitrix:news.list",
+          "project_advantages",
+          array(
+            "IBLOCK_TYPE" => $projectAdvantagesIblockType !== "" ? $projectAdvantagesIblockType : "",
+            "IBLOCK_ID" => $projectAdvantagesIblockId,
+            "NEWS_COUNT" => "200",
+            "SORT_BY1" => "SORT",
+            "SORT_ORDER1" => "ASC",
+            "SORT_BY2" => "ID",
+            "SORT_ORDER2" => "ASC",
+            "FILTER_NAME" => "arrProjectAdvantagesFilter",
+            "FIELD_CODE" => array("NAME", "PREVIEW_TEXT", "PREVIEW_PICTURE", ""),
+            "PROPERTY_CODE" => array("PROJECT", "LABEL", "CATEGORY", ""),
+            "CHECK_DATES" => "N",
+            "ACTIVE_DATE_FORMAT" => "d.m.Y",
+            "CACHE_TYPE" => "A",
+            "CACHE_TIME" => "36000000",
+            "CACHE_FILTER" => "Y",
+            "CACHE_GROUPS" => "Y",
+            "SET_TITLE" => "N",
+            "SET_BROWSER_TITLE" => "N",
+            "SET_META_KEYWORDS" => "N",
+            "SET_META_DESCRIPTION" => "N",
+            "SET_LAST_MODIFIED" => "N",
+            "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+            "ADD_SECTIONS_CHAIN" => "N",
+            "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+            "DISPLAY_DATE" => "N",
+            "DISPLAY_NAME" => "Y",
+            "DISPLAY_PICTURE" => "Y",
+            "DISPLAY_PREVIEW_TEXT" => "Y",
+            "PARENT_SECTION" => "",
+            "PARENT_SECTION_CODE" => "",
+            "STRICT_SECTION_CHECK" => "N",
+            "DISPLAY_TOP_PAGER" => "N",
+            "DISPLAY_BOTTOM_PAGER" => "N",
+            "PAGER_SHOW_ALWAYS" => "N",
+            "PAGER_TEMPLATE" => "",
+          ),
+          false
+        );
+        ?>
+      <?php else: ?>
+        <div class="projects-benefits__body" data-benefits-body>
+          <ul class="projects-benefits__list"></ul>
+        </div>
+      <?php endif; ?>
+    </div>
+  </section>
+
+  <?php if ($homePromotionsIblockId > 0): ?>
+    <?php
+    $APPLICATION->IncludeComponent(
+      "bitrix:news.list",
+      "home_promotions",
+      array(
+        "IBLOCK_TYPE" => $homePromotionsIblockType,
+        "IBLOCK_ID" => $homePromotionsIblockId,
+        "NEWS_COUNT" => "3",
+        "SORT_BY1" => "ACTIVE_FROM",
+        "SORT_ORDER1" => "DESC",
+        "SORT_BY2" => "SORT",
+        "SORT_ORDER2" => "ASC",
+        "FILTER_NAME" => "arrProjectPromotionsFilter",
+        "FIELD_CODE" => array("NAME", "PREVIEW_PICTURE", "DATE_ACTIVE_TO", ""),
+        "PROPERTY_CODE" => array("ZHK_CODE", "ZHK_LABEL", ""),
+        "CHECK_DATES" => "Y",
+        "DETAIL_URL" => "/promotions/#ELEMENT_CODE#/",
+        "ACTIVE_DATE_FORMAT" => "d.m.Y",
+        "CACHE_TYPE" => "A",
+        "CACHE_TIME" => "36000000",
+        "CACHE_FILTER" => "Y",
+        "CACHE_GROUPS" => "Y",
+        "SET_TITLE" => "N",
+        "SET_BROWSER_TITLE" => "N",
+        "SET_META_KEYWORDS" => "N",
+        "SET_META_DESCRIPTION" => "N",
+        "SET_LAST_MODIFIED" => "N",
+        "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+        "ADD_SECTIONS_CHAIN" => "N",
+        "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+        "DISPLAY_DATE" => "N",
+        "DISPLAY_NAME" => "Y",
+        "DISPLAY_PICTURE" => "Y",
+        "DISPLAY_PREVIEW_TEXT" => "N",
+        "PARENT_SECTION" => "",
+        "PARENT_SECTION_CODE" => "",
+        "STRICT_SECTION_CHECK" => "N",
+        "DISPLAY_TOP_PAGER" => "N",
+        "DISPLAY_BOTTOM_PAGER" => "N",
+        "PAGER_SHOW_ALWAYS" => "N",
+        "PAGER_TEMPLATE" => "",
+      ),
+      false
+    );
+    ?>
+  <?php else: ?>
+    <section class="promo" id="promo">
+      <div class="container">
+        <h2 class="section-title">Акции</h2>
+      </div>
+    </section>
+  <?php endif; ?>
+
+  <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/purchase.php"; ?>
+  <?php if (!empty($similarApartments)): ?>
+  <section class="apartment-similar" aria-label="Похожие квартиры" data-apartment-similar>
+    <div class="container">
+      <div class="apartment-similar__head">
+        <h2 class="section-title">Похожие квартиры</h2>
+        <div class="apartment-similar__nav" aria-label="Навигация по похожим квартирам">
+          <button class="apartment-similar__nav-btn apartment-similar__nav-btn--prev" type="button" data-apartment-similar-prev aria-label="Предыдущие квартиры">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M10.5 4.5L6 9L10.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button class="apartment-similar__nav-btn apartment-similar__nav-btn--next" type="button" data-apartment-similar-next aria-label="Следующие квартиры">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M7.5 4.5L12 9L7.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="apartment-similar__swiper swiper" data-apartment-similar-swiper>
+        <div class="swiper-wrapper">
+          <?php foreach ($similarApartments as $apartmentCard): ?>
+          <div class="swiper-slide">
+            <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/apartment-card.php"; ?>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
+  </section>
+  <?php endif; ?>
+  <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/project-benefit-modal.php"; ?>
 <?php endif; ?>
 
 <?php require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>
