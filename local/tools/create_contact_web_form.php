@@ -403,6 +403,16 @@ $questionSchema = array(
 		"FIELD_WIDTH" => 40,
 	),
 	array(
+		"SID" => "LEAD_NOTE",
+		"TITLE" => "Детали заявки",
+		"C_SORT" => 450,
+		"REQUIRED" => false,
+		"FIELD_TYPE" => "text",
+		"COMMENTS" => "Детали выбранного объекта/сценария заявки",
+		"ANSWER_MESSAGE" => "Детали заявки",
+		"FIELD_WIDTH" => 90,
+	),
+	array(
 		"SID" => "PAGE_URL",
 		"TITLE" => "URL страницы",
 		"C_SORT" => 500,

@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     messageEl: form.querySelector("[data-contact-form-message]"),
     leadTypeInput: form.querySelector('input[name="lead_type"]'),
     leadSourceInput: form.querySelector('input[name="lead_source"]'),
+    leadNoteInput: form.querySelector('input[name="lead_note"]'),
     pageUrlInput: form.querySelector('input[name="page_url"]'),
   });
 
@@ -123,10 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  const setContactFormMeta = (form, { leadType, leadSource } = {}) => {
+  const setContactFormMeta = (form, { leadType, leadSource, leadNote } = {}) => {
     if (!form) return;
 
-    const { leadTypeInput, leadSourceInput, pageUrlInput } = getContactFormParts(form);
+    const { leadTypeInput, leadSourceInput, leadNoteInput, pageUrlInput } = getContactFormParts(form);
 
     if (leadTypeInput && typeof leadType === "string" && leadType.trim() !== "") {
       leadTypeInput.value = leadType.trim();
@@ -134,6 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (leadSourceInput && typeof leadSource === "string" && leadSource.trim() !== "") {
       leadSourceInput.value = leadSource.trim();
+    }
+
+    if (leadNoteInput) {
+      leadNoteInput.value = typeof leadNote === "string" ? leadNote.trim() : "";
     }
 
     if (pageUrlInput) {
@@ -145,10 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let preservedMeta = null;
 
     if (resetFields) {
-      const { leadTypeInput, leadSourceInput } = getContactFormParts(form);
+      const { leadTypeInput, leadSourceInput, leadNoteInput } = getContactFormParts(form);
       preservedMeta = {
         leadType: leadTypeInput ? leadTypeInput.value : "",
         leadSource: leadSourceInput ? leadSourceInput.value : "",
+        leadNote: leadNoteInput ? leadNoteInput.value : "",
       };
 
       form.reset();
@@ -268,6 +274,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentMeta = {
         leadType: leadTypeInput ? leadTypeInput.value : "",
         leadSource: leadSourceInput ? leadSourceInput.value : "",
+        leadNote: (() => {
+          const { leadNoteInput } = getContactFormParts(form);
+          return leadNoteInput ? leadNoteInput.value : "";
+        })(),
       };
 
       form.reset();
@@ -287,7 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const contactModalCloseButtons = contactModal
     ? contactModal.querySelectorAll("[data-contact-modal-close]")
     : [];
-  const contactOpenButtons = document.querySelectorAll('[data-contact-open="contact"]');
   const contactModalForm = contactModal ? contactModal.querySelector("[data-contact-form]") : null;
 
   const openContactModal = (opts = {}) => {
@@ -304,6 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setContactFormMeta(contactModalForm, {
         leadType: opts.leadType || "callback",
         leadSource: opts.leadSource || "modal",
+        leadNote: opts.leadNote || "",
       });
     }
 
@@ -320,14 +330,18 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   if (contactModal) {
-    contactOpenButtons.forEach((btn) => {
-      btn.addEventListener("click", (event) => {
-        event.preventDefault();
-        openContactModal({
-          title: btn.dataset.contactTitle,
-          leadType: btn.dataset.contactType,
-          leadSource: btn.dataset.contactSource,
-        });
+    document.addEventListener("click", (event) => {
+      const btn = event.target.closest('[data-contact-open="contact"]');
+      if (!btn) {
+        return;
+      }
+
+      event.preventDefault();
+      openContactModal({
+        title: btn.dataset.contactTitle,
+        leadType: btn.dataset.contactType,
+        leadSource: btn.dataset.contactSource,
+        leadNote: btn.dataset.contactNote || "",
       });
     });
 

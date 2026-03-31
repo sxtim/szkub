@@ -168,6 +168,7 @@ function szcubeContactBuildBitrixFormValues(array $webForm, array $payload): arr
         "PHONE" => $payload["phone"],
         "LEAD_TYPE" => $payload["lead_type"],
         "LEAD_SOURCE" => $payload["lead_source"],
+        "LEAD_NOTE" => $payload["lead_note"],
         "PAGE_URL" => $payload["page_url"],
         "CONSENT" => "Y",
     );
@@ -255,6 +256,7 @@ $phone = szcubeContactNormalizePhone($rawPhone);
 $consent = isset($_POST["consent"]) && (string) $_POST["consent"] === "Y";
 $leadType = isset($_POST["lead_type"]) ? szcubeContactSanitizeSlug((string) $_POST["lead_type"], "callback") : "callback";
 $leadSource = isset($_POST["lead_source"]) ? szcubeContactSanitizeSlug((string) $_POST["lead_source"], "unknown") : "unknown";
+$leadNote = isset($_POST["lead_note"]) ? szcubeContactTrim((string) $_POST["lead_note"]) : "";
 $pageUrl = isset($_POST["page_url"]) ? trim((string) $_POST["page_url"]) : "";
 
 if ($pageUrl === "" && isset($_SERVER["HTTP_REFERER"])) {
@@ -293,6 +295,7 @@ $requestData = array(
     "phone" => $phone,
     "lead_type" => $leadType,
     "lead_source" => $leadSource,
+    "lead_note" => mb_substr($leadNote, 0, 500),
     "page_url" => $pageUrl,
     "user_agent" => isset($_SERVER["HTTP_USER_AGENT"]) ? (string) $_SERVER["HTTP_USER_AGENT"] : "",
     "ip" => isset($_SERVER["REMOTE_ADDR"]) ? (string) $_SERVER["REMOTE_ADDR"] : "",

@@ -1,0 +1,251 @@
+.parking-intro {
+  padding: 18px 0 36px;
+}
+
+.parking-intro__card {
+  background: #f6f6f6;
+  border-radius: 2px;
+  display: grid;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(280px, 0.9fr);
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.parking-intro__copy {
+  padding: 42px 48px;
+}
+
+.parking-intro__title {
+  margin: 0 0 20px;
+  font-family: var(--font-title);
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 0.95;
+  color: var(--gray-800);
+}
+
+.parking-intro__text {
+  display: grid;
+  gap: 16px;
+  max-width: 640px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(64, 64, 64, 0.78);
+}
+
+.parking-intro__text p {
+  margin: 0;
+}
+
+.parking-intro__media {
+  min-height: 320px;
+  position: relative;
+}
+
+.parking-intro__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.parking-catalog .catalog__filters {
+  margin-bottom: 24px;
+}
+
+.parking-catalog .catalog__results {
+  padding-top: 24px;
+}
+
+.parking-card {
+  min-height: 0;
+}
+
+.parking-card .apartment-card__list {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.2fr) minmax(220px, 1fr) minmax(170px, auto) minmax(320px, auto) auto;
+  align-items: center;
+  gap: 24px;
+}
+
+.parking-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.parking-card__type {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(64, 64, 64, 0.86);
+}
+
+.parking-card__meta {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(64, 64, 64, 0.62);
+}
+
+.parking-card__price {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.parking-card__price .apartment-card__list-price {
+  line-height: 1.2;
+}
+
+.parking-card__price-old {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(64, 64, 64, 0.45);
+  text-decoration: line-through;
+}
+
+.parking-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.parking-card__reserve {
+  width: auto;
+  min-width: 162px;
+  height: 46px;
+  padding: 0 22px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+.parking-card__reserve--booked {
+  color: #5a6472;
+  border-color: rgba(104, 116, 132, 0.32);
+  background: rgba(207, 217, 227, 0.32);
+  cursor: default;
+  pointer-events: none;
+}
+
+.parking-card__reserve--booked:hover {
+  background: rgba(207, 217, 227, 0.32);
+  color: #5a6472;
+  border-color: rgba(104, 116, 132, 0.32);
+  box-shadow: none;
+  transform: none;
+}
+
+.parking-card__reserve-placeholder {
+  width: 162px;
+  height: 46px;
+  flex: 0 0 auto;
+}
+
+.parking-card .apartment-card__label {
+  min-width: 140px;
+}
+
+.parking-card__label--booked {
+  border: 1px solid rgba(232, 149, 255, 0.42);
+  background: rgba(232, 149, 255, 0.16);
+  color: #9255a6;
+}
+
+.parking-card__label--sold {
+  border: 1px solid rgba(104, 116, 132, 0.24);
+  background: rgba(207, 217, 227, 0.54);
+  color: #5a6472;
+}
+
+.parking-card .apartment-card__icons {
+  justify-content: flex-end;
+}
+
+.parking-card .apartment-card__icon {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.parking-card .apartment-card__icon:hover {
+  color: #1a3b88;
+}
+
+.parking-card .apartment-card__icon.apartment-card__fav:hover path {
+  stroke: #d92323;
+}
+
+.parking-card .apartment-card__icon.apartment-card__fav.is-active path {
+  fill: #d92323;
+  stroke: #d92323;
+}
+
+.parking-card .apartment-card__summary .apartment-card__area {
+  color: rgba(64, 64, 64, 0.62);
+}
+
+@media (max-width: 1200px) {
+  .parking-card .apartment-card__list {
+    grid-template-columns: minmax(220px, 1.2fr) minmax(200px, 1fr) minmax(150px, auto) minmax(250px, auto) auto;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 960px) {
+  .parking-intro__card {
+    grid-template-columns: 1fr;
+  }
+
+  .parking-intro__copy {
+    padding: 32px 28px;
+  }
+
+  .parking-intro__media {
+    min-height: 240px;
+    order: -1;
+  }
+
+  .parking-card .apartment-card__list {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .parking-card__actions,
+  .parking-card .apartment-card__price,
+  .parking-card .apartment-card__icons {
+    justify-content: flex-start;
+  }
+
+  .parking-card__reserve-placeholder {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .parking-intro {
+    padding-top: 8px;
+  }
+
+  .parking-intro__copy {
+    padding: 24px 20px 28px;
+  }
+
+  .parking-intro__title {
+    font-size: 34px;
+  }
+
+  .parking-card .apartment-card__list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .parking-card__actions {
+    flex-wrap: wrap;
+  }
+
+  .parking-card .apartment-card__label {
+    min-width: 0;
+    width: fit-content;
+  }
+}

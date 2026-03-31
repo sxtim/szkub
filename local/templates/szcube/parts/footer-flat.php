@@ -49,7 +49,7 @@
               <a class="footer__link" href="#">Евродвушка</a>
               <a class="footer__link" href="#">Евротрешка</a>
               <a class="footer__link" href="#">Кладовые</a>
-              <a class="footer__link" href="#">Парковки</a>
+              <a class="footer__link" href="/parking/">Парковки</a>
             </div>
             <div class="footer__col">
               <div class="footer__title">Способы покупки</div>

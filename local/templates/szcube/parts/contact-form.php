@@ -19,6 +19,7 @@ $contactFormSuccessText = isset($contactFormSuccessText) && is_string($contactFo
   <?php if (function_exists("bitrix_sessid_post")) { bitrix_sessid_post(); } ?>
   <input type="hidden" name="lead_type" value="<?= htmlspecialcharsbx($contactFormLeadType) ?>" data-contact-meta="lead-type" />
   <input type="hidden" name="lead_source" value="<?= htmlspecialcharsbx($contactFormLeadSource) ?>" data-contact-meta="lead-source" />
+  <input type="hidden" name="lead_note" value="" data-contact-meta="lead-note" />
   <input type="hidden" name="page_url" value="" data-contact-meta="page-url" />
   <h3 class="contact-form__title" <?= $contactFormTitleAttr !== "" ? htmlspecialcharsbx($contactFormTitleAttr) : "" ?>>
     <?= htmlspecialcharsbx($contactFormTitle) ?>

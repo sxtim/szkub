@@ -20,6 +20,11 @@ if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
+if (defined("PARKING_PAGE") && PARKING_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/parking.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/parking-catalog.js");
+}
 if (defined("APARTMENT_DETAIL_PAGE") && APARTMENT_DETAIL_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-detail.css");
@@ -143,6 +148,7 @@ if (!defined("ERROR_404")) {
                 <ul class="nav__dropdown">
                   <li><a href="#promo">Акции</a></li>
                   <li><a href="#news">Новости</a></li>
+                  <li><a href="/parking/">Паркинг</a></li>
                   <li><a href="#mortgage">Ипотека</a></li>
                 </ul>
               </li>
@@ -170,6 +176,7 @@ if (!defined("ERROR_404")) {
             <li><a href="/consulting/">Консалтинг</a></li>
             <li><a href="/tenders/">Тендеры</a></li>
             <li><a href="#promo">Акции</a></li>
+            <li><a href="/parking/">Паркинг</a></li>
             <li><a href="/about-company/">О компании</a></li>
             <li><a href="#mortgage">Ипотека</a></li>
             <li><a href="#contacts">Контакты</a></li>

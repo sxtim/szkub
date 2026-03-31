@@ -241,7 +241,7 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
         </div>
       </article>
 
-      <article class="extra-card">
+      <a class="extra-card" href="/parking/">
         <img
           src="<?=SITE_TEMPLATE_PATH?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
           alt="Паркинг"
@@ -255,7 +255,7 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
             />
           </div>
         </div>
-      </article>
+      </a>
 
       <article class="extra-card">
         <img
