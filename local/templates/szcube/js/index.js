@@ -137,8 +137,8 @@ document.addEventListener("DOMContentLoaded", () => {
       leadSourceInput.value = leadSource.trim();
     }
 
-    if (leadNoteInput) {
-      leadNoteInput.value = typeof leadNote === "string" ? leadNote.trim() : "";
+    if (leadNoteInput && typeof leadNote === "string") {
+      leadNoteInput.value = leadNote.trim();
     }
 
     if (pageUrlInput) {

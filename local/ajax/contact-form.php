@@ -168,7 +168,6 @@ function szcubeContactBuildBitrixFormValues(array $webForm, array $payload): arr
         "PHONE" => $payload["phone"],
         "LEAD_TYPE" => $payload["lead_type"],
         "LEAD_SOURCE" => $payload["lead_source"],
-        "LEAD_NOTE" => $payload["lead_note"],
         "PAGE_URL" => $payload["page_url"],
         "CONSENT" => "Y",
     );
@@ -209,6 +208,10 @@ function szcubeContactSubmit(array $payload): array
                     "message" => "Не удалось сохранить заявку в веб-форму.",
                     "details" => trim((string) $strError),
                 );
+            }
+
+            if ($payload["lead_note"] !== "") {
+                CFormResult::SetField((int) $resultId, "LEAD_NOTE", $payload["lead_note"]);
             }
 
             return array(

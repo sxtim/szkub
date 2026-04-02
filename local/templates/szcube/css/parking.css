@@ -54,6 +54,9 @@
 }
 
 .parking-catalog .catalog__results {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   padding-top: 24px;
 }
 
@@ -183,6 +186,28 @@
 
 .parking-card .apartment-card__summary .apartment-card__area {
   color: rgba(64, 64, 64, 0.62);
+}
+
+.parking-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.parking-card__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border: 1px solid rgba(17, 168, 157, 0.92);
+  border-radius: 2px;
+  background: transparent;
+  color: rgba(17, 168, 157, 0.92);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 @media (max-width: 1200px) {

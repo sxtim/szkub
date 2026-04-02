@@ -283,7 +283,7 @@ function contactFormToolEnsureQuestion(int $formId, array $questionConfig): arra
 		"TITLE_TYPE" => "text",
 		"SID" => $questionConfig["SID"],
 		"C_SORT" => (int)$questionConfig["C_SORT"],
-		"ADDITIONAL" => "N",
+		"ADDITIONAL" => !empty($questionConfig["ADDITIONAL"]) ? "Y" : "N",
 		"REQUIRED" => $questionConfig["REQUIRED"] ? "Y" : "N",
 		"IN_RESULTS_TABLE" => "Y",
 		"IN_EXCEL_TABLE" => "Y",
@@ -306,7 +306,7 @@ function contactFormToolEnsureQuestion(int $formId, array $questionConfig): arra
 
 	$answerRow = contactFormToolEnsureSingleAnswer((int)$fieldRow["ID"], array(
 		"MESSAGE" => isset($questionConfig["ANSWER_MESSAGE"]) ? (string)$questionConfig["ANSWER_MESSAGE"] : $questionConfig["TITLE"],
-		"VALUE" => $questionConfig["SID"],
+		"VALUE" => "",
 		"C_SORT" => (int)$questionConfig["C_SORT"],
 		"FIELD_TYPE" => $questionConfig["FIELD_TYPE"],
 		"FIELD_WIDTH" => isset($questionConfig["FIELD_WIDTH"]) ? (int)$questionConfig["FIELD_WIDTH"] : 40,
@@ -407,6 +407,7 @@ $questionSchema = array(
 		"TITLE" => "Детали заявки",
 		"C_SORT" => 450,
 		"REQUIRED" => false,
+		"ADDITIONAL" => true,
 		"FIELD_TYPE" => "text",
 		"COMMENTS" => "Детали выбранного объекта/сценария заявки",
 		"ANSWER_MESSAGE" => "Детали заявки",

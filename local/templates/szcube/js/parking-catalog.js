@@ -112,6 +112,10 @@ const parkingRenderCard = (parking, favoriteKeys) => {
   const levelLabel = parkingEscapeHtml(parking.level_label || "");
   const areaLabel = parkingEscapeHtml(parking.area_total_formatted || "");
   const metaParts = [levelLabel, areaLabel].filter(Boolean);
+  const badges = Array.isArray(parking.badges) ? parking.badges.filter(Boolean).slice(0, 2) : [];
+  const badgesHtml = badges.length
+    ? `<div class="parking-card__badges">${badges.map((badge) => `<span class="parking-card__badge">${parkingEscapeHtml(badge)}</span>`).join("")}</div>`
+    : "";
   const isFavorite = favoriteKeys.includes(parking.favorite_key);
   const reserveNote = [
     title ? `Паркинг: ${title}` : "",
@@ -140,6 +144,7 @@ const parkingRenderCard = (parking, favoriteKeys) => {
         <div class="apartment-card__summary">
           <div class="apartment-card__rooms">${title}</div>
           <div class="apartment-card__area">ЖК ${projectName}</div>
+          ${badgesHtml}
         </div>
         <div class="parking-card__details">
           <div class="parking-card__type">${typeLabel}</div>
