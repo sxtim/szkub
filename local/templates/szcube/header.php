@@ -20,7 +20,10 @@ if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
-if (defined("PARKING_PAGE") && PARKING_PAGE === true) {
+if (
+    (defined("PARKING_PAGE") && PARKING_PAGE === true)
+    || (defined("STOREROOMS_PAGE") && STOREROOMS_PAGE === true)
+) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/parking.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/parking-catalog.js");
@@ -149,6 +152,7 @@ if (!defined("ERROR_404")) {
                   <li><a href="#promo">Акции</a></li>
                   <li><a href="#news">Новости</a></li>
                   <li><a href="/parking/">Паркинг</a></li>
+                  <li><a href="/storerooms/">Кладовые</a></li>
                   <li><a href="#mortgage">Ипотека</a></li>
                 </ul>
               </li>
@@ -177,6 +181,7 @@ if (!defined("ERROR_404")) {
             <li><a href="/tenders/">Тендеры</a></li>
             <li><a href="#promo">Акции</a></li>
             <li><a href="/parking/">Паркинг</a></li>
+            <li><a href="/storerooms/">Кладовые</a></li>
             <li><a href="/about-company/">О компании</a></li>
             <li><a href="#mortgage">Ипотека</a></li>
             <li><a href="#contacts">Контакты</a></li>

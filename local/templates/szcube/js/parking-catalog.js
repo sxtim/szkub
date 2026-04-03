@@ -13,7 +13,67 @@ const parkingParsePayload = (root) => {
   }
 
   try {
-    return JSON.parse(payloadEl.textContent || "{}");
+    const payload = JSON.parse(payloadEl.textContent || "{}");
+    const config = payload && typeof payload === "object" ? payload.config || {} : {};
+
+    return {
+      ...payload,
+      parkings: Array.isArray(payload?.parkings)
+        ? payload.parkings
+        : Array.isArray(payload?.items)
+          ? payload.items
+          : [],
+      config: {
+        favorite_storage_key:
+          typeof config.favorite_storage_key === "string" && config.favorite_storage_key.trim() !== ""
+            ? config.favorite_storage_key.trim()
+            : "parking-favorites",
+        lead_type:
+          typeof config.lead_type === "string" && config.lead_type.trim() !== ""
+            ? config.lead_type.trim()
+            : "parking_reserve",
+        lead_source:
+          typeof config.lead_source === "string" && config.lead_source.trim() !== ""
+            ? config.lead_source.trim()
+            : "parking_catalog",
+        reserve_title_prefix:
+          typeof config.reserve_title_prefix === "string" && config.reserve_title_prefix.trim() !== ""
+            ? config.reserve_title_prefix.trim()
+            : "Забронировать",
+        reserve_button_label:
+          typeof config.reserve_button_label === "string" && config.reserve_button_label.trim() !== ""
+            ? config.reserve_button_label.trim()
+            : "Забронировать",
+        note_item_label:
+          typeof config.note_item_label === "string" && config.note_item_label.trim() !== ""
+            ? config.note_item_label.trim()
+            : "Паркинг",
+        note_project_label:
+          typeof config.note_project_label === "string" && config.note_project_label.trim() !== ""
+            ? config.note_project_label.trim()
+            : "ЖК",
+        note_type_label:
+          typeof config.note_type_label === "string" && config.note_type_label.trim() !== ""
+            ? config.note_type_label.trim()
+            : "Тип",
+        note_area_label:
+          typeof config.note_area_label === "string" && config.note_area_label.trim() !== ""
+            ? config.note_area_label.trim()
+            : "Площадь",
+        note_status_label:
+          typeof config.note_status_label === "string" && config.note_status_label.trim() !== ""
+            ? config.note_status_label.trim()
+            : "Статус",
+        type_fallback_label:
+          typeof config.type_fallback_label === "string" && config.type_fallback_label.trim() !== ""
+            ? config.type_fallback_label.trim()
+            : "Паркинг",
+        count_forms:
+          Array.isArray(config.count_forms) && config.count_forms.length === 3
+            ? config.count_forms.map((item) => String(item || ""))
+            : ["место", "места", "мест"],
+      },
+    };
   } catch (error) {
     console.error("Parking payload parse error", error);
     return null;
@@ -22,18 +82,162 @@ const parkingParsePayload = (root) => {
 
 const parkingUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
 
-const parkingPluralize = (count) => {
+const parkingPluralize = (count, forms = ["место", "места", "мест"]) => {
   const mod10 = count % 10;
   const mod100 = count % 100;
 
   if (mod10 === 1 && mod100 !== 11) {
-    return "место";
+    return forms[0] || "";
   }
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return "места";
+    return forms[1] || "";
   }
 
-  return "мест";
+  return forms[2] || "";
+};
+
+const parkingNormalizeState = (value) => {
+  const normalizeValues = (items) => {
+    if (typeof items === "string") {
+      items = items.split(",");
+    }
+
+    if (!Array.isArray(items)) {
+      return [];
+    }
+
+    return parkingUniqueValues(items.map((item) => String(item || "").trim()));
+  };
+
+  const normalizeNumber = (item) => {
+    if (item === null || item === "" || typeof item === "undefined") {
+      return null;
+    }
+
+    const number = Number(item);
+    return Number.isFinite(number) ? number : null;
+  };
+
+  return {
+    projects: normalizeValues(typeof value.projects !== "undefined" ? value.projects : value.project),
+    types: normalizeValues(typeof value.types !== "undefined" ? value.types : value.type),
+    statuses: normalizeValues(typeof value.statuses !== "undefined" ? value.statuses : value.status),
+    priceFrom: normalizeNumber(typeof value.priceFrom !== "undefined" ? value.priceFrom : value.price_from),
+    priceTo: normalizeNumber(typeof value.priceTo !== "undefined" ? value.priceTo : value.price_to),
+    areaFrom: normalizeNumber(typeof value.areaFrom !== "undefined" ? value.areaFrom : value.area_from),
+    areaTo: normalizeNumber(typeof value.areaTo !== "undefined" ? value.areaTo : value.area_to),
+    levelFrom: normalizeNumber(typeof value.levelFrom !== "undefined" ? value.levelFrom : value.level_from),
+    levelTo: normalizeNumber(typeof value.levelTo !== "undefined" ? value.levelTo : value.level_to),
+  };
+};
+
+const parkingHasCriteria = (state) => {
+  if (!state) {
+    return false;
+  }
+
+  if (
+    (Array.isArray(state.projects) && state.projects.length > 0)
+    || (Array.isArray(state.types) && state.types.length > 0)
+    || (Array.isArray(state.statuses) && state.statuses.length > 0)
+  ) {
+    return true;
+  }
+
+  return [
+    "priceFrom",
+    "priceTo",
+    "areaFrom",
+    "areaTo",
+    "levelFrom",
+    "levelTo",
+  ].some((key) => state[key] !== null && typeof state[key] !== "undefined");
+};
+
+const parkingStateFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const state = parkingNormalizeState({
+    project: params.get("project"),
+    type: params.get("type"),
+    status: params.get("status"),
+    price_from: params.get("price_from"),
+    price_to: params.get("price_to"),
+    area_from: params.get("area_from"),
+    area_to: params.get("area_to"),
+    level_from: params.get("level_from"),
+    level_to: params.get("level_to"),
+  });
+
+  return parkingHasCriteria(state) ? state : null;
+};
+
+const parkingUpdateDropdownLabels = (root) => {
+  root.querySelectorAll(".filter__dropdown").forEach((dropdown) => {
+    const button = dropdown.querySelector(".filter__dropdown-menu-btn");
+    const content = dropdown.querySelector(".filter__dropdown-content");
+    if (!button || !content) {
+      return;
+    }
+
+    const defaultText = button.dataset.defaultText || button.textContent.trim();
+    button.dataset.defaultText = defaultText;
+
+    const selected = Array.from(content.querySelectorAll('input[type="checkbox"]:checked'))
+      .map((checkbox) => checkbox.closest(".input_field")?.querySelector("label")?.textContent.trim())
+      .filter(Boolean);
+
+    button.textContent = selected.length ? selected.join(", ") : defaultText;
+  });
+};
+
+const parkingSyncCheckboxGroup = (root, group, values) => {
+  const allowed = new Set(Array.isArray(values) ? values : []);
+
+  root.querySelectorAll(`.custom-checkbox[data-sync-group="${group}"]`).forEach((checkbox) => {
+    const checked = allowed.has(checkbox.dataset.syncValue || "");
+    checkbox.checked = checked;
+
+    const field = checkbox.closest(".input_field");
+    if (field) {
+      field.classList.toggle("selected", checked);
+    }
+  });
+};
+
+const parkingSetRange = (root, rangeName, fromValue, toValue, fallbackMin, fallbackMax) => {
+  const from = typeof fromValue === "number" ? fromValue : fallbackMin;
+  const to = typeof toValue === "number" ? toValue : fallbackMax;
+
+  root.querySelectorAll(`.range-slider[data-range="${rangeName}"]`).forEach((slider) => {
+    if (slider.noUiSlider) {
+      slider.noUiSlider.set([from, to]);
+    }
+  });
+
+  root.querySelectorAll(`[data-range-input="${rangeName}-from"]`).forEach((input) => {
+    input.value = String(from);
+  });
+  root.querySelectorAll(`[data-range-input="${rangeName}-to"]`).forEach((input) => {
+    input.value = String(to);
+  });
+};
+
+const parkingApplyState = (root, payload, state) => {
+  if (!state) {
+    parkingUpdateDropdownLabels(root);
+    return;
+  }
+
+  parkingSyncCheckboxGroup(root, "project", state.projects);
+  parkingSyncCheckboxGroup(root, "type", state.types);
+  parkingSyncCheckboxGroup(root, "status", state.statuses);
+
+  const ranges = payload.ranges || {};
+  parkingSetRange(root, "price", state.priceFrom, state.priceTo, ranges.price?.actual_min ?? 0, ranges.price?.actual_max ?? 0);
+  parkingSetRange(root, "area", state.areaFrom, state.areaTo, ranges.area?.actual_min ?? 0, ranges.area?.actual_max ?? 0);
+  parkingSetRange(root, "level", state.levelFrom, state.levelTo, ranges.level?.actual_min ?? 0, ranges.level?.actual_max ?? 0);
+
+  parkingUpdateDropdownLabels(root);
 };
 
 const parkingReadRangeValue = (root, key, fallback) => {
@@ -42,9 +246,9 @@ const parkingReadRangeValue = (root, key, fallback) => {
   return Number.isFinite(value) ? value : fallback;
 };
 
-const parkingGetFavorites = () => {
+const parkingGetFavorites = (storageKey) => {
   try {
-    const raw = window.localStorage.getItem("parking-favorites");
+    const raw = window.localStorage.getItem(storageKey);
     if (!raw) {
       return [];
     }
@@ -55,9 +259,9 @@ const parkingGetFavorites = () => {
   }
 };
 
-const parkingSetFavorites = (items) => {
+const parkingSetFavorites = (storageKey, items) => {
   try {
-    window.localStorage.setItem("parking-favorites", JSON.stringify(items));
+    window.localStorage.setItem(storageKey, JSON.stringify(items));
   } catch (error) {
     // noop
   }
@@ -102,10 +306,10 @@ const parkingStateToQuery = (state, payload) => {
   return params;
 };
 
-const parkingRenderCard = (parking, favoriteKeys) => {
+const parkingRenderCard = (parking, favoriteKeys, config) => {
   const title = parkingEscapeHtml(parking.title || "Парковочное место");
   const projectName = parkingEscapeHtml(parking.project_name || "");
-  const typeLabel = parkingEscapeHtml(parking.type_label || "Паркинг");
+  const typeLabel = parkingEscapeHtml(parking.type_label || config.type_fallback_label || "Паркинг");
   const statusLabel = parkingEscapeHtml(parking.status_label || "");
   const priceTotal = parkingEscapeHtml(parking.price_total_formatted || "");
   const priceOld = parkingEscapeHtml(parking.price_old_formatted || "");
@@ -115,18 +319,17 @@ const parkingRenderCard = (parking, favoriteKeys) => {
   const badges = Array.isArray(parking.badges) ? parking.badges.filter(Boolean).slice(0, 2) : [];
   const isFavorite = favoriteKeys.includes(parking.favorite_key);
   const reserveNote = [
-    title ? `Паркинг: ${title}` : "",
-    projectName ? `ЖК: ${projectName}` : "",
-    typeLabel ? `Тип: ${typeLabel}` : "",
+    title ? `${config.note_item_label}: ${title}` : "",
+    projectName ? `${config.note_project_label}: ${projectName}` : "",
+    typeLabel ? `${config.note_type_label}: ${typeLabel}` : "",
     levelLabel ? levelLabel : "",
-    areaLabel ? `Площадь: ${areaLabel}` : "",
+    areaLabel ? `${config.note_area_label}: ${areaLabel}` : "",
     priceTotal ? `Цена: ${priceTotal}` : "",
-    statusLabel ? `Статус: ${statusLabel}` : "",
+    statusLabel ? `${config.note_status_label}: ${statusLabel}` : "",
   ]
     .filter(Boolean)
     .join(" | ");
   const canReserve = parking.status_key !== "sold" && parking.status_key !== "booked";
-  const isBooked = parking.status_key === "booked";
   const statusClass =
     parking.status_key === "available"
       ? " parking-card__badge--available"
@@ -157,6 +360,13 @@ const parkingRenderCard = (parking, favoriteKeys) => {
         })
         .join("")}</div>`
     : "";
+  const detailsHtml =
+    typeLabel || metaParts.length
+      ? `<div class="parking-card__details">
+          ${typeLabel ? `<div class="parking-card__type">${typeLabel}</div>` : ""}
+          ${metaParts.length ? `<div class="parking-card__meta">${parkingEscapeHtml(metaParts.join(" · "))}</div>` : ""}
+        </div>`
+      : `<div class="parking-card__details" aria-hidden="true"></div>`;
 
   return `
     <article class="apartment-card parking-card" data-favorite-key="${parkingEscapeHtml(parking.favorite_key || "")}">
@@ -166,17 +376,14 @@ const parkingRenderCard = (parking, favoriteKeys) => {
           <div class="apartment-card__area">ЖК ${projectName}</div>
           ${badgesHtml}
         </div>
-        <div class="parking-card__details">
-          <div class="parking-card__type">${typeLabel}</div>
-          <div class="parking-card__meta">${parkingEscapeHtml(metaParts.join(" · "))}</div>
-        </div>
+        ${detailsHtml}
         <div class="parking-card__price">
           <div class="apartment-card__list-price">${priceTotal}</div>
           ${priceOld ? `<div class="parking-card__price-old">${priceOld}</div>` : ""}
         </div>
         <div class="parking-card__actions">
           ${canReserve
-            ? `<button class="btn btn--primary parking-card__reserve" type="button" data-contact-open="contact" data-contact-title="Забронировать ${title}" data-contact-type="parking_reserve" data-contact-source="parking_catalog" data-contact-note="${parkingEscapeHtml(reserveNote)}">Забронировать</button>`
+            ? `<button class="btn btn--primary parking-card__reserve" type="button" data-contact-open="contact" data-contact-title="${parkingEscapeHtml(`${config.reserve_title_prefix} ${parking.title || "лот"}`)}" data-contact-type="${parkingEscapeHtml(config.lead_type)}" data-contact-source="${parkingEscapeHtml(config.lead_source)}" data-contact-note="${parkingEscapeHtml(reserveNote)}">${parkingEscapeHtml(config.reserve_button_label)}</button>`
             : `<span class="parking-card__action-slot" aria-hidden="true"></span>`}
         </div>
         <div class="apartment-card__icons">
@@ -203,7 +410,16 @@ const initParkingCatalog = () => {
     const countEls = root.querySelectorAll("[data-parking-count], [data-parking-summary]");
     const resetBtn = root.querySelector("[data-parking-reset]");
     const allParkings = Array.isArray(payload.parkings) ? payload.parkings : [];
-    let favoriteKeys = parkingGetFavorites();
+    const config = payload.config || {};
+    const countForms = Array.isArray(config.count_forms) ? config.count_forms : ["место", "места", "мест"];
+    const favoritesStorageKey = config.favorite_storage_key || "parking-favorites";
+    const initialQuery = parkingStateFromQuery();
+    let favoriteKeys = parkingGetFavorites(favoritesStorageKey);
+    let isReady = false;
+
+    if (!results || !empty) {
+      return;
+    }
 
     const getState = () => ({
       projects: parkingUniqueValues(
@@ -258,14 +474,18 @@ const initParkingCatalog = () => {
       });
 
     const render = () => {
+      if (!isReady) {
+        return;
+      }
+
       const state = getState();
       const filtered = filterItems(state);
-      results.innerHTML = filtered.map((item) => parkingRenderCard(item, favoriteKeys)).join("");
+      results.innerHTML = filtered.map((item) => parkingRenderCard(item, favoriteKeys, config)).join("");
       empty.hidden = filtered.length > 0;
       results.hidden = filtered.length === 0;
 
       countEls.forEach((el) => {
-        el.textContent = `Найдено ${filtered.length} ${parkingPluralize(filtered.length)}`;
+        el.textContent = `Найдено ${filtered.length} ${parkingPluralize(filtered.length, countForms)}`;
       });
 
       const hasFilters = state.projects.length
@@ -284,7 +504,9 @@ const initParkingCatalog = () => {
 
       const params = parkingStateToQuery(state, payload);
       const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
-      window.history.replaceState({}, "", nextUrl);
+      if (`${window.location.pathname}${window.location.search}` !== nextUrl) {
+        window.history.replaceState(window.history.state, "", nextUrl);
+      }
     };
 
     root.addEventListener("input", (event) => {
@@ -310,7 +532,7 @@ const initParkingCatalog = () => {
         } else {
           favoriteKeys = [...favoriteKeys, favoriteKey];
         }
-        parkingSetFavorites(favoriteKeys);
+        parkingSetFavorites(favoritesStorageKey, favoriteKeys);
         favButton.classList.toggle("is-active", favoriteKeys.includes(favoriteKey));
       }
     });
@@ -344,7 +566,11 @@ const initParkingCatalog = () => {
       });
     }
 
-    render();
+    window.requestAnimationFrame(() => {
+      parkingApplyState(root, payload, initialQuery);
+      isReady = true;
+      render();
+    });
   });
 };
 

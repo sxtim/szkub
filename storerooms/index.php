@@ -1,8 +1,8 @@
 <?php
-define("PARKING_PAGE", true);
+define("STOREROOMS_PAGE", true);
 define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
-$APPLICATION->SetTitle("Паркинг");
+$APPLICATION->SetTitle("Кладовые");
 ?>
 
 <div class="breadcrumbs-wrap">
@@ -20,12 +20,12 @@ $APPLICATION->SetTitle("Паркинг");
     <div class="parking-intro__card">
       <div class="parking-intro__copy">
         <div class="parking-intro__text">
-          <p>Каталог парковочных мест по нашим жилым комплексам. Выбирайте подходящий уровень, тип места и бюджет в том же контуре, что и квартиры.</p>
-          <p>Сейчас в выдаче используем компактную строчную карточку: номер места, ЖК, тип, уровень, площадь, цена и статус.</p>
+          <p>Каталог кладовых помещений по нашим жилым комплексам. Выбирайте подходящий вариант в том же контуре, что и квартиры и паркинг.</p>
+          <p>В выдаче используем тот же строчный формат карточки: номер кладовки, ЖК, цена, статус и лейблы без лишних параметров.</p>
         </div>
       </div>
       <div class="parking-intro__media" aria-hidden="true">
-        <img src="<?= SITE_TEMPLATE_PATH ?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png" alt="" loading="lazy">
+        <img src="<?= SITE_TEMPLATE_PATH ?>/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png" alt="" loading="lazy">
       </div>
     </div>
   </div>
@@ -33,11 +33,11 @@ $APPLICATION->SetTitle("Паркинг");
 
 <?php
 $APPLICATION->IncludeComponent(
-    "szcube:parking.filter",
+    "szcube:storeroom.filter",
     "catalog",
     array(
         "CACHE_TIME" => "36000000",
-        "CATALOG_PAGE_URL" => "/parking/",
+        "CATALOG_PAGE_URL" => "/storerooms/",
     ),
     false
 );

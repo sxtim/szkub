@@ -152,11 +152,6 @@ for ($i = 1; $i <= 4; $i++) {
 	addPropertyFieldForProjectsAdminForm($projectDetailFields, $propertyMap, "ABOUT_F" . $i . "_LABEL");
 	addPropertyFieldForProjectsAdminForm($projectDetailFields, $propertyMap, "ABOUT_F" . $i . "_VALUE");
 }
-for ($i = 1; $i <= 3; $i++) {
-	addPropertyFieldForProjectsAdminForm($projectDetailFields, $propertyMap, "EXTRA" . $i . "_TITLE");
-	addPropertyFieldForProjectsAdminForm($projectDetailFields, $propertyMap, "EXTRA" . $i . "_IMAGE");
-	addPropertyFieldForProjectsAdminForm($projectDetailFields, $propertyMap, "EXTRA" . $i . "_URL");
-}
 addPropertyFieldForProjectsAdminForm($projectDetailFields, $propertyMap, "CONSTRUCTION_SUBTITLE");
 
 $aboutCompanyFields = array();

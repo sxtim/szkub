@@ -304,20 +304,7 @@ if ($project) {
 		);
 	}
 
-	$projectDetail["extra"] = array();
-	$extraDefaults = array(
-		array("title" => "Коммерция", "image" => SITE_TEMPLATE_PATH . "/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png", "url" => "/commerce/"),
-		array("title" => "Паркинг", "image" => SITE_TEMPLATE_PATH . "/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png", "url" => "/parking/"),
-		array("title" => "Кладовые", "image" => SITE_TEMPLATE_PATH . "/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png", "url" => "/storerooms/"),
-	);
-	foreach ($extraDefaults as $extraIndex => $extraDefault) {
-		$i = $extraIndex + 1;
-		$projectDetail["extra"][] = array(
-			"title" => projectDetailPropertyScalar($projectProperties, "EXTRA" . $i . "_TITLE", $extraDefault["title"]),
-			"image" => projectDetailPropertyFileUrl($projectProperties, "EXTRA" . $i . "_IMAGE", $extraDefault["image"]),
-			"url" => projectDetailPropertyScalar($projectProperties, "EXTRA" . $i . "_URL", $extraDefault["url"]),
-		);
-	}
+	$projectDetail["extra"] = szcubeGetExtraCards("project", isset($project["code"]) ? $project["code"] : "");
 
 	$projectDetail["construction_subtitle"] = projectDetailPropertyScalar($projectProperties, "CONSTRUCTION_SUBTITLE", "Сдача в IV кв. 2026");
 
@@ -497,30 +484,50 @@ if ($project) {
   </div>
 </section>
 
-<section class="extra" id="apartments">
-  <div class="container">
-    <h2 class="section-title">Кроме квартир</h2>
-    <div class="extra__cards">
-      <?php foreach ($projectDetail["extra"] as $extraItem): ?>
-        <a class="extra-card" href="<?= htmlspecialcharsbx($extraItem["url"] !== "" ? $extraItem["url"] : "#") ?>">
-          <img
-            src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
-            alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
-          />
-          <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
-          <div class="extra-card__overlay">
-            <div class="extra-card__link">
+<?php if (!empty($projectDetail["extra"])): ?>
+  <section class="extra" id="apartments">
+    <div class="container">
+      <h2 class="section-title">Кроме квартир</h2>
+      <div class="extra__cards">
+        <?php foreach ($projectDetail["extra"] as $extraItem): ?>
+          <?php if ($extraItem["url"] !== ""): ?>
+            <a class="extra-card" href="<?= htmlspecialcharsbx($extraItem["url"]) ?>">
               <img
-                src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
-                alt=""
+                src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
+                alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
               />
-            </div>
-          </div>
-        </a>
-      <?php endforeach; ?>
+              <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
+              <div class="extra-card__overlay">
+                <div class="extra-card__link">
+                  <img
+                    src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+                    alt=""
+                  />
+                </div>
+              </div>
+            </a>
+          <?php else: ?>
+            <article class="extra-card">
+              <img
+                src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
+                alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
+              />
+              <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
+              <div class="extra-card__overlay">
+                <div class="extra-card__link">
+                  <img
+                    src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+                    alt=""
+                  />
+                </div>
+              </div>
+            </article>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+<?php endif; ?>
 
 <?php
 $homePromotionsIblockType = "content";

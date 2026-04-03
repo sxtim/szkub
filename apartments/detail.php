@@ -876,20 +876,7 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 					$projectFilterUrl = $projectCode !== "" ? "/projects/detail.php?code=" . rawurlencode($projectCode) : "";
 					$street = apartmentDetailFormatAddress(apartmentDetailPropertyScalar($projectProperties, "ADDRESS", ""));
 					$handover = apartmentDetailPropertyScalar($projectProperties, "DELIVERY_TEXT", "");
-
-					$extraDefaults = array(
-						array("title" => "Коммерция", "image" => SITE_TEMPLATE_PATH . "/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png", "url" => "/commerce/"),
-						array("title" => "Паркинг", "image" => SITE_TEMPLATE_PATH . "/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png", "url" => "/parking/"),
-						array("title" => "Кладовые", "image" => SITE_TEMPLATE_PATH . "/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png", "url" => "/storerooms/"),
-					);
-					foreach ($extraDefaults as $extraIndex => $extraDefault) {
-						$i = $extraIndex + 1;
-						$projectExtraItems[] = array(
-							"title" => apartmentDetailPropertyScalar($projectProperties, "EXTRA" . $i . "_TITLE", $extraDefault["title"]),
-							"image" => apartmentDetailPropertyFileUrl($projectProperties, "EXTRA" . $i . "_IMAGE", $extraDefault["image"]),
-							"url" => apartmentDetailPropertyScalar($projectProperties, "EXTRA" . $i . "_URL", $extraDefault["url"]),
-						);
-					}
+					$projectExtraItems = szcubeGetExtraCards("project", $projectCode);
 				}
 			}
 
@@ -1347,21 +1334,39 @@ if (!$apartment) {
       <h2 class="section-title">Кроме квартир</h2>
       <div class="extra__cards">
         <?php foreach ($projectExtraItems as $extraItem): ?>
-          <a class="extra-card" href="<?= htmlspecialcharsbx($extraItem["url"] !== "" ? $extraItem["url"] : "#") ?>">
-            <img
-              src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
-              alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
-            />
-            <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
-            <div class="extra-card__overlay">
-              <div class="extra-card__link">
-                <img
-                  src="<?= SITE_TEMPLATE_PATH ?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
-                  alt=""
-                />
+          <?php if ($extraItem["url"] !== ""): ?>
+            <a class="extra-card" href="<?= htmlspecialcharsbx($extraItem["url"]) ?>">
+              <img
+                src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
+                alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
+              />
+              <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
+              <div class="extra-card__overlay">
+                <div class="extra-card__link">
+                  <img
+                    src="<?= SITE_TEMPLATE_PATH ?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+                    alt=""
+                  />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          <?php else: ?>
+            <article class="extra-card">
+              <img
+                src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
+                alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
+              />
+              <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
+              <div class="extra-card__overlay">
+                <div class="extra-card__link">
+                  <img
+                    src="<?= SITE_TEMPLATE_PATH ?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+                    alt=""
+                  />
+                </div>
+              </div>
+            </article>
+          <?php endif; ?>
         <?php endforeach; ?>
       </div>
     </div>

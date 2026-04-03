@@ -197,12 +197,6 @@ $matrix = array(
 		"ABOUT_F3_VALUE" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
 		"ABOUT_F4_LABEL" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
 		"ABOUT_F4_VALUE" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
-		"EXTRA1_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
-		"EXTRA1_URL" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
-		"EXTRA2_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
-		"EXTRA2_URL" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
-		"EXTRA3_TITLE" => array("ROW_COUNT" => 1, "COL_COUNT" => 60),
-		"EXTRA3_URL" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
 		"CONSTRUCTION_SUBTITLE" => array("ROW_COUNT" => 2, "COL_COUNT" => 80),
 	),
 	"apartments" => array(
@@ -261,6 +255,9 @@ $matrix = array(
 		"LABEL" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
 		"ALT" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
 		"ITEM_HEIGHT" => array("ROW_COUNT" => 1, "COL_COUNT" => 20),
+	),
+	"extra_cards" => array(
+		"LINK_URL" => array("ROW_COUNT" => 1, "COL_COUNT" => 80),
 	),
 );
 

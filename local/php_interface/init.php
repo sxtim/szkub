@@ -260,6 +260,200 @@ if (!function_exists("szcubeGetProjectMapEmbedHtml")) {
     }
 }
 
+if (!function_exists("szcubeAppendProjectFilterToExtraUrl")) {
+    function szcubeAppendProjectFilterToExtraUrl($url, $projectCode)
+    {
+        $url = trim((string)$url);
+        $projectCode = preg_replace("/[^a-z0-9_-]/i", "", trim((string)$projectCode));
+
+        if ($url === "" || $projectCode === "") {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+        if (!is_array($parts)) {
+            return $url;
+        }
+
+        $path = isset($parts["path"]) ? (string)$parts["path"] : "";
+        $normalizedPath = $path !== "" ? "/" . ltrim(rtrim($path, "/"), "/") . "/" : "";
+        if ($normalizedPath !== "/parking/" && $normalizedPath !== "/storerooms/") {
+            return $url;
+        }
+
+        $query = array();
+        if (isset($parts["query"]) && trim((string)$parts["query"]) !== "") {
+            parse_str((string)$parts["query"], $query);
+        }
+        $query["project"] = $projectCode;
+
+        $result = "";
+        if (isset($parts["scheme"]) && $parts["scheme"] !== "") {
+            $result .= $parts["scheme"] . "://";
+        }
+        if (isset($parts["user"]) && $parts["user"] !== "") {
+            $result .= $parts["user"];
+            if (isset($parts["pass"]) && $parts["pass"] !== "") {
+                $result .= ":" . $parts["pass"];
+            }
+            $result .= "@";
+        }
+        if (isset($parts["host"]) && $parts["host"] !== "") {
+            $result .= $parts["host"];
+        }
+        if (isset($parts["port"]) && (int)$parts["port"] > 0) {
+            $result .= ":" . (int)$parts["port"];
+        }
+
+        $result .= $path !== "" ? $path : $url;
+        $queryString = http_build_query($query, "", "&");
+        if ($queryString !== "") {
+            $result .= "?" . $queryString;
+        }
+        if (isset($parts["fragment"]) && $parts["fragment"] !== "") {
+            $result .= "#" . $parts["fragment"];
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists("szcubeGetIblockSectionIdByCodePath")) {
+    function szcubeGetIblockSectionIdByCodePath($iblockId, array $codePath)
+    {
+        static $cache = array();
+
+        $iblockId = (int)$iblockId;
+        if ($iblockId <= 0 || empty($codePath)) {
+            return 0;
+        }
+
+        $normalizedPath = array();
+        foreach ($codePath as $code) {
+            $code = trim((string)$code);
+            if ($code === "") {
+                return 0;
+            }
+            $normalizedPath[] = mb_strtolower($code);
+        }
+
+        $cacheKey = $iblockId . "::" . implode("/", $normalizedPath);
+        if (array_key_exists($cacheKey, $cache)) {
+            return $cache[$cacheKey];
+        }
+
+        $cache[$cacheKey] = 0;
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache[$cacheKey];
+        }
+
+        $parentSectionId = false;
+        foreach ($normalizedPath as $code) {
+            $filter = array(
+                "IBLOCK_ID" => $iblockId,
+                "=CODE" => $code,
+                "ACTIVE" => "Y",
+            );
+            $filter["SECTION_ID"] = $parentSectionId === false ? false : (int)$parentSectionId;
+
+            $sectionRes = CIBlockSection::GetList(
+                array("SORT" => "ASC", "ID" => "ASC"),
+                $filter,
+                false,
+                array("ID")
+            );
+            $section = $sectionRes ? $sectionRes->Fetch() : false;
+            if (!is_array($section)) {
+                return $cache[$cacheKey];
+            }
+
+            $parentSectionId = (int)$section["ID"];
+            if ($parentSectionId <= 0) {
+                return $cache[$cacheKey];
+            }
+        }
+
+        $cache[$cacheKey] = (int)$parentSectionId;
+        return $cache[$cacheKey];
+    }
+}
+
+if (!function_exists("szcubeGetExtraCards")) {
+    function szcubeGetExtraCards($scope, $projectCode = "")
+    {
+        static $cache = array();
+
+        $scope = mb_strtolower(trim((string)$scope));
+        $projectCode = preg_replace("/[^a-z0-9_-]/i", "", trim((string)$projectCode));
+        $cacheKey = $scope . "::" . mb_strtolower($projectCode);
+
+        if (array_key_exists($cacheKey, $cache)) {
+            return $cache[$cacheKey];
+        }
+
+        $cache[$cacheKey] = array();
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache[$cacheKey];
+        }
+
+        $iblockId = szcubeGetIblockIdByCode("extra_cards");
+        if ($iblockId <= 0) {
+            return $cache[$cacheKey];
+        }
+
+        if ($scope === "home") {
+            $sectionCodePath = array("home");
+        } elseif ($scope === "project" && $projectCode !== "") {
+            $sectionCodePath = array("projects", $projectCode);
+        } else {
+            return $cache[$cacheKey];
+        }
+
+        $sectionId = szcubeGetIblockSectionIdByCodePath($iblockId, $sectionCodePath);
+        if ($sectionId <= 0) {
+            return $cache[$cacheKey];
+        }
+
+        $elementRes = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "SECTION_ID" => $sectionId,
+                "INCLUDE_SUBSECTIONS" => "N",
+                "ACTIVE" => "Y",
+            ),
+            false,
+            false,
+            array("ID", "IBLOCK_ID", "NAME", "CODE", "PREVIEW_PICTURE", "SORT")
+        );
+
+        while ($element = $elementRes->GetNextElement()) {
+            $fields = $element->GetFields();
+            $properties = $element->GetProperties();
+
+            $title = trim((string)$fields["NAME"]);
+            $image = CFile::GetPath((int)$fields["PREVIEW_PICTURE"]);
+            $url = isset($properties["LINK_URL"]["VALUE"]) ? trim((string)$properties["LINK_URL"]["VALUE"]) : "";
+
+            if ($title === "" || !$image) {
+                continue;
+            }
+
+            if ($scope === "project" && $projectCode !== "") {
+                $url = szcubeAppendProjectFilterToExtraUrl($url, $projectCode);
+            }
+
+            $cache[$cacheKey][] = array(
+                "title" => $title,
+                "image" => (string)$image,
+                "url" => $url,
+            );
+        }
+
+        return $cache[$cacheKey];
+    }
+}
+
 if (!function_exists("szcubeNormalizeApartmentCodePart")) {
     function szcubeNormalizeApartmentCodePart($value)
     {

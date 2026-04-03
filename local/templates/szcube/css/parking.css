@@ -1,5 +1,9 @@
+.parking-page__title-wrap {
+  margin-top: 40px;
+}
+
 .parking-intro {
-  padding: 18px 0 36px;
+  padding: 0 0 36px;
 }
 
 .parking-intro__card {
@@ -10,16 +14,7 @@
 }
 
 .parking-intro__copy {
-  padding: 42px 48px;
-}
-
-.parking-intro__title {
-  margin: 0 0 20px;
-  font-family: var(--font-title);
-  font-size: 46px;
-  font-weight: 500;
-  line-height: 0.95;
-  color: var(--gray-800);
+  padding: 0 48px 42px;
 }
 
 .parking-intro__text {
@@ -49,6 +44,10 @@
 
 .parking-catalog .catalog__filters {
   margin-bottom: 24px;
+}
+
+.parking-catalog .catalog__count--center {
+  margin-bottom: 30px;
 }
 
 .parking-catalog .catalog__results {
@@ -229,15 +228,11 @@
 
 @media (max-width: 640px) {
   .parking-intro {
-    padding-top: 8px;
+    padding-top: 0;
   }
 
   .parking-intro__copy {
     padding: 24px 20px 28px;
-  }
-
-  .parking-intro__title {
-    font-size: 34px;
   }
 
   .catalog-grid.is-list .parking-card .apartment-card__list {

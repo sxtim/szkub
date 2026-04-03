@@ -6,6 +6,8 @@ $APPLICATION->SetPageProperty("title", "СЗ КУБ — застройщик в 
 $homeMapEmbedHtml = function_exists("szcubeGetPageMapEmbedHtml")
   ? (string)szcubeGetPageMapEmbedHtml("home")
   : "";
+
+$homeExtraCards = szcubeGetExtraCards("home");
 ?>
 
 <div class="breadcrumbs-wrap">
@@ -203,60 +205,50 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
   </div>
 </section>
 
+<?php if (!empty($homeExtraCards)): ?>
         <section class="extra" id="apartments">
   <div class="container">
     <h2 class="section-title">Кроме квартир</h2>
     <div class="extra__cards">
-      <article class="extra-card">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-d19d0bcf-14ae-4fb3-a3dc-4363edabe21a.png"
-          alt="Коммерция"
-        />
-        <h3 class="extra-card__title">Коммерция</h3>
-        <div class="extra-card__overlay">
-          <div class="extra-card__link">
+      <?php foreach ($homeExtraCards as $extraItem): ?>
+        <?php if ($extraItem["url"] !== ""): ?>
+          <a class="extra-card" href="<?= htmlspecialcharsbx($extraItem["url"]) ?>">
             <img
-              src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
-              alt=""
+              src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
+              alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
             />
-          </div>
-        </div>
-      </article>
-
-      <a class="extra-card" href="/parking/">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png"
-          alt="Паркинг"
-        />
-        <h3 class="extra-card__title">Паркинг</h3>
-        <div class="extra-card__overlay">
-          <div class="extra-card__link">
+            <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
+            <div class="extra-card__overlay">
+              <div class="extra-card__link">
+                <img
+                  src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+                  alt=""
+                />
+              </div>
+            </div>
+          </a>
+        <?php else: ?>
+          <article class="extra-card">
             <img
-              src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
-              alt=""
+              src="<?= htmlspecialcharsbx($extraItem["image"]) ?>"
+              alt="<?= htmlspecialcharsbx($extraItem["title"]) ?>"
             />
-          </div>
-        </div>
-      </a>
-
-      <article class="extra-card">
-        <img
-          src="<?=SITE_TEMPLATE_PATH?>/img/figma-962f733c-d79a-402f-b82c-1e5b010739c3.png"
-          alt="Кладовые"
-        />
-        <h3 class="extra-card__title">Кладовые</h3>
-        <div class="extra-card__overlay">
-          <div class="extra-card__link">
-            <img
-              src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
-              alt=""
-            />
-          </div>
-        </div>
-      </article>
+            <h3 class="extra-card__title"><?= htmlspecialcharsbx($extraItem["title"]) ?></h3>
+            <div class="extra-card__overlay">
+              <div class="extra-card__link">
+                <img
+                  src="<?=SITE_TEMPLATE_PATH?>/img/figma-c9a51b74-4033-4a0d-a682-d597c518fcf6.svg"
+                  alt=""
+                />
+              </div>
+            </div>
+          </article>
+        <?php endif; ?>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>
+<?php endif; ?>
 
 	        <?php
 	        $homePromotionsIblockType = "content";
