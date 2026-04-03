@@ -2053,6 +2053,9 @@ a {
 
 .contacts {
   position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   padding-bottom: 0;
 }
 .contacts__inner {
@@ -2159,6 +2162,7 @@ a {
   }
 }
 .footer {
+  --footer-top-padding: 70px;
   background: var(--blue);
   color: var(--white);
   padding: 70px 0 40px;
@@ -2194,9 +2198,11 @@ a {
   object-fit: contain;
 }
 .footer__main {
+  --footer-main-overlap: 312px;
+  --footer-cube-edge: 36px;
   display: flex;
   flex-direction: column;
-  margin-top: -312px;
+  margin-top: calc(var(--footer-main-overlap) * -1);
   gap: 16px;
   min-height: 320px;
 
@@ -2215,20 +2221,20 @@ a {
 /* Верхняя грань куба */
 .footer__main::before {
   left: 0;
-  top: -36px;
-  width: calc(100% + 36px);
-  height: 36px;
+  top: calc(var(--footer-cube-edge) * -1);
+  width: calc(100% + var(--footer-cube-edge));
+  height: var(--footer-cube-edge);
   background: #24479b;
-  clip-path: polygon(0 100%, 36px 0, 100% 0, calc(100% - 36px) 100%);
+  clip-path: polygon(0 100%, var(--footer-cube-edge) 0, 100% 0, calc(100% - var(--footer-cube-edge)) 100%);
 }
 /* Правая грань куба */
 .footer__main::after {
-  top: -36px;
-  right: -36px; 
-  width: 36px;
-  height: calc(42% + 12px);
+  top: calc(var(--footer-cube-edge) * -1);
+  right: calc(var(--footer-cube-edge) * -1);
+  width: var(--footer-cube-edge);
+  height: calc(var(--footer-main-overlap) - var(--footer-top-padding) + var(--footer-cube-edge));
   background: #183175;
-  clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(0 var(--footer-cube-edge), 100% 0, 100% 100%, 0 100%);
 }
 .footer__contacts {
   list-style: none;
@@ -2482,7 +2488,8 @@ a {
     grid-template-columns: 1fr;
   }
   .footer__main {
-    --footer-overlap: 0px;
+    --footer-main-overlap: 0px;
+    --footer-cube-edge: 0px;
     top: 0;
     margin-bottom: 0;
     margin-top: 0;
@@ -2494,6 +2501,7 @@ a {
 }
 @media (max-width: 768px) {
   .footer {
+    --footer-top-padding: 50px;
     padding: 50px 0 32px;
   }
   .footer__columns {

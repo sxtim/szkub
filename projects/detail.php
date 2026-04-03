@@ -605,12 +605,6 @@ if ($activeProjectCode !== "") {
     false
   );
   ?>
-<?php else: ?>
-  <section class="promo" id="promo">
-    <div class="container">
-      <h2 class="section-title">Акции</h2>
-    </div>
-  </section>
 <?php endif; ?>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/purchase.php"; ?>

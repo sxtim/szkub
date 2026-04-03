@@ -113,9 +113,6 @@ const parkingRenderCard = (parking, favoriteKeys) => {
   const areaLabel = parkingEscapeHtml(parking.area_total_formatted || "");
   const metaParts = [levelLabel, areaLabel].filter(Boolean);
   const badges = Array.isArray(parking.badges) ? parking.badges.filter(Boolean).slice(0, 2) : [];
-  const badgesHtml = badges.length
-    ? `<div class="parking-card__badges">${badges.map((badge) => `<span class="parking-card__badge">${parkingEscapeHtml(badge)}</span>`).join("")}</div>`
-    : "";
   const isFavorite = favoriteKeys.includes(parking.favorite_key);
   const reserveNote = [
     title ? `Паркинг: ${title}` : "",
@@ -128,15 +125,38 @@ const parkingRenderCard = (parking, favoriteKeys) => {
   ]
     .filter(Boolean)
     .join(" | ");
-  const canReserve = parking.status_key !== "sold";
+  const canReserve = parking.status_key !== "sold" && parking.status_key !== "booked";
   const isBooked = parking.status_key === "booked";
-  const reserveClass = parking.status_key === "booked" ? " parking-card__reserve--booked" : "";
   const statusClass =
-    parking.status_key === "booked"
-      ? " parking-card__label--booked"
+    parking.status_key === "available"
+      ? " parking-card__badge--available"
+      : parking.status_key === "booked"
+      ? " parking-card__badge--booked"
       : parking.status_key === "sold"
-        ? " parking-card__label--sold"
+        ? " parking-card__badge--sold"
         : "";
+  const allBadges = badges.slice();
+
+  if (statusLabel !== "") {
+    allBadges.push({
+      label: statusLabel,
+      className: statusClass,
+    });
+  }
+
+  const badgesHtml = allBadges.length
+    ? `<div class="parking-card__badges">${allBadges
+        .map((badge) => {
+          if (typeof badge === "string") {
+            return `<span class="parking-card__badge">${parkingEscapeHtml(badge)}</span>`;
+          }
+
+          const className = badge && badge.className ? badge.className : "";
+          const label = badge && badge.label ? badge.label : "";
+          return `<span class="parking-card__badge${className}">${parkingEscapeHtml(label)}</span>`;
+        })
+        .join("")}</div>`
+    : "";
 
   return `
     <article class="apartment-card parking-card" data-favorite-key="${parkingEscapeHtml(parking.favorite_key || "")}">
@@ -155,12 +175,9 @@ const parkingRenderCard = (parking, favoriteKeys) => {
           ${priceOld ? `<div class="parking-card__price-old">${priceOld}</div>` : ""}
         </div>
         <div class="parking-card__actions">
-          ${canReserve ? (
-            isBooked
-              ? `<button class="btn btn--outline parking-card__reserve${reserveClass}" type="button" disabled aria-disabled="true">Забронировать</button>`
-              : `<button class="btn btn--outline parking-card__reserve${reserveClass}" type="button" data-contact-open="contact" data-contact-title="Забронировать ${title}" data-contact-type="parking_reserve" data-contact-source="parking_catalog" data-contact-note="${parkingEscapeHtml(reserveNote)}">Забронировать</button>`
-          ) : "<span class=\"parking-card__reserve-placeholder\" aria-hidden=\"true\"></span>"}
-          ${statusLabel ? `<span class="apartment-card__label parking-card__label${statusClass}">${statusLabel}</span>` : "<span></span>"}
+          ${canReserve
+            ? `<button class="btn btn--primary parking-card__reserve" type="button" data-contact-open="contact" data-contact-title="Забронировать ${title}" data-contact-type="parking_reserve" data-contact-source="parking_catalog" data-contact-note="${parkingEscapeHtml(reserveNote)}">Забронировать</button>`
+            : `<span class="parking-card__action-slot" aria-hidden="true"></span>`}
         </div>
         <div class="apartment-card__icons">
           <button class="apartment-card__icon apartment-card__action apartment-card__fav${isFavorite ? " is-active" : ""}" type="button" aria-label="В избранное" title="В избранное">

@@ -128,25 +128,54 @@ if (!function_exists("szcubeGetIblockIdByCode")) {
 if (!function_exists("szcubeExtractHtmlPropertyText")) {
     function szcubeExtractHtmlPropertyText($property)
     {
-        if (!is_array($property) || !array_key_exists("VALUE", $property)) {
+        if (!is_array($property)) {
             return "";
         }
 
-        $value = $property["VALUE"];
-        if (is_array($value)) {
-            if (isset($value["TEXT"])) {
-                return trim((string)$value["TEXT"]);
+        $extractText = static function ($value) {
+            if (is_array($value)) {
+                if (isset($value["TEXT"])) {
+                    return trim((string)$value["TEXT"]);
+                }
+
+                $firstValue = reset($value);
+                if (is_array($firstValue) && isset($firstValue["TEXT"])) {
+                    return trim((string)$firstValue["TEXT"]);
+                }
+
+                return "";
             }
 
-            $value = reset($value);
-            if (is_array($value) && isset($value["TEXT"])) {
-                return trim((string)$value["TEXT"]);
+            $value = trim((string)$value);
+            if ($value === "") {
+                return "";
             }
 
+            $unserialized = @unserialize($value, array("allowed_classes" => false));
+            if (is_array($unserialized) && isset($unserialized["TEXT"])) {
+                return trim((string)$unserialized["TEXT"]);
+            }
+
+            return $value;
+        };
+
+        if (array_key_exists("~VALUE", $property)) {
+            $rawValue = $extractText($property["~VALUE"]);
+            if ($rawValue !== "") {
+                return $rawValue;
+            }
+        }
+
+        if (!array_key_exists("VALUE", $property)) {
             return "";
         }
 
-        return trim((string)$value);
+        $value = $extractText($property["VALUE"]);
+        if ($value === "") {
+            return "";
+        }
+
+        return htmlspecialcharsback($value);
     }
 }
 

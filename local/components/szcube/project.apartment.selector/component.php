@@ -247,6 +247,20 @@ if (!function_exists("szcubeProjectSelectorNormalizeUpperFloor")) {
     }
 }
 
+if (!function_exists("szcubeProjectSelectorIsSoldStatus")) {
+    function szcubeProjectSelectorIsSoldStatus($statusXmlId, $statusLabel = "")
+    {
+        $statusXmlId = trim(mb_strtolower((string)$statusXmlId));
+        $statusLabel = trim(mb_strtolower((string)$statusLabel));
+
+        if ($statusXmlId === "sold") {
+            return true;
+        }
+
+        return $statusLabel !== "" && preg_match("/^продан[а-я]*$/u", $statusLabel) === 1;
+    }
+}
+
 if (!function_exists("szcubeProjectSelectorIsDuplex")) {
     function szcubeProjectSelectorIsDuplex($floor, $floorTo)
     {
@@ -906,7 +920,12 @@ if ($this->StartResultCache(false, $cacheId)) {
                 if (isset($entranceData["stats"][$flatData["status_xml_id"]])) {
                     $entranceData["stats"][$flatData["status_xml_id"]]++;
                 }
-                if ($priceTotal > 0 && ($entranceData["stats"]["min_price"] <= 0 || $priceTotal < $entranceData["stats"]["min_price"])) {
+                $isSoldFlat = szcubeProjectSelectorIsSoldStatus($statusXmlId, $statusLabel);
+                if (
+                    !$isSoldFlat
+                    && $priceTotal > 0
+                    && ($entranceData["stats"]["min_price"] <= 0 || $priceTotal < $entranceData["stats"]["min_price"])
+                ) {
                     $entranceData["stats"]["min_price"] = $priceTotal;
                 }
                 if ($houseFloors > $entranceData["house_floors"]) {
@@ -924,7 +943,14 @@ if ($this->StartResultCache(false, $cacheId)) {
                     );
                 }
                 $entranceData["room_groups"][$roomGroupKey]["count"]++;
-                if ($priceTotal > 0 && ($entranceData["room_groups"][$roomGroupKey]["min_price"] <= 0 || $priceTotal < $entranceData["room_groups"][$roomGroupKey]["min_price"])) {
+                if (
+                    !$isSoldFlat
+                    && $priceTotal > 0
+                    && (
+                        $entranceData["room_groups"][$roomGroupKey]["min_price"] <= 0
+                        || $priceTotal < $entranceData["room_groups"][$roomGroupKey]["min_price"]
+                    )
+                ) {
                     $entranceData["room_groups"][$roomGroupKey]["min_price"] = $priceTotal;
                 }
             }

@@ -4,6 +4,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 }
 
 $this->setFrameMode(true);
+
+if (empty($arResult["ITEMS"]) || !is_array($arResult["ITEMS"])) {
+	return;
+}
 ?>
 
 <section class="promo" id="promo">
@@ -55,4 +59,3 @@ $this->setFrameMode(true);
 		</div>
 	</div>
 </section>
-
