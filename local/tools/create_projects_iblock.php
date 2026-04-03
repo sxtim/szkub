@@ -58,6 +58,12 @@ $siteId = isset($_REQUEST["site_id"]) && $_REQUEST["site_id"] !== "" ? (string)$
 $typeId = isset($_REQUEST["type_id"]) && $_REQUEST["type_id"] !== "" ? (string)$_REQUEST["type_id"] : "realty";
 $iblockCode = isset($_REQUEST["iblock_code"]) && $_REQUEST["iblock_code"] !== "" ? (string)$_REQUEST["iblock_code"] : "projects";
 $iblockName = isset($_REQUEST["iblock_name"]) && $_REQUEST["iblock_name"] !== "" ? (string)$_REQUEST["iblock_name"] : "Проекты";
+$iblockMessages = array(
+	"SECTIONS_NAME" => "Разделы",
+	"SECTION_NAME" => "Раздел",
+	"ELEMENTS_NAME" => "Каталог",
+	"ELEMENT_NAME" => "Проект",
+);
 
 echo "Target site: " . $siteId . PHP_EOL;
 echo "IBlock type: " . $typeId . PHP_EOL;
@@ -81,6 +87,22 @@ if ($row = $iblockRes->Fetch()) {
 	if ((string)$row["IBLOCK_TYPE_ID"] !== $typeId) {
 		echo "[WARN] Existing IBlock type is '" . $row["IBLOCK_TYPE_ID"] . "', requested '" . $typeId . "'. Using existing IBlock." . PHP_EOL;
 	}
+
+	$updateFields = array();
+	foreach ($iblockMessages as $fieldCode => $fieldValue) {
+		if ((string)$row[$fieldCode] !== (string)$fieldValue) {
+			$updateFields[$fieldCode] = $fieldValue;
+		}
+	}
+
+	if (!empty($updateFields)) {
+		$ib = new CIBlock();
+		if (!$ib->Update($iblockId, $updateFields)) {
+			echo "[WARN] Failed to update iblock labels: " . $ib->LAST_ERROR . PHP_EOL;
+		} else {
+			echo "[SYNC] Updated iblock labels for admin UI" . PHP_EOL;
+		}
+	}
 } else {
 	$ib = new CIBlock();
 	$iblockFields = array(
@@ -97,6 +119,10 @@ if ($row = $iblockRes->Fetch()) {
 		"INDEX_ELEMENT" => "N",
 		"INDEX_SECTION" => "N",
 		"SECTIONS" => "N",
+		"SECTIONS_NAME" => $iblockMessages["SECTIONS_NAME"],
+		"SECTION_NAME" => $iblockMessages["SECTION_NAME"],
+		"ELEMENTS_NAME" => $iblockMessages["ELEMENTS_NAME"],
+		"ELEMENT_NAME" => $iblockMessages["ELEMENT_NAME"],
 		"RIGHTS_MODE" => "S",
 		"VERSION" => 2,
 		"FIELDS" => array(
@@ -177,7 +203,7 @@ $requiredProperties = array(
 	),
 	array(
 		"CODE" => "ABOUT_COMPANY_SHOW",
-		"NAME" => "О компании: показывать в блоке «Наши проекты»",
+		"NAME" => "Показывать в блоке «Наши проекты»",
 		"PROPERTY_TYPE" => "L",
 		"LIST_TYPE" => "L",
 		"SORT" => 200,
@@ -189,7 +215,7 @@ $requiredProperties = array(
 	),
 	array(
 		"CODE" => "ABOUT_COMPANY_SALE_SHOW",
-		"NAME" => "О компании: показывать в блоке «Проекты в продаже»",
+		"NAME" => "Показывать в блоке «Проекты в продаже»",
 		"PROPERTY_TYPE" => "L",
 		"LIST_TYPE" => "L",
 		"SORT" => 205,
@@ -201,15 +227,27 @@ $requiredProperties = array(
 	),
 	array(
 		"CODE" => "ABOUT_COMPANY_STATUS",
-		"NAME" => "О компании: статус проекта",
+		"NAME" => "Статус проекта",
 		"PROPERTY_TYPE" => "L",
 		"LIST_TYPE" => "L",
 		"SORT" => 210,
 		"MULTIPLE" => "N",
 		"VALUES" => array(
-			array("VALUE" => "Строится", "XML_ID" => "building", "SORT" => 100),
-			array("VALUE" => "В проекте", "XML_ID" => "planned", "SORT" => 200),
+			array("VALUE" => "В продаже", "XML_ID" => "building", "SORT" => 100),
+			array("VALUE" => "Скоро в продаже", "XML_ID" => "planned", "SORT" => 200),
 			array("VALUE" => "Реализован", "XML_ID" => "completed", "SORT" => 300),
+		),
+	),
+	array(
+		"CODE" => "HOME_SHOW",
+		"NAME" => "Показывать на главной",
+		"PROPERTY_TYPE" => "L",
+		"LIST_TYPE" => "L",
+		"SORT" => 215,
+		"MULTIPLE" => "N",
+		"VALUES" => array(
+			array("VALUE" => "Да", "XML_ID" => "Y", "SORT" => 100, "DEF" => "N"),
+			array("VALUE" => "Нет", "XML_ID" => "N", "SORT" => 200, "DEF" => "Y"),
 		),
 	),
 	array(

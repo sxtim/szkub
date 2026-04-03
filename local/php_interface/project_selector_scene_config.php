@@ -18,8 +18,6 @@ if (!function_exists("szcubeGetProjectSelectorSceneConfigs")) {
                 "scene_image" => $templatePath . "/img/projects/image_15.jpg",
                 "mobile_scene_image" => $templatePath . "/img/projects/kollecttsiya-mobile.jpg",
                 "scene_svg_path" => $templatePath . "/img/projects/Group.svg",
-                "map_url" => "",
-                "map_label" => "На карте",
                 "scene" => array(
                     "overlay" => array(
                         "left" => "19%",

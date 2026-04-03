@@ -100,6 +100,15 @@ function addPropertyFieldForProjectsAdminForm(array &$fields, array $propertyMap
 	$fields["PROPERTY_" . (int)$propertyMap[$code]["ID"]] = (string)$propertyMap[$code]["NAME"];
 }
 
+function addPropertyFieldWithCustomLabelForProjectsAdminForm(array &$fields, array $propertyMap, $code, $label)
+{
+	if (!isset($propertyMap[$code])) {
+		return;
+	}
+
+	$fields["PROPERTY_" . (int)$propertyMap[$code]["ID"]] = (string)$label;
+}
+
 $iblock = findIblockByCodeForProjectsAdminForm($iblockCode);
 if (!is_array($iblock)) {
 	echo "[ERROR] IBlock not found by code: " . $iblockCode . PHP_EOL;
@@ -112,13 +121,16 @@ $propertyMap = getPropertyMapForProjectsAdminForm($iblockId);
 
 $mainFields = array(
 	"ACTIVE" => "Активность",
+);
+addPropertyFieldWithCustomLabelForProjectsAdminForm($mainFields, $propertyMap, "ABOUT_COMPANY_STATUS", "Статус проекта");
+addPropertyFieldWithCustomLabelForProjectsAdminForm($mainFields, $propertyMap, "HOME_SHOW", "Показывать на главной");
+$mainFields += array(
 	"NAME" => "Название",
 	"CODE" => "Символьный код",
 	"XML_ID" => "Внешний код",
 	"SORT" => "Сортировка",
 	"ACTIVE_FROM" => "Дата активности",
 	"PREVIEW_PICTURE" => "Картинка превью",
-	"PREVIEW_TEXT" => "Текст превью",
 );
 
 $catalogFields = array();
@@ -150,7 +162,6 @@ addPropertyFieldForProjectsAdminForm($projectDetailFields, $propertyMap, "CONSTR
 $aboutCompanyFields = array();
 addPropertyFieldForProjectsAdminForm($aboutCompanyFields, $propertyMap, "ABOUT_COMPANY_SHOW");
 addPropertyFieldForProjectsAdminForm($aboutCompanyFields, $propertyMap, "ABOUT_COMPANY_SALE_SHOW");
-addPropertyFieldForProjectsAdminForm($aboutCompanyFields, $propertyMap, "ABOUT_COMPANY_STATUS");
 addPropertyFieldForProjectsAdminForm($aboutCompanyFields, $propertyMap, "ABOUT_COMPANY_IMAGE");
 addPropertyFieldForProjectsAdminForm($aboutCompanyFields, $propertyMap, "ABOUT_COMPANY_TEXT_1");
 addPropertyFieldForProjectsAdminForm($aboutCompanyFields, $propertyMap, "ABOUT_COMPANY_TEXT_2");

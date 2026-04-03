@@ -2,6 +2,10 @@
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Главная");
 $APPLICATION->SetPageProperty("title", "СЗ КУБ — застройщик в Воронеже | Официальный сайт");
+
+$homeMapEmbedHtml = function_exists("szcubeGetPageMapEmbedHtml")
+  ? (string)szcubeGetPageMapEmbedHtml("home")
+  : "";
 ?>
 
 <div class="breadcrumbs-wrap">
@@ -83,6 +87,32 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
   );?>
 <? endif; ?>
 
+<?php
+$homeProjectsIblockType = "";
+$homeProjectsIblockCode = "projects";
+$homeProjectsIblockId = 0;
+$homeProjectsShowPropertyCode = "HOME_SHOW";
+$homeProjectsShowEnumId = 0;
+if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule("iblock")) {
+  $iblockRes = CIBlock::GetList(
+    array(),
+    array(
+      "=CODE" => $homeProjectsIblockCode,
+      "ACTIVE" => "Y",
+    ),
+    false
+  );
+  if ($iblock = $iblockRes->Fetch()) {
+    $homeProjectsIblockId = (int)$iblock["ID"];
+    $homeProjectsIblockType = (string)$iblock["IBLOCK_TYPE_ID"];
+  }
+
+  if ($homeProjectsIblockId > 0 && function_exists("szcubeGetPropertyEnumIdByXmlId")) {
+    $homeProjectsShowEnumId = (int)szcubeGetPropertyEnumIdByXmlId($homeProjectsIblockId, $homeProjectsShowPropertyCode, "Y");
+  }
+}
+?>
+
         <section class="projects" id="projects">
   <div class="container">
     <h2 class="section-title">Проекты</h2>
@@ -98,126 +128,78 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
       false
     );
     ?>
+    <?php if ($homeProjectsIblockId > 0): ?>
+      <?php
+      global $homeProjectsFilter;
+      $homeProjectsFilter = array();
+      if ($homeProjectsShowEnumId > 0) {
+        $homeProjectsFilter["PROPERTY_" . $homeProjectsShowPropertyCode] = $homeProjectsShowEnumId;
+      } else {
+        $homeProjectsFilter["PROPERTY_" . $homeProjectsShowPropertyCode . "_VALUE"] = "Да";
+      }
 
-    <div class="projects__cards">
-      <a class="project-card" href="/projects/kollekciya/">
-        <div class="project-card__image">
-          <img
-            src="<?=SITE_TEMPLATE_PATH?>/img/photo_5467741080506797884_y.jpg"
-            alt="Коллекция"
-          />
-          <div class="project-card__tags">
-            <span class="tag tag--solid">Бизнес</span>
-            <span class="tag tag--outline">Скидки 10%</span>
-          </div>
-        </div>
-        <div class="project-card__content">
-          <div class="project-card__details">
-            <span class="project-card__label">Жилой комплекс</span>
-            <h3 class="project-card__title">Коллекция</h3>
-            <span class="project-card__meta">г. Воронеж, ул. Жилина 7</span>
-            <span class="project-card__meta">
-              Срок сдачи <strong>III квартал 2026г.</strong>
-            </span>
-            <div class="project-card__sale">
-              <span class="project-card__sale-label">В продаже:</span>
-              <div class="project-card__rooms">
-                <span class="project-card__room">Студия</span>
-                <span class="project-card__room">1к</span>
-                <span class="project-card__room">2е</span>
-                <span class="project-card__room">3е</span>
-                <span class="project-card__room">4к</span>
-              </div>
-              
-            </div>
-            
-          </div>
-          <div class="project-card__footer">
-          <span class="project-card__sale-count">22 квартиры</span>
-            <span class="project-card__price">от 6 756 809 р.</span>
-          </div>
-        </div>
-      </a>
-
-      <article class="project-card">
-        <div class="project-card__image">
-          <img
-            src="<?=SITE_TEMPLATE_PATH?>/img/figma-6c3f203f-be9a-4001-ab97-edc7f3b4a9e3.png"
-            alt="Вертикаль"
-          />
-          <div class="project-card__tags">
-            <span class="tag tag--solid">Комфорт +</span>
-            <span class="tag tag--outline">110 квартир</span>
-          </div>
-        </div>
-        <div class="project-card__content">
-          <div class="project-card__details">
-            <span class="project-card__label">Жилой комплекс</span>
-            <h3 class="project-card__title">Вертикаль</h3>
-            <span class="project-card__meta">г. Воронеж, ул. Фронтовая 5</span>
-            
-            <span class="project-card__meta">
-              Срок сдачи <strong>III квартал 2027г.</strong>
-            </span>
-            <div class="project-card__sale">
-              <span class="project-card__sale-label">В продаже:</span>
-              <div class="project-card__rooms">
-                <span class="project-card__room">Студия</span>
-                <span class="project-card__room">1к</span>
-                <span class="project-card__room">2к</span>
-                <span class="project-card__room">3к</span>
-              </div>
-              
-            </div>
-      
-          </div>
-          <div class="project-card__footer">
-           <span class="project-card__sale-count">Скоро продажи</span>
-            <!-- <span class="project-card__price">от 7 538 000 р.</span> -->
-          </div>
-        </div>
-      </article>
-
-      <!-- <article class="project-card">
-        <div class="project-card__image">
-          <img
-            src="<?=SITE_TEMPLATE_PATH?>/img/figma-6c3f203f-be9a-4001-ab97-edc7f3b4a9e3.png"
-            alt="Краснознаменная"
-          />
-          <div class="project-card__tags">
-            <span class="tag tag--solid">Бизнес</span>
-            <span class="tag tag--outline">Скоро</span>
-          </div>
-        </div>
-        <div class="project-card__content">
-          <div class="project-card__details">
-            <span class="project-card__label">Жилой комплекс</span>
-            <h3 class="project-card__title">Краснознаменная</h3>
-            <span class="project-card__meta">г. Воронеж, ул. Краснознаменная</span>
-            
-            <span class="project-card__meta">
-              Срок сдачи <strong>I квартал 2028г.</strong>
-            </span>
-            <div class="project-card__sale">
-              <span class="project-card__sale-label">В продаже:</span>
-              <div class="project-card__rooms">
-                <span class="project-card__room">Студия</span>
-                <span class="project-card__room">1к</span>
-                <span class="project-card__room">2к</span>
-                <span class="project-card__room">3к</span>
-              </div>
-              
-            </div>
-            
-          </div>
-          <div class="project-card__footer">
-           <span class="project-card__sale-count">В проекте</span>
-            <!-- <span class="project-card__price">от 8 000 000 р.</span> -->
-          <!-- </div> -->
-        <!-- </div> -->
-      <!-- </article> --> 
-      
-    </div>
+      $APPLICATION->IncludeComponent(
+        "bitrix:news.list",
+        "projects_list",
+        array(
+          "IBLOCK_TYPE" => $homeProjectsIblockType,
+          "IBLOCK_ID" => $homeProjectsIblockId,
+          "FILTER_NAME" => "homeProjectsFilter",
+          "NEWS_COUNT" => "20",
+          "SORT_BY1" => "SORT",
+          "SORT_ORDER1" => "ASC",
+          "SORT_BY2" => "NAME",
+          "SORT_ORDER2" => "ASC",
+          "FIELD_CODE" => array(
+            0 => "NAME",
+            1 => "PREVIEW_PICTURE",
+            2 => "",
+          ),
+          "PROPERTY_CODE" => array(
+            0 => "CLASS_LABEL",
+            1 => "TAG_LABEL",
+            2 => "ADDRESS",
+            3 => "DELIVERY_TEXT",
+            4 => "ROOMS_IN_SALE",
+            5 => "SALE_COUNT_TEXT",
+            6 => "PRICE_FROM_TEXT",
+            7 => "ABOUT_COMPANY_STATUS",
+            8 => "",
+          ),
+          "CHECK_DATES" => "N",
+          "DETAIL_URL" => "/projects/#ELEMENT_CODE#/",
+          "ACTIVE_DATE_FORMAT" => "d.m.Y",
+          "CACHE_TYPE" => "A",
+          "CACHE_TIME" => "36000000",
+          "CACHE_FILTER" => "Y",
+          "CACHE_GROUPS" => "Y",
+          "SET_TITLE" => "N",
+          "SET_BROWSER_TITLE" => "N",
+          "SET_META_KEYWORDS" => "N",
+          "SET_META_DESCRIPTION" => "N",
+          "SET_LAST_MODIFIED" => "N",
+          "INCLUDE_IBLOCK_INTO_CHAIN" => "N",
+          "ADD_SECTIONS_CHAIN" => "N",
+          "HIDE_LINK_WHEN_NO_DETAIL" => "N",
+          "DISPLAY_TOP_PAGER" => "N",
+          "DISPLAY_BOTTOM_PAGER" => "N",
+          "PAGER_SHOW_ALWAYS" => "N",
+          "PAGER_TEMPLATE" => "",
+          "DISPLAY_DATE" => "N",
+          "DISPLAY_NAME" => "Y",
+          "DISPLAY_PICTURE" => "Y",
+          "DISPLAY_PREVIEW_TEXT" => "N",
+          "PARENT_SECTION" => "",
+          "PARENT_SECTION_CODE" => "",
+          "STRICT_SECTION_CHECK" => "N",
+        ),
+        false
+      );
+      unset($GLOBALS["homeProjectsFilter"]);
+      ?>
+    <?php else: ?>
+      <div class="projects-empty">Проекты не найдены.</div>
+    <?php endif; ?>
   </div>
 </section>
 
@@ -545,14 +527,13 @@ if (class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loader::includeModule
 </section>
 
         <section class="contacts" id="contacts">
-  <div class="contacts__map">
-    <script
-      type="text/javascript"
-      charset="utf-8"
-      async
-      src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A63d5c308a514e6051740664513673798031dff7881c5e77acadec4c223fd286f&width=100%25&height=500&lang=ru_RU&scroll=false"
-    ></script>
-  </div>
+  <?php
+  $mapEmbedHtml = $homeMapEmbedHtml;
+  $mapClass = "contacts__map szcube-map szcube-map--contacts";
+  $mapPlaceholderTitle = "Здесь будет карта";
+  $mapPlaceholderText = "Добавьте код карты в админке элемента «Главная» инфоблока «Карты: страницы».";
+  include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/map-embed.php";
+  ?>
 </section>
 
       

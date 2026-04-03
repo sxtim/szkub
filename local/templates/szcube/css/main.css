@@ -2073,6 +2073,56 @@ a {
   overflow: hidden;
   filter: grayscale(1) saturate(0);
 }
+.contacts__map .szcube-map__embed,
+.contacts__map .szcube-map__placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+.contacts__map .szcube-map__embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  border: 0;
+}
+.contacts__map .szcube-map__placeholder {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px;
+  background:
+    radial-gradient(circle at top left, rgba(26, 59, 136, 0.08), transparent 32%),
+    linear-gradient(180deg, rgba(245, 247, 250, 0.96), rgba(237, 240, 245, 0.98));
+}
+.contacts__map .szcube-map__placeholder-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  background: rgba(26, 59, 136, 0.92);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.contacts__map .szcube-map__placeholder-title {
+  margin-top: 18px;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--gray-900);
+}
+.contacts__map .szcube-map__placeholder-text {
+  margin-top: 14px;
+  max-width: 620px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--gray-800);
+}
 .contacts__map iframe {
   filter: grayscale(1) saturate(0);
 }
@@ -2094,6 +2144,14 @@ a {
     width: 100%;
     height: 280px;
     margin-bottom: 16px;
+  }
+  .contacts__map .szcube-map__embed,
+  .contacts__map .szcube-map__placeholder,
+  .contacts__map .szcube-map__embed iframe {
+    min-height: 280px;
+  }
+  .contacts__map .szcube-map__placeholder {
+    padding: 24px;
   }
   .contacts__card {
     width: 100%;

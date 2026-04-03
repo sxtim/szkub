@@ -192,7 +192,6 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 				"IBLOCK_ID",
 				"NAME",
 				"CODE",
-				"PREVIEW_TEXT",
 				"DETAIL_TEXT",
 				"PREVIEW_PICTURE",
 				"DETAIL_PICTURE",
@@ -270,11 +269,7 @@ if ($project) {
 
 	$projectDescription = isset($projectSeoDescriptions[$project["code"]])
 		? trim((string)$projectSeoDescriptions[$project["code"]])
-		: trim((string)($project["fields"]["PREVIEW_TEXT"] ?? ""));
-
-	if ($projectDescription === "") {
-		$projectDescription = projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_1", "");
-	}
+		: projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_1", "");
 
 	if ($projectDescription === "") {
 		$projectDescription = "ЖК «" . $project["name"] . "» — проект девелопера «КУБ» в Воронеже. Планировки, сроки сдачи и условия покупки на официальном сайте.";
@@ -329,14 +324,16 @@ if ($project) {
 	$selectorSceneConfig = function_exists("szcubeGetProjectSelectorSceneConfig")
 		? szcubeGetProjectSelectorSceneConfig($project["code"])
 		: array();
+	$projectSelectorMapEmbedHtml = function_exists("szcubeGetProjectMapEmbedHtml")
+		? trim((string)szcubeGetProjectMapEmbedHtml($project["code"]))
+		: "";
 	$projectDetail["selector"] = array(
 		"enabled" => !empty($selectorSceneConfig),
 		"scene_mode" => isset($selectorSceneConfig["scene_mode"]) ? (string)$selectorSceneConfig["scene_mode"] : "single_building",
 		"data_project_code" => isset($selectorSceneConfig["data_project_code"]) && trim((string)$selectorSceneConfig["data_project_code"]) !== "" ? (string)$selectorSceneConfig["data_project_code"] : $project["code"],
 		"scene_image" => isset($selectorSceneConfig["scene_image"]) && trim((string)$selectorSceneConfig["scene_image"]) !== "" ? (string)$selectorSceneConfig["scene_image"] : SITE_TEMPLATE_PATH . "/img/projects/image_15.jpg",
 		"scene_svg_path" => isset($selectorSceneConfig["scene_svg_path"]) && trim((string)$selectorSceneConfig["scene_svg_path"]) !== "" ? (string)$selectorSceneConfig["scene_svg_path"] : SITE_TEMPLATE_PATH . "/img/projects/Group.svg",
-		"map_url" => isset($selectorSceneConfig["map_url"]) ? (string)$selectorSceneConfig["map_url"] : "",
-		"map_label" => isset($selectorSceneConfig["map_label"]) && trim((string)$selectorSceneConfig["map_label"]) !== "" ? (string)$selectorSceneConfig["map_label"] : "На карте",
+		"map_embed_html" => $projectSelectorMapEmbedHtml,
 		"scene_config" => $selectorSceneConfig,
 	);
 }
@@ -421,8 +418,7 @@ if ($project) {
           "SCENE_MODE" => $projectDetail["selector"]["scene_mode"],
           "SCENE_IMAGE" => $projectDetail["selector"]["scene_image"],
           "SCENE_SVG_PATH" => $projectDetail["selector"]["scene_svg_path"],
-          "MAP_URL" => $projectDetail["selector"]["map_url"],
-          "MAP_LABEL" => $projectDetail["selector"]["map_label"],
+          "MAP_EMBED_HTML" => $projectDetail["selector"]["map_embed_html"],
           "SCENE_CONFIG" => $projectDetail["selector"]["scene_config"],
           "APARTMENT_FILTER" => $apartmentFilterRaw,
           "INITIAL_VIEW" => isset($selectorContext["initial_view"]) ? $selectorContext["initial_view"] : "",

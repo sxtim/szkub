@@ -125,6 +125,112 @@ if (!function_exists("szcubeGetIblockIdByCode")) {
     }
 }
 
+if (!function_exists("szcubeExtractHtmlPropertyText")) {
+    function szcubeExtractHtmlPropertyText($property)
+    {
+        if (!is_array($property) || !array_key_exists("VALUE", $property)) {
+            return "";
+        }
+
+        $value = $property["VALUE"];
+        if (is_array($value)) {
+            if (isset($value["TEXT"])) {
+                return trim((string)$value["TEXT"]);
+            }
+
+            $value = reset($value);
+            if (is_array($value) && isset($value["TEXT"])) {
+                return trim((string)$value["TEXT"]);
+            }
+
+            return "";
+        }
+
+        return trim((string)$value);
+    }
+}
+
+if (!function_exists("szcubeGetSingletonElementPropertiesByCode")) {
+    function szcubeGetSingletonElementPropertiesByCode($iblockCode, $elementCode)
+    {
+        static $cache = array();
+
+        $iblockCode = trim((string)$iblockCode);
+        $elementCode = trim((string)$elementCode);
+        if ($iblockCode === "" || $elementCode === "") {
+            return array();
+        }
+
+        $cacheKey = mb_strtolower($iblockCode . "::" . $elementCode);
+        if (array_key_exists($cacheKey, $cache)) {
+            return $cache[$cacheKey];
+        }
+
+        $cache[$cacheKey] = array();
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache[$cacheKey];
+        }
+
+        $iblockId = szcubeGetIblockIdByCode($iblockCode);
+        if ($iblockId <= 0) {
+            return $cache[$cacheKey];
+        }
+
+        $elementRes = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "=CODE" => $elementCode,
+                "ACTIVE" => "Y",
+            ),
+            false,
+            array("nTopCount" => 1),
+            array("ID", "IBLOCK_ID", "NAME", "CODE")
+        );
+        if ($element = $elementRes->GetNextElement()) {
+            $cache[$cacheKey] = $element->GetProperties();
+        }
+
+        return $cache[$cacheKey];
+    }
+}
+
+if (!function_exists("szcubeGetPageMapEmbedHtml")) {
+    function szcubeGetPageMapEmbedHtml($pageCode)
+    {
+        $properties = szcubeGetSingletonElementPropertiesByCode("page_maps", $pageCode);
+        if (empty($properties) || !isset($properties["MAP_EMBED"])) {
+            return "";
+        }
+
+        return szcubeExtractHtmlPropertyText($properties["MAP_EMBED"]);
+    }
+}
+
+if (!function_exists("szcubeBuildProjectMapPageCode")) {
+    function szcubeBuildProjectMapPageCode($projectCode)
+    {
+        $projectCode = trim((string)$projectCode);
+        if ($projectCode === "") {
+            return "";
+        }
+
+        return "project-" . mb_strtolower($projectCode);
+    }
+}
+
+if (!function_exists("szcubeGetProjectMapEmbedHtml")) {
+    function szcubeGetProjectMapEmbedHtml($projectCode)
+    {
+        $elementCode = szcubeBuildProjectMapPageCode($projectCode);
+        if ($elementCode === "") {
+            return "";
+        }
+
+        return szcubeGetPageMapEmbedHtml($elementCode);
+    }
+}
+
 if (!function_exists("szcubeNormalizeApartmentCodePart")) {
     function szcubeNormalizeApartmentCodePart($value)
     {

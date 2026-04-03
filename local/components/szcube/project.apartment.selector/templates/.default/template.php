@@ -84,6 +84,7 @@ if (!$hasEntranceOne && !empty($entrances)) {
 $popupProjectName = trim((string)$project["NAME"]);
 $popupDeliveryLabel = trim((string)$project["CONSTRUCTION_SUBTITLE"]);
 $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+$mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_EMBED_HTML"]) : "";
 ?>
 <section class="projects-genplan" aria-label="Выбор квартиры в проекте">
   <div
@@ -257,15 +258,24 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
             </div>
           <?php endforeach; ?>
 
-          <?php if (trim((string)$project["MAP_URL"]) !== ""): ?>
-            <a class="projects-selector__scene-button projects-selector__scene-button--map" href="<?= htmlspecialcharsbx((string)$project["MAP_URL"]) ?>">
-              <?= htmlspecialcharsbx((string)$project["MAP_LABEL"]) ?>
-            </a>
-          <?php else: ?>
-            <button class="projects-selector__scene-button projects-selector__scene-button--map" type="button">
-              <?= htmlspecialcharsbx((string)$project["MAP_LABEL"]) ?>
-            </button>
-          <?php endif; ?>
+          <div class="projects-selector__view-switch projects-view-switch" role="tablist" aria-label="Вид отображения проекта">
+            <button
+              class="projects-view-switch__button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-selector-view-tab="scene"
+              data-selector-open-scene
+            >На плане</button>
+            <button
+              class="projects-view-switch__button"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-selector-view-tab="map"
+              data-selector-open-map
+            >На карте</button>
+          </div>
         </div>
       </div>
 
@@ -282,6 +292,25 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
                 <?php if (trim((string)$project["CONSTRUCTION_SUBTITLE"]) !== ""): ?>
                   <div class="projects-selector__board-deadline"><?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?></div>
                 <?php endif; ?>
+              </div>
+
+              <div class="projects-selector__view-switch projects-view-switch" role="tablist" aria-label="Вид отображения проекта">
+                <button
+                  class="projects-view-switch__button"
+                  type="button"
+                  role="tab"
+                  aria-selected="true"
+                  data-selector-view-tab="scene"
+                  data-selector-open-scene
+                >На плане</button>
+                <button
+                  class="projects-view-switch__button"
+                  type="button"
+                  role="tab"
+                  aria-selected="false"
+                  data-selector-view-tab="map"
+                  data-selector-open-map
+                >На карте</button>
               </div>
             </div>
 
@@ -413,6 +442,50 @@ $popupPlaceholderImage = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAA
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="projects-selector__state projects-selector__state--map" data-selector-view="map" hidden>
+        <div class="projects-selector__map-stage">
+          <div class="projects-selector__board-toolbar">
+            <button class="projects-selector__board-button projects-selector__board-button--back" type="button" data-selector-back-from-map>
+              Назад
+            </button>
+
+            <div class="projects-selector__board-headings">
+              <div class="projects-selector__board-project-name"><?= htmlspecialcharsbx((string)$project["NAME"]) ?></div>
+
+              <?php if (trim((string)$project["CONSTRUCTION_SUBTITLE"]) !== ""): ?>
+                <div class="projects-selector__board-deadline"><?= htmlspecialcharsbx((string)$project["CONSTRUCTION_SUBTITLE"]) ?></div>
+              <?php endif; ?>
+            </div>
+
+            <div class="projects-selector__view-switch projects-view-switch" role="tablist" aria-label="Вид отображения проекта">
+              <button
+                class="projects-view-switch__button"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-selector-view-tab="scene"
+                data-selector-open-scene
+              >На плане</button>
+              <button
+                class="projects-view-switch__button"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                data-selector-view-tab="map"
+                data-selector-open-map
+              >На карте</button>
+            </div>
+          </div>
+
+          <?php
+          $mapClass = "szcube-map szcube-map--selector";
+          $mapPlaceholderTitle = "Здесь будет карта проекта";
+          $mapPlaceholderText = "Пока показываем заглушку. Позже сюда подключим реальную карту для этого ЖК.";
+          include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/map-embed.php";
+          ?>
         </div>
       </div>
     </div>

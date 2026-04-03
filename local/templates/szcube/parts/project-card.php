@@ -14,6 +14,7 @@ $tagLabel = isset($projectCard["TAG_LABEL"]) ? (string)$projectCard["TAG_LABEL"]
 $address = isset($projectCard["ADDRESS"]) ? (string)$projectCard["ADDRESS"] : "";
 $deliveryText = isset($projectCard["DELIVERY_TEXT"]) ? (string)$projectCard["DELIVERY_TEXT"] : "";
 $saleRooms = isset($projectCard["SALE_ROOMS"]) && is_array($projectCard["SALE_ROOMS"]) ? $projectCard["SALE_ROOMS"] : array();
+$saleRoomsLabel = isset($projectCard["SALE_ROOMS_LABEL"]) ? trim((string)$projectCard["SALE_ROOMS_LABEL"]) : "В продаже:";
 $saleCountText = isset($projectCard["SALE_COUNT_TEXT"]) ? (string)$projectCard["SALE_COUNT_TEXT"] : "";
 $priceFromText = isset($projectCard["PRICE_FROM_TEXT"]) ? (string)$projectCard["PRICE_FROM_TEXT"] : "";
 $label = isset($projectCard["LABEL"]) ? (string)$projectCard["LABEL"] : "Жилой комплекс";
@@ -52,7 +53,9 @@ $label = isset($projectCard["LABEL"]) ? (string)$projectCard["LABEL"] : "Жил�
 
 			<? if (!empty($saleRooms)): ?>
 				<div class="project-card__sale">
-					<span class="project-card__sale-label">В продаже:</span>
+					<? if ($saleRoomsLabel !== ""): ?>
+						<span class="project-card__sale-label"><?= htmlspecialcharsbx($saleRoomsLabel) ?></span>
+					<? endif; ?>
 					<div class="project-card__rooms">
 						<? foreach ($saleRooms as $room): ?>
 							<? $room = trim((string)$room); ?>
@@ -74,4 +77,3 @@ $label = isset($projectCard["LABEL"]) ? (string)$projectCard["LABEL"] : "Жил�
 		</div>
 	</div>
 </a>
-

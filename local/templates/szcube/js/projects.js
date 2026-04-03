@@ -69,6 +69,78 @@ const initConstructionSlider = () => {
   updateNav(swiper);
 };
 
+const initProjectsStatusFilter = () => {
+  const form = document.querySelector("[data-projects-status-filter]");
+  if (!(form instanceof HTMLFormElement)) return;
+
+  const checkboxes = form.querySelectorAll('input[type="checkbox"][name="status[]"]');
+  if (!checkboxes.length) return;
+
+  let submitTimer = null;
+  const scheduleSubmit = () => {
+    if (submitTimer) {
+      window.clearTimeout(submitTimer);
+    }
+
+    submitTimer = window.setTimeout(() => {
+      form.submit();
+    }, 80);
+  };
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", scheduleSubmit);
+  });
+};
+
+const initProjectsViewSwitch = () => {
+  const root = document.querySelector("[data-projects-view-root]");
+  if (!(root instanceof HTMLElement)) return;
+
+  const toolbar = root.closest(".projects-catalog-toolbar");
+  const tabs = Array.from(root.querySelectorAll("[data-projects-view-tab]"));
+  const panels = Array.from(
+    document.querySelectorAll("[data-projects-view-panel]")
+  );
+  const viewInput = document.querySelector("[data-projects-view-input]");
+
+  if (!tabs.length || !panels.length) return;
+
+  const setActiveView = (view) => {
+    const activeView = view === "map" ? "map" : "list";
+
+    tabs.forEach((tab) => {
+      const isActive = tab.dataset.projectsViewTab === activeView;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+      tab.tabIndex = isActive ? 0 : -1;
+    });
+
+    panels.forEach((panel) => {
+      const isActive = panel.dataset.projectsViewPanel === activeView;
+      panel.classList.toggle("is-active", isActive);
+      panel.hidden = !isActive;
+    });
+
+    if (viewInput instanceof HTMLInputElement) {
+      viewInput.value = activeView;
+    }
+
+    if (toolbar instanceof HTMLElement) {
+      toolbar.classList.toggle("is-map-view", activeView === "map");
+    }
+  };
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      setActiveView(tab.dataset.projectsViewTab || "list");
+    });
+  });
+
+  const initialTab =
+    tabs.find((tab) => tab.classList.contains("is-active")) || tabs[0];
+  setActiveView(initialTab?.dataset.projectsViewTab || "list");
+};
+
 const initConstructionModal = () => {
   const modalWrap = document.querySelector("[data-construction-modal]");
   if (!modalWrap) return;
@@ -378,6 +450,7 @@ const initProjectApartmentSelector = () => {
     const genplanSection = root.closest(".projects-genplan");
     const sceneView = root.querySelector('[data-selector-view="scene"]');
     const boardView = root.querySelector('[data-selector-view="board"]');
+    const mapView = root.querySelector('[data-selector-view="map"]');
     const sceneStage = root.querySelector(".projects-selector__scene-stage");
     const sceneOverlay = root.querySelector("[data-scene-overlay]");
     const entrancePins = Array.from(root.querySelectorAll("[data-entrance-trigger]"));
@@ -388,8 +461,14 @@ const initProjectApartmentSelector = () => {
     const entranceBoards = Array.from(root.querySelectorAll("[data-entrance-board]"));
     const entranceSwitches = Array.from(root.querySelectorAll("[data-selector-switch-entrance]"));
     const chooseButtons = Array.from(root.querySelectorAll("[data-selector-open-board]"));
+    const openSceneButtons = Array.from(
+      root.querySelectorAll("[data-selector-open-scene]")
+    );
+    const openMapButtons = Array.from(root.querySelectorAll("[data-selector-open-map]"));
+    const viewTabs = Array.from(root.querySelectorAll("[data-selector-view-tab]"));
     const closeSceneButtons = Array.from(root.querySelectorAll("[data-selector-close-scene-card]"));
     const backButton = root.querySelector("[data-selector-back]");
+    const backFromMapButton = root.querySelector("[data-selector-back-from-map]");
     const activeEntranceBadge = root.querySelector("[data-selector-active-entrance]");
     const lotCard = root.querySelector("[data-selector-lot-card]");
     const lotDetail = lotCard?.querySelector("[data-lot-detail]") || null;
@@ -683,12 +762,24 @@ const initProjectApartmentSelector = () => {
     };
 
     const setView = (view) => {
-      currentView = view === "board" ? "board" : "scene";
+      currentView =
+        view === "board" ? "board" : view === "map" ? "map" : "scene";
       if (sceneView) sceneView.hidden = currentView !== "scene";
       if (boardView) boardView.hidden = currentView !== "board";
+      if (mapView) mapView.hidden = currentView !== "map";
+
+      viewTabs.forEach((tab) => {
+        const tabView = tab.dataset.selectorViewTab === "map" ? "map" : "scene";
+        const isActive =
+          tabView === "map" ? currentView === "map" : currentView !== "map";
+        tab.classList.toggle("is-active", isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+        tab.tabIndex = isActive ? 0 : -1;
+      });
+
       syncActiveEntrance();
 
-      if (currentView === "scene") {
+      if (currentView === "scene" || currentView === "map") {
         setHoveredEntrance("");
         hideLotCard();
       }
@@ -702,6 +793,10 @@ const initProjectApartmentSelector = () => {
     const openBoard = (entranceId) => {
       activeEntranceId = entranceId || activeEntranceId;
       setView("board");
+    };
+
+    const openMap = () => {
+      setView("map");
     };
 
     const openInitialLot = () => {
@@ -772,6 +867,18 @@ const initProjectApartmentSelector = () => {
       });
     });
 
+    openSceneButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        openSceneCard(activeEntranceId);
+      });
+    });
+
+    openMapButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        openMap();
+      });
+    });
+
     closeSceneButtons.forEach((button) => {
       button.addEventListener("click", () => {
         hideSceneCards();
@@ -787,6 +894,10 @@ const initProjectApartmentSelector = () => {
     });
 
     backButton?.addEventListener("click", () => {
+      openSceneCard(activeEntranceId);
+    });
+
+    backFromMapButton?.addEventListener("click", () => {
       openSceneCard(activeEntranceId);
     });
 
@@ -872,6 +983,8 @@ const initProjectApartmentSelector = () => {
 };
 
 const initProjectsPage = () => {
+  initProjectsViewSwitch();
+  initProjectsStatusFilter();
   initProjectApartmentSelector();
   initConstructionSlider();
   initConstructionModal();

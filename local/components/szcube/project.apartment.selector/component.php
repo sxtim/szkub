@@ -649,8 +649,7 @@ $projectName = isset($arParams["PROJECT_NAME"]) ? trim((string)$arParams["PROJEC
 $sceneMode = isset($arParams["SCENE_MODE"]) && trim((string)$arParams["SCENE_MODE"]) !== "" ? trim((string)$arParams["SCENE_MODE"]) : "single_building";
 $sceneImage = isset($arParams["SCENE_IMAGE"]) ? trim((string)$arParams["SCENE_IMAGE"]) : "";
 $sceneSvgPath = isset($arParams["SCENE_SVG_PATH"]) ? trim((string)$arParams["SCENE_SVG_PATH"]) : "";
-$mapUrl = isset($arParams["MAP_URL"]) ? trim((string)$arParams["MAP_URL"]) : "";
-$mapLabel = isset($arParams["MAP_LABEL"]) && trim((string)$arParams["MAP_LABEL"]) !== "" ? trim((string)$arParams["MAP_LABEL"]) : "На карте";
+$mapEmbedHtml = isset($arParams["MAP_EMBED_HTML"]) ? trim((string)$arParams["MAP_EMBED_HTML"]) : "";
 $constructionSubtitle = isset($arParams["CONSTRUCTION_SUBTITLE"]) ? trim((string)$arParams["CONSTRUCTION_SUBTITLE"]) : "";
 $sceneConfig = isset($arParams["SCENE_CONFIG"]) && is_array($arParams["SCENE_CONFIG"]) ? $arParams["SCENE_CONFIG"] : array();
 $apartmentFilterRaw = isset($arParams["APARTMENT_FILTER"]) ? $arParams["APARTMENT_FILTER"] : array();
@@ -665,7 +664,7 @@ if ($projectCode === "" || $dataProjectCode === "") {
     return;
 }
 
-$cacheId = array($projectId, $projectCode, $dataProjectCode, $sceneMode, $sceneImage, $sceneSvgPath, $mapUrl, $mapLabel, $constructionSubtitle, $sceneConfig, $apartmentFilterState);
+$cacheId = array($projectId, $projectCode, $dataProjectCode, $sceneMode, $sceneImage, $sceneSvgPath, $mapEmbedHtml, $constructionSubtitle, $sceneConfig, $apartmentFilterState);
 if ($this->StartResultCache(false, $cacheId)) {
     if (!Loader::includeModule("iblock")) {
         $this->AbortResultCache();
@@ -1135,8 +1134,7 @@ if ($this->StartResultCache(false, $cacheId)) {
                 "SCENE_MODE" => $sceneMode,
                 "SCENE_IMAGE" => $sceneImage,
                 "SCENE_SVG" => $sceneSvgMarkup,
-                "MAP_URL" => $mapUrl,
-                "MAP_LABEL" => $mapLabel,
+                "MAP_EMBED_HTML" => $mapEmbedHtml,
                 "CONSTRUCTION_SUBTITLE" => $constructionSubtitle,
                 "SCENE_CONFIG" => $sceneConfig,
             ),
@@ -1177,8 +1175,7 @@ if ($this->StartResultCache(false, $cacheId)) {
             "SCENE_MODE" => $sceneMode,
             "SCENE_IMAGE" => $sceneImage,
             "SCENE_SVG" => $sceneSvgMarkup,
-            "MAP_URL" => $mapUrl,
-            "MAP_LABEL" => $mapLabel,
+            "MAP_EMBED_HTML" => $mapEmbedHtml,
             "CONSTRUCTION_SUBTITLE" => $constructionSubtitle,
             "SCENE_CONFIG" => $sceneConfig,
         ),
