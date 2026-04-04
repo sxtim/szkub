@@ -332,11 +332,11 @@ const parkingRenderCard = (parking, favoriteKeys, config) => {
   const canReserve = parking.status_key !== "sold" && parking.status_key !== "booked";
   const statusClass =
     parking.status_key === "available"
-      ? " parking-card__badge--available"
+      ? " catalog-list-card__badge--available"
       : parking.status_key === "booked"
-      ? " parking-card__badge--booked"
+      ? " catalog-list-card__badge--booked"
       : parking.status_key === "sold"
-        ? " parking-card__badge--sold"
+        ? " catalog-list-card__badge--sold"
         : "";
   const allBadges = badges.slice();
 
@@ -348,28 +348,28 @@ const parkingRenderCard = (parking, favoriteKeys, config) => {
   }
 
   const badgesHtml = allBadges.length
-    ? `<div class="parking-card__badges">${allBadges
+    ? `<div class="catalog-list-card__badges">${allBadges
         .map((badge) => {
           if (typeof badge === "string") {
-            return `<span class="parking-card__badge">${parkingEscapeHtml(badge)}</span>`;
+            return `<span class="catalog-list-card__badge">${parkingEscapeHtml(badge)}</span>`;
           }
 
           const className = badge && badge.className ? badge.className : "";
           const label = badge && badge.label ? badge.label : "";
-          return `<span class="parking-card__badge${className}">${parkingEscapeHtml(label)}</span>`;
+          return `<span class="catalog-list-card__badge${className}">${parkingEscapeHtml(label)}</span>`;
         })
         .join("")}</div>`
     : "";
   const detailsHtml =
     typeLabel || metaParts.length
-      ? `<div class="parking-card__details">
-          ${typeLabel ? `<div class="parking-card__type">${typeLabel}</div>` : ""}
-          ${metaParts.length ? `<div class="parking-card__meta">${parkingEscapeHtml(metaParts.join(" · "))}</div>` : ""}
+      ? `<div class="catalog-list-card__details">
+          ${typeLabel ? `<div class="catalog-list-card__type">${typeLabel}</div>` : ""}
+          ${metaParts.length ? `<div class="catalog-list-card__meta">${parkingEscapeHtml(metaParts.join(" · "))}</div>` : ""}
         </div>`
-      : `<div class="parking-card__details" aria-hidden="true"></div>`;
+      : `<div class="catalog-list-card__details" aria-hidden="true"></div>`;
 
   return `
-    <article class="apartment-card parking-card" data-favorite-key="${parkingEscapeHtml(parking.favorite_key || "")}">
+    <article class="apartment-card catalog-list-card" data-favorite-key="${parkingEscapeHtml(parking.favorite_key || "")}">
       <div class="apartment-card__list">
         <div class="apartment-card__summary">
           <div class="apartment-card__rooms">${title}</div>
@@ -377,14 +377,14 @@ const parkingRenderCard = (parking, favoriteKeys, config) => {
           ${badgesHtml}
         </div>
         ${detailsHtml}
-        <div class="parking-card__price">
+        <div class="catalog-list-card__price">
           <div class="apartment-card__list-price">${priceTotal}</div>
-          ${priceOld ? `<div class="parking-card__price-old">${priceOld}</div>` : ""}
+          ${priceOld ? `<div class="catalog-list-card__price-old">${priceOld}</div>` : ""}
         </div>
-        <div class="parking-card__actions">
+        <div class="catalog-list-card__actions">
           ${canReserve
-            ? `<button class="btn btn--primary parking-card__reserve" type="button" data-contact-open="contact" data-contact-title="${parkingEscapeHtml(`${config.reserve_title_prefix} ${parking.title || "лот"}`)}" data-contact-type="${parkingEscapeHtml(config.lead_type)}" data-contact-source="${parkingEscapeHtml(config.lead_source)}" data-contact-note="${parkingEscapeHtml(reserveNote)}">${parkingEscapeHtml(config.reserve_button_label)}</button>`
-            : `<span class="parking-card__action-slot" aria-hidden="true"></span>`}
+            ? `<button class="btn btn--primary catalog-list-card__primary" type="button" data-contact-open="contact" data-contact-title="${parkingEscapeHtml(`${config.reserve_title_prefix} ${parking.title || "лот"}`)}" data-contact-type="${parkingEscapeHtml(config.lead_type)}" data-contact-source="${parkingEscapeHtml(config.lead_source)}" data-contact-note="${parkingEscapeHtml(reserveNote)}">${parkingEscapeHtml(config.reserve_button_label)}</button>`
+            : `<span class="catalog-list-card__action-slot" aria-hidden="true"></span>`}
         </div>
         <div class="apartment-card__icons">
           <button class="apartment-card__icon apartment-card__action apartment-card__fav${isFavorite ? " is-active" : ""}" type="button" aria-label="В избранное" title="В избранное">

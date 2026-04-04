@@ -28,7 +28,15 @@ if (
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/parking.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/parking-catalog.js");
 }
-if (defined("APARTMENT_DETAIL_PAGE") && APARTMENT_DETAIL_PAGE === true) {
+if (defined("COMMERCIAL_PAGE") && COMMERCIAL_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/parking.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
+}
+if (
+    (defined("APARTMENT_DETAIL_PAGE") && APARTMENT_DETAIL_PAGE === true)
+    || (defined("COMMERCIAL_DETAIL_PAGE") && COMMERCIAL_DETAIL_PAGE === true)
+) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-detail.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
@@ -134,7 +142,7 @@ if (!defined("ERROR_404")) {
             <ul class="nav__list">
               <li><a href="/projects/">Проекты</a></li>
               <li><a href="/apartments/">Квартиры</a></li>
-              <li><a href="#commerce">Коммерция</a></li>
+              <li><a href="/commerce/">Коммерция</a></li>
               <li><a href="/consulting/">Консалтинг</a></li>
               <li><a href="/tenders/">Тендеры</a></li>
               <li><a href="/about-company/">О компании</a></li>
@@ -176,7 +184,7 @@ if (!defined("ERROR_404")) {
           <ul class="mobile-nav__list">
             <li><a href="/projects/">Проекты</a></li>
             <li><a href="/apartments/">Квартиры</a></li>
-            <li><a href="#commerce">Коммерция</a></li>
+            <li><a href="/commerce/">Коммерция</a></li>
             <li><a href="/consulting/">Консалтинг</a></li>
             <li><a href="/tenders/">Тендеры</a></li>
             <li><a href="#promo">Акции</a></li>

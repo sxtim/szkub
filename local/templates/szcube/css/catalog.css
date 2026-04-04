@@ -197,6 +197,7 @@
   padding: 0;
   width: 34px;
   height: 34px;
+  flex: 0 0 auto;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -301,7 +302,6 @@
 
 .catalog-grid.is-list .apartment-card__list {
   display: grid;
-  grid-template-columns: 1.1fr 1.3fr 0.7fr auto auto;
   align-items: center;
   gap: 24px;
 }
@@ -361,11 +361,13 @@
 .apartment-card__icons {
   display: flex;
   gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .apartment-card__icon {
   width: 36px;
   height: 36px;
+  flex: 0 0 36px;
   background: #fff;
   border-radius: 50%;
   display: inline-flex;
@@ -380,9 +382,145 @@
   display: block;
 }
 
+.catalog-list-card {
+  min-height: 0;
+}
+
+.catalog-grid.is-list .catalog-list-card .apartment-card__list {
+  grid-template-columns: minmax(260px, 1.15fr) minmax(220px, 1fr) 190px 320px 80px;
+}
+
+.catalog-list-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.catalog-list-card__type {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(64, 64, 64, 0.86);
+}
+
+.catalog-list-card__meta {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(64, 64, 64, 0.62);
+}
+
+.catalog-list-card__price {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.catalog-list-card__price .apartment-card__list-price {
+  line-height: 1.2;
+}
+
+.catalog-list-card__price-old {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(64, 64, 64, 0.45);
+  text-decoration: line-through;
+}
+
+.catalog-list-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 162px;
+}
+
+.catalog-list-card__action-slot {
+  display: block;
+  width: 162px;
+  height: 46px;
+}
+
+.catalog-list-card__primary {
+  width: 162px;
+  min-width: 162px;
+  height: 46px;
+  padding: 0 22px;
+}
+
+.catalog-grid.is-list .catalog-list-card .apartment-card__icons {
+  justify-content: flex-end;
+  justify-self: end;
+  width: max-content;
+}
+
+.catalog-grid.is-list .catalog-list-card .apartment-card__icon {
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.catalog-grid.is-list .catalog-list-card .apartment-card__icon:hover {
+  color: #1a3b88;
+}
+
+.catalog-grid.is-list .catalog-list-card .apartment-card__icon.apartment-card__fav:hover path {
+  stroke: #d92323;
+}
+
+.catalog-grid.is-list .catalog-list-card .apartment-card__icon.apartment-card__fav.is-active path {
+  fill: #d92323;
+  stroke: #d92323;
+}
+
+.catalog-grid.is-list .catalog-list-card .apartment-card__summary .apartment-card__area {
+  color: rgba(64, 64, 64, 0.62);
+}
+
+.catalog-list-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.catalog-list-card__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border: 1px solid rgba(17, 168, 157, 0.92);
+  border-radius: 2px;
+  background: transparent;
+  color: rgba(17, 168, 157, 0.92);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.catalog-list-card__badge--available {
+  border-color: rgba(17, 168, 157, 0.42);
+  background: rgba(17, 168, 157, 0.16);
+  color: rgba(17, 168, 157, 0.92);
+}
+
+.catalog-list-card__badge--booked {
+  border-color: rgba(232, 149, 255, 0.42);
+  background: rgba(232, 149, 255, 0.16);
+  color: #9255a6;
+}
+
+.catalog-list-card__badge--sold {
+  border-color: rgba(104, 116, 132, 0.24);
+  background: rgba(207, 217, 227, 0.54);
+  color: #5a6472;
+}
+
 @media (max-width: 1200px) {
   .catalog-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .catalog-grid.is-list .catalog-list-card .apartment-card__list {
+    grid-template-columns: minmax(220px, 1.15fr) minmax(200px, 1fr) 170px 250px 80px;
+    gap: 18px;
   }
 }
 
@@ -398,6 +536,17 @@
   .catalog-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .catalog-grid.is-list .catalog-list-card .apartment-card__list {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .catalog-list-card__actions,
+  .catalog-grid.is-list .catalog-list-card .catalog-list-card__price,
+  .catalog-grid.is-list .catalog-list-card .apartment-card__icons {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 600px) {
@@ -407,5 +556,15 @@
   .catalog__view {
     width: 100%;
     justify-content: center;
+  }
+
+  .catalog-grid.is-list .catalog-list-card .apartment-card__list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .catalog-list-card__actions {
+    justify-content: flex-start;
+    justify-items: flex-start;
   }
 }

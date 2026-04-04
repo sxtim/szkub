@@ -46,7 +46,20 @@ const catalogRenderBadges = (badges) => {
 
 const catalogUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
 
-const catalogPluralize = (count) => {
+const catalogPluralize = (count, forms = null) => {
+  if (Array.isArray(forms) && forms.length >= 3) {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+
+    if (mod10 === 1 && mod100 !== 11) {
+      return forms[0];
+    }
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+      return forms[1];
+    }
+    return forms[2];
+  }
+
   const mod10 = count % 10;
   const mod100 = count % 100;
 
@@ -157,6 +170,7 @@ const catalogNormalizeState = (value) => {
 
   return {
     projects: normalizeValues(typeof value.projects !== "undefined" ? value.projects : value.project),
+    types: normalizeValues(typeof value.types !== "undefined" ? value.types : value.type),
     rooms: normalizeValues(value.rooms),
     statuses: normalizeValues(typeof value.statuses !== "undefined" ? value.statuses : value.status),
     finishes: normalizeValues(typeof value.finishes !== "undefined" ? value.finishes : value.finish),
@@ -178,6 +192,9 @@ const catalogHasCriteria = (state) => {
   }
 
   const arrays = ["projects", "rooms", "statuses", "finishes", "features"];
+  if (Array.isArray(state.types) && state.types.length > 0) {
+    return true;
+  }
   if (arrays.some((key) => Array.isArray(state[key]) && state[key].length > 0)) {
     return true;
   }
@@ -207,6 +224,7 @@ const catalogStateFromQuery = () => {
 
   const state = catalogNormalizeState({
     project: params.get("project"),
+    type: params.get("type"),
     rooms: params.get("rooms"),
     status: params.get("status"),
     finish: params.get("finish"),
@@ -241,6 +259,7 @@ const catalogStateToQuery = (state, payload) => {
   };
 
   setCsv("project", state.projects);
+  setCsv("type", state.types);
   setCsv("rooms", state.rooms);
   setCsv("status", state.statuses);
   setCsv("finish", state.finishes);
@@ -280,6 +299,11 @@ const catalogBuildState = (root, payload) => {
       (checkbox) => checkbox.dataset.syncValue || ""
     )
   );
+  const types = catalogUniqueValues(
+    Array.from(root.querySelectorAll('[data-sync-group="type"].is-active, .custom-checkbox[data-sync-group="type"]:checked')).map(
+      (item) => item.dataset.syncValue || ""
+    )
+  );
   const rooms = catalogUniqueValues(
     Array.from(root.querySelectorAll('.filter__room.is-active[data-sync-group="rooms"]')).map(
       (pill) => pill.dataset.syncValue || ""
@@ -305,6 +329,7 @@ const catalogBuildState = (root, payload) => {
 
   return {
     projects,
+    types,
     rooms,
     statuses,
     finishes,
@@ -315,14 +340,20 @@ const catalogBuildState = (root, payload) => {
     floorTo: catalogReadRangeValue(root, "floors-to", ranges.floor?.actual_max ?? 0),
     areaFrom: catalogReadRangeValue(root, "square-from", ranges.area?.actual_min ?? 0),
     areaTo: catalogReadRangeValue(root, "square-to", ranges.area?.actual_max ?? 0),
-    ceilingFrom: catalogReadRangeValue(root, "height-from", ranges.ceiling?.actual_min ?? 0),
-    ceilingTo: catalogReadRangeValue(root, "height-to", ranges.ceiling?.actual_max ?? 0),
+    ceilingFrom: catalogReadRangeValue(root, "height-from", ranges.ceiling?.actual_min ?? null),
+    ceilingTo: catalogReadRangeValue(root, "height-to", ranges.ceiling?.actual_max ?? null),
   };
 };
 
 const catalogMatchesFlat = (flat, state) => {
   if (state.projects.length && !state.projects.includes(flat.project_code)) {
     return false;
+  }
+  if (state.types.length) {
+    const typeKey = String(flat.type_key || flat.rooms_bucket || "").trim();
+    if (!typeKey || !state.types.includes(typeKey)) {
+      return false;
+    }
   }
   if (state.rooms.length && !state.rooms.includes(flat.rooms_bucket)) {
     return false;
@@ -348,8 +379,16 @@ const catalogMatchesFlat = (flat, state) => {
   if (flat.area_total > 0 && (flat.area_total + 0.0001 < state.areaFrom || flat.area_total - 0.0001 > state.areaTo)) {
     return false;
   }
-  if (flat.ceiling > 0 && (flat.ceiling + 0.0001 < state.ceilingFrom || flat.ceiling - 0.0001 > state.ceilingTo)) {
-    return false;
+  if (flat.ceiling > 0) {
+    const hasCeilingFrom = typeof state.ceilingFrom === "number" && Number.isFinite(state.ceilingFrom);
+    const hasCeilingTo = typeof state.ceilingTo === "number" && Number.isFinite(state.ceilingTo);
+
+    if (hasCeilingFrom && flat.ceiling + 0.0001 < state.ceilingFrom) {
+      return false;
+    }
+    if (hasCeilingTo && flat.ceiling - 0.0001 > state.ceilingTo) {
+      return false;
+    }
   }
 
   return true;
@@ -395,9 +434,9 @@ const catalogSyncCheckboxGroup = (root, group, values) => {
   });
 };
 
-const catalogSyncRoomPills = (root, values) => {
+const catalogSyncPills = (root, group, values) => {
   const selectedValues = new Set(Array.isArray(values) ? values : []);
-  root.querySelectorAll('.filter__room[data-sync-group="rooms"]').forEach((pill) => {
+  root.querySelectorAll(`.filter__room[data-sync-group="${group}"]`).forEach((pill) => {
     pill.classList.toggle("is-active", selectedValues.has(pill.dataset.syncValue || ""));
   });
 };
@@ -426,10 +465,12 @@ const catalogApplyState = (root, payload, state) => {
   }
 
   catalogSyncCheckboxGroup(root, "project", state.projects);
+  catalogSyncCheckboxGroup(root, "type", state.types);
   catalogSyncCheckboxGroup(root, "status", state.statuses);
   catalogSyncCheckboxGroup(root, "finish", state.finishes);
   catalogSyncCheckboxGroup(root, "feature", state.features);
-  catalogSyncRoomPills(root, state.rooms);
+  catalogSyncPills(root, "rooms", state.rooms);
+  catalogSyncPills(root, "type", state.types);
 
   const ranges = payload.ranges || {};
   catalogSetRange(root, "price", state.priceFrom, state.priceTo, ranges.price?.actual_min ?? 0, ranges.price?.actual_max ?? 0);
@@ -487,19 +528,10 @@ const catalogBuildMeta = (flat) => {
   return parts.join(" • ");
 };
 
-const catalogBuildListMeta = (flat) => {
-  const parts = [];
-  if (flat.area_total) {
-    parts.push(`${flat.area_total} м²`);
-  }
-  if (flat.floor_short) {
-    parts.push(flat.floor_short);
-  }
-
-  return parts.join(" • ");
-};
-
 const catalogBuildBoardUrl = (flat) => {
+  if (flat && flat.board_enabled === false) {
+    return "";
+  }
   const baseUrl = flat.project_filter_url || flat.project_url || "/projects/";
   const url = new URL(baseUrl, window.location.origin);
 
@@ -511,14 +543,114 @@ const catalogBuildBoardUrl = (flat) => {
   return `${url.pathname}${url.search}${url.hash}`;
 };
 
-const catalogRenderCard = (flat, queryString = "") => {
+const catalogStatusBadgeClass = (statusKey) => {
+  switch (String(statusKey || "").trim()) {
+    case "available":
+      return " catalog-list-card__badge--available";
+    case "booked":
+      return " catalog-list-card__badge--booked";
+    case "sold":
+      return " catalog-list-card__badge--sold";
+    default:
+      return "";
+  }
+};
+
+const catalogRenderListCardContent = (flat, boardUrl) => {
+  const title = catalogEscapeHtml(flat.list_title || flat.title || flat.rooms_label || "Лот");
+  const summarySubtitle = catalogEscapeHtml(flat.list_subtitle || (flat.project_name ? `ЖК ${flat.project_name}` : ""));
+  const detailsTitle = catalogEscapeHtml(
+    flat.list_details_title
+      || ((flat.title && flat.rooms_label && flat.title !== flat.rooms_label)
+        ? (flat.type_label || flat.rooms_label || "")
+        : (flat.project_delivery ? `Сдача ${flat.project_delivery}` : ""))
+  );
+  const statusLabel = catalogEscapeHtml(flat.status_label || "");
+  const priceTotal = catalogEscapeHtml(catalogFormatPrice(flat.price_total));
+  const priceOld = flat.price_old > 0 ? catalogEscapeHtml(catalogFormatPrice(flat.price_old)) : "";
+  const metaParts = Array.isArray(flat.list_meta_parts) ? flat.list_meta_parts.filter(Boolean) : [];
+  const badges = catalogNormalizeBadges(flat.badges).slice(0, 2);
+
+  if (!metaParts.length && flat.area_total) {
+    metaParts.push(`${flat.area_total} м²`);
+  }
+  if (flat.floor_short) {
+    metaParts.push(flat.floor_short);
+  }
+
+  const allBadges = badges.slice();
+  if (statusLabel !== "") {
+    allBadges.push({
+      label: statusLabel,
+      className: catalogStatusBadgeClass(flat.status),
+    });
+  }
+
+  const badgesHtml = allBadges.length
+    ? `<div class="catalog-list-card__badges">${allBadges
+        .map((badge) => {
+          if (typeof badge === "string") {
+            return `<span class="catalog-list-card__badge">${catalogEscapeHtml(badge)}</span>`;
+          }
+
+          const className = badge && badge.className ? badge.className : "";
+          const label = badge && badge.label ? badge.label : "";
+          return `<span class="catalog-list-card__badge${className}">${catalogEscapeHtml(label)}</span>`;
+        })
+        .join("")}</div>`
+    : "";
+
+  const detailsHtml =
+    detailsTitle || metaParts.length
+      ? `<div class="catalog-list-card__details">
+          ${detailsTitle ? `<div class="catalog-list-card__type">${detailsTitle}</div>` : ""}
+          ${metaParts.length ? `<div class="catalog-list-card__meta">${catalogEscapeHtml(metaParts.join(" · "))}</div>` : ""}
+        </div>`
+      : `<div class="catalog-list-card__details" aria-hidden="true"></div>`;
+
+  const actionLabel = catalogEscapeHtml(flat.list_action_label || "Подробнее");
+
+  return `
+      <div class="apartment-card__list">
+        <div class="apartment-card__summary">
+          <div class="apartment-card__rooms">${title}</div>
+          ${summarySubtitle ? `<div class="apartment-card__area">${summarySubtitle}</div>` : ""}
+          ${badgesHtml}
+        </div>
+        ${detailsHtml}
+        <div class="catalog-list-card__price">
+          <div class="apartment-card__list-price">${priceTotal}</div>
+          ${priceOld ? `<div class="catalog-list-card__price-old">${priceOld}</div>` : ""}
+        </div>
+        <div class="catalog-list-card__actions">
+          <button class="btn btn--primary catalog-list-card__primary" type="button">${actionLabel}</button>
+        </div>
+        <div class="apartment-card__icons">
+          ${boardUrl ? `<button class="apartment-card__icon apartment-card__action apartment-card__board" type="button" data-board-url="${catalogEscapeHtml(boardUrl)}" aria-label="Показать на шахматке" title="Показать на шахматке">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M3.5 3.5H7.25V7.25H3.5V3.5Z" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M10.75 3.5H14.5V7.25H10.75V3.5Z" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3.5 10.75H7.25V14.5H3.5V10.75Z" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M10.75 10.75H14.5V14.5H10.75V10.75Z" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>` : ""}
+          <button class="apartment-card__icon apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное">
+            <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+  `;
+};
+
+const catalogRenderCard = (flat) => {
   const meta = catalogBuildMeta(flat);
-  const listMeta = catalogBuildListMeta(flat);
   const badges = catalogNormalizeBadges(flat.badges);
-  const listLabel = flat.status_label || "";
   const planAlt = flat.plan_alt || flat.rooms_label || "Планировка";
   const boardUrl = catalogBuildBoardUrl(flat);
-  const boardAction = `
+  const articleClasses = "apartment-card catalog-list-card";
+  const boardAction = boardUrl ? `
     <button
       class="apartment-card__action apartment-card__board"
       type="button"
@@ -533,10 +665,10 @@ const catalogRenderCard = (flat, queryString = "") => {
         <path d="M10.75 10.75H14.5V14.5H10.75V10.75Z" stroke="currentColor" stroke-width="1.2"/>
       </svg>
     </button>
-  `;
+  ` : "";
 
   return `
-    <article class="apartment-card" data-card-url="${catalogEscapeHtml(flat.url)}" tabindex="0" role="link">
+    <article class="${articleClasses}" data-card-url="${catalogEscapeHtml(flat.url)}" tabindex="0" role="link">
       <div class="apartment-card__head">
         <div>
           <span class="apartment-card__project">${catalogEscapeHtml(flat.project_name)}</span>
@@ -565,33 +697,7 @@ const catalogRenderCard = (flat, queryString = "") => {
 
       ${catalogRenderBadges(badges)}
 
-      <div class="apartment-card__list">
-        <div class="apartment-card__summary">
-          <div class="apartment-card__rooms">${catalogEscapeHtml(flat.rooms_label || "Квартира")}</div>
-          <div class="apartment-card__area">${catalogEscapeHtml(listMeta)}</div>
-        </div>
-        <div class="apartment-card__delivery">
-          ${flat.project_name ? `<div class="apartment-card__delivery-project">${catalogEscapeHtml(flat.project_name)}</div>` : ""}
-          ${flat.project_delivery ? `<div>Сдача ${catalogEscapeHtml(flat.project_delivery)}</div>` : ""}
-        </div>
-        <div class="apartment-card__list-price">${catalogEscapeHtml(catalogFormatPrice(flat.price_total))}</div>
-        ${listLabel ? `<span class="apartment-card__label">${catalogEscapeHtml(listLabel)}</span>` : `<span></span>`}
-        <div class="apartment-card__icons">
-          <button class="apartment-card__icon apartment-card__action apartment-card__board" type="button" data-board-url="${catalogEscapeHtml(boardUrl)}" aria-label="Показать на шахматке" title="Показать на шахматке">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M3.5 3.5H7.25V7.25H3.5V3.5Z" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M10.75 3.5H14.5V7.25H10.75V3.5Z" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M3.5 10.75H7.25V14.5H3.5V10.75Z" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M10.75 10.75H14.5V14.5H10.75V10.75Z" stroke="currentColor" stroke-width="1.2"/>
-            </svg>
-          </button>
-          <button class="apartment-card__icon apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное">
-            <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
+      ${catalogRenderListCardContent(flat, boardUrl)}
     </article>
   `;
 };
@@ -714,6 +820,7 @@ const initApartmentCatalog = () => {
   const initialQuery = catalogStateFromQuery();
   let currentSort = "default";
   let isReady = false;
+  const countForms = payload.count_forms || payload.config?.count_forms || null;
 
   const render = () => {
     if (!isReady) {
@@ -733,12 +840,12 @@ const initApartmentCatalog = () => {
     const sortedMatches = catalogSortFlats(matches, currentSort);
 
     resultsContainer.innerHTML = sortedMatches
-      .map((flat) => catalogRenderCard(flat, queryString))
+      .map((flat) => catalogRenderCard(flat))
       .join("");
 
     const count = sortedMatches.length;
     countEls.forEach((element) => {
-      element.textContent = `Найдено ${count} ${catalogPluralize(count)}`;
+      element.textContent = `Найдено ${count} ${catalogPluralize(count, countForms)}`;
     });
 
     if (emptyEl) {
@@ -805,6 +912,7 @@ const initApartmentCatalog = () => {
   resetButton?.addEventListener("click", () => {
     catalogApplyState(root, payload, {
       projects: [],
+      types: [],
       rooms: [],
       statuses: [],
       finishes: [],

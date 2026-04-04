@@ -277,7 +277,7 @@ if (!function_exists("szcubeAppendProjectFilterToExtraUrl")) {
 
         $path = isset($parts["path"]) ? (string)$parts["path"] : "";
         $normalizedPath = $path !== "" ? "/" . ltrim(rtrim($path, "/"), "/") . "/" : "";
-        if ($normalizedPath !== "/parking/" && $normalizedPath !== "/storerooms/") {
+        if ($normalizedPath !== "/parking/" && $normalizedPath !== "/storerooms/" && $normalizedPath !== "/commerce/") {
             return $url;
         }
 

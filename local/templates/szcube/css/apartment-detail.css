@@ -579,6 +579,12 @@
   gap: 8px;
 }
 
+.apartment-hero__traits-text {
+  color: rgba(64, 64, 64, 0.76);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .apartment-hero__trait {
   display: inline-flex;
   align-items: center;
