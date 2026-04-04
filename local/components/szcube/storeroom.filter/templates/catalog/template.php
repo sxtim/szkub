@@ -8,6 +8,7 @@ $statuses = isset($arResult["STATUSES"]) && is_array($arResult["STATUSES"]) ? $a
 $ranges = isset($arResult["RANGES"]) && is_array($arResult["RANGES"]) ? $arResult["RANGES"] : array();
 $storerooms = isset($arResult["STOREROOMS"]) && is_array($arResult["STOREROOMS"]) ? $arResult["STOREROOMS"] : array();
 $count = isset($arResult["COUNT"]) ? (int)$arResult["COUNT"] : count($storerooms);
+$pagination = isset($arResult["PAGINATION"]) && is_array($arResult["PAGINATION"]) ? $arResult["PAGINATION"] : null;
 $countForms = array("кладовка", "кладовки", "кладовок");
 
 $pluralize = static function ($value, array $forms) {
@@ -178,6 +179,11 @@ $renderRange = static function ($label, array $range, $namePrefix) {
     <div class="container">
       <div class="catalog__empty" data-parking-empty hidden>Кладовки не найдены. Измените параметры фильтра.</div>
       <div class="catalog-grid is-list" data-parking-results></div>
+      <?php if (!empty($pagination)): ?>
+        <div class="catalog__pagination">
+          <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/catalog-pagination.php"; ?>
+        </div>
+      <?php endif; ?>
     </div>
   </div>
 </section>

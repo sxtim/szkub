@@ -38,10 +38,10 @@ $APPLICATION->IncludeComponent(
     array(
         "CACHE_TIME" => "36000000",
         "CATALOG_PAGE_URL" => "/commerce/",
+        "PAGE_SIZE" => "12",
     ),
     false
 );
 ?>
 
 <?php require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>
-

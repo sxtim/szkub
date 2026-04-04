@@ -46,59 +46,6 @@ const catalogRenderBadges = (badges) => {
 
 const catalogUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
 
-const catalogPluralize = (count, forms = null) => {
-  if (Array.isArray(forms) && forms.length >= 3) {
-    const mod10 = count % 10;
-    const mod100 = count % 100;
-
-    if (mod10 === 1 && mod100 !== 11) {
-      return forms[0];
-    }
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-      return forms[1];
-    }
-    return forms[2];
-  }
-
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-
-  if (mod10 === 1 && mod100 !== 11) {
-    return "квартира";
-  }
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return "квартиры";
-  }
-  return "квартир";
-};
-
-const catalogFlatFloorFrom = (flat) => {
-  const value = Number(flat?.floor) || 0;
-  return value > 0 ? value : 0;
-};
-
-const catalogFlatFloorTo = (flat) => {
-  const floorFrom = catalogFlatFloorFrom(flat);
-  const floorTo = Number(flat?.floor_to) || 0;
-  return floorTo > floorFrom ? floorTo : floorFrom;
-};
-
-const catalogFlatMatchesFloorRange = (flat, from, to) => {
-  const floorFrom = catalogFlatFloorFrom(flat);
-  const floorTo = catalogFlatFloorTo(flat);
-  if (floorFrom <= 0) {
-    return true;
-  }
-  if (typeof from === "number" && Number.isFinite(from) && floorTo + 0.0001 < from) {
-    return false;
-  }
-  if (typeof to === "number" && Number.isFinite(to) && floorFrom - 0.0001 > to) {
-    return false;
-  }
-
-  return true;
-};
-
 const catalogParsePayload = (root) => {
   const payloadEl = root.querySelector("[data-apartment-filter-payload]");
   if (!payloadEl) {
@@ -265,28 +212,28 @@ const catalogStateToQuery = (state, payload) => {
   setCsv("finish", state.finishes);
   setCsv("feature", state.features);
 
-  if (catalogNumberDiffers(state.priceFrom, ranges.price?.actual_min ?? null)) {
+  if (catalogNumberDiffers(state.priceFrom, ranges.price?.render_min ?? null)) {
     params.set("price_from", String(state.priceFrom));
   }
-  if (catalogNumberDiffers(state.priceTo, ranges.price?.actual_max ?? null)) {
+  if (catalogNumberDiffers(state.priceTo, ranges.price?.render_max ?? null)) {
     params.set("price_to", String(state.priceTo));
   }
-  if (catalogNumberDiffers(state.floorFrom, ranges.floor?.actual_min ?? null)) {
+  if (catalogNumberDiffers(state.floorFrom, ranges.floor?.render_min ?? null)) {
     params.set("floor_from", String(state.floorFrom));
   }
-  if (catalogNumberDiffers(state.floorTo, ranges.floor?.actual_max ?? null)) {
+  if (catalogNumberDiffers(state.floorTo, ranges.floor?.render_max ?? null)) {
     params.set("floor_to", String(state.floorTo));
   }
-  if (catalogNumberDiffers(state.areaFrom, ranges.area?.actual_min ?? null)) {
+  if (catalogNumberDiffers(state.areaFrom, ranges.area?.render_min ?? null)) {
     params.set("area_from", String(state.areaFrom));
   }
-  if (catalogNumberDiffers(state.areaTo, ranges.area?.actual_max ?? null)) {
+  if (catalogNumberDiffers(state.areaTo, ranges.area?.render_max ?? null)) {
     params.set("area_to", String(state.areaTo));
   }
-  if (catalogNumberDiffers(state.ceilingFrom, ranges.ceiling?.actual_min ?? null)) {
+  if (catalogNumberDiffers(state.ceilingFrom, ranges.ceiling?.render_min ?? null)) {
     params.set("ceiling_from", String(state.ceilingFrom));
   }
-  if (catalogNumberDiffers(state.ceilingTo, ranges.ceiling?.actual_max ?? null)) {
+  if (catalogNumberDiffers(state.ceilingTo, ranges.ceiling?.render_max ?? null)) {
     params.set("ceiling_to", String(state.ceilingTo));
   }
 
@@ -343,55 +290,6 @@ const catalogBuildState = (root, payload) => {
     ceilingFrom: catalogReadRangeValue(root, "height-from", ranges.ceiling?.actual_min ?? null),
     ceilingTo: catalogReadRangeValue(root, "height-to", ranges.ceiling?.actual_max ?? null),
   };
-};
-
-const catalogMatchesFlat = (flat, state) => {
-  if (state.projects.length && !state.projects.includes(flat.project_code)) {
-    return false;
-  }
-  if (state.types.length) {
-    const typeKey = String(flat.type_key || flat.rooms_bucket || "").trim();
-    if (!typeKey || !state.types.includes(typeKey)) {
-      return false;
-    }
-  }
-  if (state.rooms.length && !state.rooms.includes(flat.rooms_bucket)) {
-    return false;
-  }
-  if (state.statuses.length && !state.statuses.includes(flat.status)) {
-    return false;
-  }
-  if (state.finishes.length && !state.finishes.includes(flat.finish)) {
-    return false;
-  }
-  if (state.features.length) {
-    const tags = Array.isArray(flat.feature_tags) ? flat.feature_tags : [];
-    if (!state.features.some((feature) => tags.includes(feature))) {
-      return false;
-    }
-  }
-  if (flat.price_total > 0 && (flat.price_total < state.priceFrom || flat.price_total > state.priceTo)) {
-    return false;
-  }
-  if (!catalogFlatMatchesFloorRange(flat, state.floorFrom, state.floorTo)) {
-    return false;
-  }
-  if (flat.area_total > 0 && (flat.area_total + 0.0001 < state.areaFrom || flat.area_total - 0.0001 > state.areaTo)) {
-    return false;
-  }
-  if (flat.ceiling > 0) {
-    const hasCeilingFrom = typeof state.ceilingFrom === "number" && Number.isFinite(state.ceilingFrom);
-    const hasCeilingTo = typeof state.ceilingTo === "number" && Number.isFinite(state.ceilingTo);
-
-    if (hasCeilingFrom && flat.ceiling + 0.0001 < state.ceilingFrom) {
-      return false;
-    }
-    if (hasCeilingTo && flat.ceiling - 0.0001 > state.ceilingTo) {
-      return false;
-    }
-  }
-
-  return true;
 };
 
 const catalogUpdateDropdownLabels = (root) => {
@@ -479,38 +377,6 @@ const catalogApplyState = (root, payload, state) => {
   catalogSetRange(root, "height", state.ceilingFrom, state.ceilingTo, ranges.ceiling?.actual_min ?? 0, ranges.ceiling?.actual_max ?? 0);
 
   catalogUpdateDropdownLabels(root);
-};
-
-const catalogSortFlats = (flats, sortValue) => {
-  const items = [...flats];
-
-  const compareNumbers = (left, right, key, direction = "asc") => {
-    const a = Number(left[key]) || 0;
-    const b = Number(right[key]) || 0;
-    return direction === "asc" ? a - b : b - a;
-  };
-
-  switch (sortValue) {
-    case "price_asc":
-      items.sort((left, right) => compareNumbers(left, right, "price_total", "asc"));
-      break;
-    case "price_desc":
-      items.sort((left, right) => compareNumbers(left, right, "price_total", "desc"));
-      break;
-    case "floor_asc":
-      items.sort((left, right) => compareNumbers(left, right, "floor_max", "asc"));
-      break;
-    case "floor_desc":
-      items.sort((left, right) => compareNumbers(left, right, "floor_max", "desc"));
-      break;
-    case "area_desc":
-      items.sort((left, right) => compareNumbers(left, right, "area_total", "desc"));
-      break;
-    default:
-      break;
-  }
-
-  return items;
 };
 
 const catalogBuildMeta = (flat) => {
@@ -809,7 +675,6 @@ const initApartmentCatalog = () => {
   }
 
   const resultsContainer = root.querySelector("[data-catalog-results]");
-  const countEls = root.querySelectorAll("[data-catalog-count], [data-catalog-summary]");
   const emptyEl = root.querySelector("[data-catalog-empty]");
   const resetButton = root.querySelector("[data-catalog-reset]");
 
@@ -818,54 +683,71 @@ const initApartmentCatalog = () => {
   }
 
   const initialQuery = catalogStateFromQuery();
-  let currentSort = "default";
+  let currentSort = payload.current_sort || "default";
   let isReady = false;
-  const countForms = payload.count_forms || payload.config?.count_forms || null;
-
   const render = () => {
-    if (!isReady) {
-      return;
-    }
-
-    const state = catalogBuildState(root, payload);
-    const queryString = catalogStateToQuery(state, payload);
-    const nextUrl = queryString
-      ? `${window.location.pathname}?${queryString}${window.location.hash || ""}`
-      : `${window.location.pathname}${window.location.hash || ""}`;
-    if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== nextUrl) {
-      window.history.replaceState(window.history.state, "", nextUrl);
-    }
-
-    const matches = payload.flats.filter((flat) => catalogMatchesFlat(flat, state));
-    const sortedMatches = catalogSortFlats(matches, currentSort);
-
-    resultsContainer.innerHTML = sortedMatches
+    resultsContainer.innerHTML = payload.flats
       .map((flat) => catalogRenderCard(flat))
       .join("");
 
-    const count = sortedMatches.length;
-    countEls.forEach((element) => {
-      element.textContent = `Найдено ${count} ${catalogPluralize(count, countForms)}`;
-    });
-
+    const count = Array.isArray(payload.flats) ? payload.flats.length : 0;
     if (emptyEl) {
       emptyEl.hidden = count > 0;
     }
     resultsContainer.hidden = count <= 0;
     if (resetButton) {
-      resetButton.hidden = !catalogHasCriteria(state);
+      resetButton.hidden = !catalogHasCriteria(catalogBuildState(root, payload));
     }
+  };
+
+  const navigateWithState = (sortValue = currentSort) => {
+    const state = catalogBuildState(root, payload);
+    const queryString = catalogStateToQuery(state, payload);
+    const params = new URLSearchParams(queryString);
+
+    if (sortValue && sortValue !== "default") {
+      params.set("sort", sortValue);
+    } else {
+      params.delete("sort");
+    }
+
+    params.delete("PAGEN_1");
+
+    const targetUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash || ""}`;
+    window.location.href = targetUrl;
   };
 
   initCatalogView();
   const getSortValue = initCatalogSort((sortValue) => {
     currentSort = sortValue;
-    render();
+    if (isReady) {
+      navigateWithState(sortValue);
+    }
   });
-  currentSort = getSortValue();
+  currentSort = payload.current_sort || getSortValue();
 
-  root.addEventListener("change", render);
-  root.addEventListener("input", render);
+  root.addEventListener("change", (event) => {
+    if (!isReady) {
+      return;
+    }
+
+    if (
+      event.target.matches(".custom-checkbox, [data-range-input]")
+      || event.target.closest(".filter__room")
+    ) {
+      navigateWithState();
+    }
+  });
+
+  root.addEventListener("input", (event) => {
+    if (!isReady) {
+      return;
+    }
+
+    if (event.target.closest(".filter__room")) {
+      navigateWithState();
+    }
+  });
 
   resultsContainer.addEventListener("click", (event) => {
     const boardButton = event.target.closest(".apartment-card__board");
@@ -910,23 +792,7 @@ const initApartmentCatalog = () => {
   });
 
   resetButton?.addEventListener("click", () => {
-    catalogApplyState(root, payload, {
-      projects: [],
-      types: [],
-      rooms: [],
-      statuses: [],
-      finishes: [],
-      features: [],
-      priceFrom: payload.ranges?.price?.actual_min ?? null,
-      priceTo: payload.ranges?.price?.actual_max ?? null,
-      floorFrom: payload.ranges?.floor?.actual_min ?? null,
-      floorTo: payload.ranges?.floor?.actual_max ?? null,
-      areaFrom: payload.ranges?.area?.actual_min ?? null,
-      areaTo: payload.ranges?.area?.actual_max ?? null,
-      ceilingFrom: payload.ranges?.ceiling?.actual_min ?? null,
-      ceilingTo: payload.ranges?.ceiling?.actual_max ?? null,
-    });
-    render();
+    window.location.href = `${window.location.pathname}${window.location.hash || ""}`;
   });
 
   window.requestAnimationFrame(() => {

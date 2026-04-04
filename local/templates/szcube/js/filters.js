@@ -90,6 +90,13 @@ const initRangeSliders = () => {
 
       syncingRanges.delete(rangeKey);
     });
+
+    slider.noUiSlider.on("set", () => {
+      const eventTarget = fromInputs[0] || toInputs[0];
+      if (eventTarget) {
+        eventTarget.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
   });
 };
 
@@ -229,6 +236,8 @@ const initFilterDropdowns = () => {
       field.classList.toggle("selected", checkbox.checked);
       updateButtonText();
       syncCheckboxes(checkbox);
+      checkbox.dispatchEvent(new Event("input", { bubbles: true }));
+      checkbox.dispatchEvent(new Event("change", { bubbles: true }));
     });
 
     btn.dataset.defaultText = defaultText;
@@ -257,6 +266,7 @@ const initFilterPills = () => {
         });
 
       pill.dispatchEvent(new Event("input", { bubbles: true }));
+      pill.dispatchEvent(new Event("change", { bubbles: true }));
     });
   });
 };

@@ -11,6 +11,8 @@ $featureTags = isset($arResult["FEATURE_TAGS"]) && is_array($arResult["FEATURE_T
 $ranges = isset($arResult["RANGES"]) && is_array($arResult["RANGES"]) ? $arResult["RANGES"] : array();
 $flats = isset($arResult["FLATS"]) && is_array($arResult["FLATS"]) ? $arResult["FLATS"] : array();
 $count = isset($arResult["COUNT"]) ? (int)$arResult["COUNT"] : count($flats);
+$pagination = isset($arResult["PAGINATION"]) && is_array($arResult["PAGINATION"]) ? $arResult["PAGINATION"] : null;
+$currentSort = isset($arResult["CURRENT_SORT"]) ? (string)$arResult["CURRENT_SORT"] : "default";
 
 $pluralize = static function ($value) {
     $value = abs((int)$value);
@@ -34,6 +36,7 @@ $payload = array(
     "count" => $count,
     "projects_page_url" => isset($arResult["PROJECTS_PAGE_URL"]) ? (string)$arResult["PROJECTS_PAGE_URL"] : "/projects/",
     "catalog_page_url" => isset($arResult["CATALOG_PAGE_URL"]) ? (string)$arResult["CATALOG_PAGE_URL"] : "/apartments/",
+    "current_sort" => $currentSort,
 );
 $payloadJson = str_replace("</", "<\\/", json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
@@ -254,12 +257,12 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
             По умолчанию
           </button>
           <div class="catalog__sort-menu filter__dropdown-content" data-sort-menu>
-            <button class="catalog__sort-option is-active" type="button" data-sort-value="default">По умолчанию</button>
-            <button class="catalog__sort-option" type="button" data-sort-value="price_asc">Стоимость по возрастанию</button>
-            <button class="catalog__sort-option" type="button" data-sort-value="price_desc">Стоимость по убыванию</button>
-            <button class="catalog__sort-option" type="button" data-sort-value="floor_asc">Этаж по возрастанию</button>
-            <button class="catalog__sort-option" type="button" data-sort-value="floor_desc">Этаж по убыванию</button>
-            <button class="catalog__sort-option" type="button" data-sort-value="area_desc">Площадь по убыванию</button>
+            <button class="catalog__sort-option<?= $currentSort === "default" ? " is-active" : "" ?>" type="button" data-sort-value="default">По умолчанию</button>
+            <button class="catalog__sort-option<?= $currentSort === "price_asc" ? " is-active" : "" ?>" type="button" data-sort-value="price_asc">Стоимость по возрастанию</button>
+            <button class="catalog__sort-option<?= $currentSort === "price_desc" ? " is-active" : "" ?>" type="button" data-sort-value="price_desc">Стоимость по убыванию</button>
+            <button class="catalog__sort-option<?= $currentSort === "floor_asc" ? " is-active" : "" ?>" type="button" data-sort-value="floor_asc">Этаж по возрастанию</button>
+            <button class="catalog__sort-option<?= $currentSort === "floor_desc" ? " is-active" : "" ?>" type="button" data-sort-value="floor_desc">Этаж по убыванию</button>
+            <button class="catalog__sort-option<?= $currentSort === "area_desc" ? " is-active" : "" ?>" type="button" data-sort-value="area_desc">Площадь по убыванию</button>
           </div>
         </div>
         <div class="catalog__view">
@@ -272,6 +275,11 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
     <div class="container">
       <div class="catalog__empty" data-catalog-empty hidden>Квартиры не найдены. Измените параметры фильтра.</div>
       <div class="catalog-grid is-grid" data-view-container data-catalog-results></div>
+      <?php if (!empty($pagination)): ?>
+        <div class="catalog__pagination">
+          <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/catalog-pagination.php"; ?>
+        </div>
+      <?php endif; ?>
     </div>
   </div>
 </section>

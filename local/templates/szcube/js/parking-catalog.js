@@ -82,20 +82,6 @@ const parkingParsePayload = (root) => {
 
 const parkingUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
 
-const parkingPluralize = (count, forms = ["место", "места", "мест"]) => {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-
-  if (mod10 === 1 && mod100 !== 11) {
-    return forms[0] || "";
-  }
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return forms[1] || "";
-  }
-
-  return forms[2] || "";
-};
-
 const parkingNormalizeState = (value) => {
   const normalizeValues = (items) => {
     if (typeof items === "string") {
@@ -284,22 +270,22 @@ const parkingStateToQuery = (state, payload) => {
   setCsv("type", state.types);
   setCsv("status", state.statuses);
 
-  if (typeof state.priceFrom === "number" && state.priceFrom !== (ranges.price?.actual_min ?? state.priceFrom)) {
+  if (typeof state.priceFrom === "number" && state.priceFrom !== (ranges.price?.render_min ?? state.priceFrom)) {
     params.set("price_from", String(state.priceFrom));
   }
-  if (typeof state.priceTo === "number" && state.priceTo !== (ranges.price?.actual_max ?? state.priceTo)) {
+  if (typeof state.priceTo === "number" && state.priceTo !== (ranges.price?.render_max ?? state.priceTo)) {
     params.set("price_to", String(state.priceTo));
   }
-  if (typeof state.areaFrom === "number" && state.areaFrom !== (ranges.area?.actual_min ?? state.areaFrom)) {
+  if (typeof state.areaFrom === "number" && state.areaFrom !== (ranges.area?.render_min ?? state.areaFrom)) {
     params.set("area_from", String(state.areaFrom));
   }
-  if (typeof state.areaTo === "number" && state.areaTo !== (ranges.area?.actual_max ?? state.areaTo)) {
+  if (typeof state.areaTo === "number" && state.areaTo !== (ranges.area?.render_max ?? state.areaTo)) {
     params.set("area_to", String(state.areaTo));
   }
-  if (typeof state.levelFrom === "number" && state.levelFrom !== (ranges.level?.actual_min ?? state.levelFrom)) {
+  if (typeof state.levelFrom === "number" && state.levelFrom !== (ranges.level?.render_min ?? state.levelFrom)) {
     params.set("level_from", String(state.levelFrom));
   }
-  if (typeof state.levelTo === "number" && state.levelTo !== (ranges.level?.actual_max ?? state.levelTo)) {
+  if (typeof state.levelTo === "number" && state.levelTo !== (ranges.level?.render_max ?? state.levelTo)) {
     params.set("level_to", String(state.levelTo));
   }
 
@@ -407,11 +393,9 @@ const initParkingCatalog = () => {
 
     const results = root.querySelector("[data-parking-results]");
     const empty = root.querySelector("[data-parking-empty]");
-    const countEls = root.querySelectorAll("[data-parking-count], [data-parking-summary]");
     const resetBtn = root.querySelector("[data-parking-reset]");
     const allParkings = Array.isArray(payload.parkings) ? payload.parkings : [];
     const config = payload.config || {};
-    const countForms = Array.isArray(config.count_forms) ? config.count_forms : ["место", "места", "мест"];
     const favoritesStorageKey = config.favorite_storage_key || "parking-favorites";
     const initialQuery = parkingStateFromQuery();
     let favoriteKeys = parkingGetFavorites(favoritesStorageKey);
@@ -439,82 +423,42 @@ const initParkingCatalog = () => {
       levelTo: parkingReadRangeValue(root, "level-to", payload.ranges?.level?.actual_max ?? 0),
     });
 
-    const filterItems = (state) =>
-      allParkings.filter((parking) => {
-        if (state.projects.length && !state.projects.includes(parking.project_code)) {
-          return false;
-        }
-        if (state.types.length && !state.types.includes(parking.type_key)) {
-          return false;
-        }
-        if (state.statuses.length && !state.statuses.includes(parking.status_key)) {
-          return false;
-        }
-        if (typeof state.priceFrom === "number" && Number(parking.price_total || 0) < state.priceFrom) {
-          return false;
-        }
-        if (typeof state.priceTo === "number" && Number(parking.price_total || 0) > state.priceTo) {
-          return false;
-        }
-        if (typeof state.areaFrom === "number" && Number(parking.area_total || 0) < state.areaFrom) {
-          return false;
-        }
-        if (typeof state.areaTo === "number" && Number(parking.area_total || 0) > state.areaTo) {
-          return false;
-        }
-        const levelValue = Number(parking.level || 0);
-        if (typeof state.levelFrom === "number" && levelValue < state.levelFrom) {
-          return false;
-        }
-        if (typeof state.levelTo === "number" && levelValue > state.levelTo) {
-          return false;
-        }
-
-        return true;
-      });
-
     const render = () => {
+      results.innerHTML = allParkings.map((item) => parkingRenderCard(item, favoriteKeys, config)).join("");
+      empty.hidden = allParkings.length > 0;
+      results.hidden = allParkings.length === 0;
+
+      if (resetBtn) {
+        resetBtn.hidden = !parkingHasCriteria(getState());
+      }
+    };
+
+    const navigateWithState = () => {
+      const params = parkingStateToQuery(getState(), payload);
+      params.delete("PAGEN_1");
+      window.location.href = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+    };
+
+    root.addEventListener("change", (event) => {
       if (!isReady) {
         return;
       }
 
-      const state = getState();
-      const filtered = filterItems(state);
-      results.innerHTML = filtered.map((item) => parkingRenderCard(item, favoriteKeys, config)).join("");
-      empty.hidden = filtered.length > 0;
-      results.hidden = filtered.length === 0;
-
-      countEls.forEach((el) => {
-        el.textContent = `Найдено ${filtered.length} ${parkingPluralize(filtered.length, countForms)}`;
-      });
-
-      const hasFilters = state.projects.length
-        || state.types.length
-        || state.statuses.length
-        || state.priceFrom !== (payload.ranges?.price?.actual_min ?? state.priceFrom)
-        || state.priceTo !== (payload.ranges?.price?.actual_max ?? state.priceTo)
-        || state.areaFrom !== (payload.ranges?.area?.actual_min ?? state.areaFrom)
-        || state.areaTo !== (payload.ranges?.area?.actual_max ?? state.areaTo)
-        || state.levelFrom !== (payload.ranges?.level?.actual_min ?? state.levelFrom)
-        || state.levelTo !== (payload.ranges?.level?.actual_max ?? state.levelTo);
-
-      if (resetBtn) {
-        resetBtn.hidden = !hasFilters;
-      }
-
-      const params = parkingStateToQuery(state, payload);
-      const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
-      if (`${window.location.pathname}${window.location.search}` !== nextUrl) {
-        window.history.replaceState(window.history.state, "", nextUrl);
-      }
-    };
-
-    root.addEventListener("input", (event) => {
       if (
-        event.target.matches('input[data-sync-group], [data-range-input]')
+        event.target.matches(".custom-checkbox, [data-range-input]")
         || event.target.closest(".filter__room")
       ) {
-        render();
+        navigateWithState();
+      }
+    });
+
+    root.addEventListener("input", (event) => {
+      if (!isReady) {
+        return;
+      }
+
+      if (event.target.closest(".filter__room")) {
+        navigateWithState();
       }
     });
 
@@ -539,30 +483,7 @@ const initParkingCatalog = () => {
 
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        root.querySelectorAll('input[data-sync-group]').forEach((input) => {
-          input.checked = false;
-          const field = input.closest(".input_field");
-          if (field) {
-            field.classList.remove("selected");
-          }
-        });
-
-        ["price", "area", "level"].forEach((rangeKey) => {
-          const slider = root.querySelector(`.range-slider[data-range="${rangeKey}"]`);
-          const range = payload.ranges?.[rangeKey];
-          if (slider?.noUiSlider && range) {
-            slider.noUiSlider.set([range.actual_min, range.actual_max]);
-          }
-        });
-
-        root.querySelectorAll(".filter__dropdown").forEach((dropdown) => {
-          const btn = dropdown.querySelector(".filter__dropdown-menu-btn");
-          if (btn?.dataset.defaultText) {
-            btn.textContent = btn.dataset.defaultText;
-          }
-        });
-
-        render();
+        window.location.href = window.location.pathname;
       });
     }
 

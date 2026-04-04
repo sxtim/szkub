@@ -378,6 +378,187 @@ if (!function_exists("szcubeGetIblockSectionIdByCodePath")) {
     }
 }
 
+if (!function_exists("szcubeRequestCsvList")) {
+    function szcubeRequestCsvList($key)
+    {
+        $raw = isset($_GET[$key]) ? $_GET[$key] : "";
+        if (is_array($raw)) {
+            $items = $raw;
+        } else {
+            $raw = trim((string)$raw);
+            $items = $raw !== "" ? explode(",", $raw) : array();
+        }
+
+        $result = array();
+        foreach ($items as $item) {
+            $item = trim((string)$item);
+            if ($item !== "") {
+                $result[$item] = $item;
+            }
+        }
+
+        return array_values($result);
+    }
+}
+
+if (!function_exists("szcubeRequestNumberValue")) {
+    function szcubeRequestNumberValue($key)
+    {
+        if (!isset($_GET[$key])) {
+            return null;
+        }
+
+        $value = trim((string)$_GET[$key]);
+        if ($value === "") {
+            return null;
+        }
+
+        $value = str_replace(array(" ", ","), array("", "."), $value);
+        return is_numeric($value) ? (float)$value : null;
+    }
+}
+
+if (!function_exists("szcubeResolveSelectedRange")) {
+    function szcubeResolveSelectedRange(array $range, $fromKey, $toKey)
+    {
+        $min = isset($range["render_min"]) ? (float)$range["render_min"] : 0.0;
+        $max = isset($range["render_max"]) ? (float)$range["render_max"] : $min;
+        $precision = isset($range["precision"]) ? (int)$range["precision"] : 0;
+
+        $selectedMin = szcubeRequestNumberValue($fromKey);
+        $selectedMax = szcubeRequestNumberValue($toKey);
+
+        if ($selectedMin === null) {
+            $selectedMin = $min;
+        }
+        if ($selectedMax === null) {
+            $selectedMax = $max;
+        }
+
+        $selectedMin = max($min, min($max, (float)$selectedMin));
+        $selectedMax = max($min, min($max, (float)$selectedMax));
+
+        if ($selectedMax < $selectedMin) {
+            $selectedMax = $selectedMin;
+        }
+
+        $range["actual_min"] = round($selectedMin, $precision);
+        $range["actual_max"] = round($selectedMax, $precision);
+
+        return $range;
+    }
+}
+
+if (!function_exists("szcubeBuildPaginationUrl")) {
+    function szcubeBuildPaginationUrl($pageParam, $pageNumber)
+    {
+        $pageParam = trim((string)$pageParam);
+        $pageNumber = (int)$pageNumber;
+        if ($pageParam === "") {
+            return (string)($_SERVER["REQUEST_URI"] ?? "/");
+        }
+
+        $requestUri = (string)($_SERVER["REQUEST_URI"] ?? "/");
+        $path = $requestUri;
+        $query = array();
+
+        $parts = parse_url($requestUri);
+        if (is_array($parts)) {
+            $path = isset($parts["path"]) && $parts["path"] !== "" ? (string)$parts["path"] : "/";
+            if (isset($parts["query"]) && trim((string)$parts["query"]) !== "") {
+                parse_str((string)$parts["query"], $query);
+            }
+        }
+
+        unset($query[$pageParam], $query["SHOWALL_1"], $query["SIZEN_1"]);
+        if ($pageNumber > 1) {
+            $query[$pageParam] = $pageNumber;
+        }
+
+        $queryString = http_build_query($query, "", "&");
+        return $queryString !== "" ? ($path . "?" . $queryString) : $path;
+    }
+}
+
+if (!function_exists("szcubeBuildArrayPagination")) {
+    function szcubeBuildArrayPagination(array $items, $pageSize, $pageParam)
+    {
+        $pageSize = max(1, (int)$pageSize);
+        $pageParam = trim((string)$pageParam) !== "" ? trim((string)$pageParam) : "PAGEN_1";
+        $currentPage = isset($_GET[$pageParam]) ? max(1, (int)$_GET[$pageParam]) : 1;
+
+        $nav = new CDBResult();
+        $nav->InitFromArray(array_values($items));
+        $nav->NavStart($pageSize, false, $currentPage);
+
+        $pageItems = array();
+        while ($row = $nav->Fetch()) {
+            $pageItems[] = $row;
+        }
+
+        $totalPages = isset($nav->NavPageCount) ? (int)$nav->NavPageCount : 0;
+        $current = isset($nav->NavPageNomer) ? (int)$nav->NavPageNomer : 1;
+        $total = isset($nav->NavRecordCount) ? (int)$nav->NavRecordCount : count($items);
+
+        $pagination = null;
+        if ($totalPages > 1) {
+            $visiblePages = array();
+            if ($totalPages <= 7) {
+                for ($page = 1; $page <= $totalPages; $page++) {
+                    $visiblePages[] = $page;
+                }
+            } else {
+                $visiblePages = array(1, $current - 1, $current, $current + 1, $totalPages);
+                if ($current <= 3) {
+                    $visiblePages[] = 2;
+                    $visiblePages[] = 3;
+                }
+                if ($current >= $totalPages - 2) {
+                    $visiblePages[] = $totalPages - 1;
+                    $visiblePages[] = $totalPages - 2;
+                }
+            }
+
+            $visiblePages = array_values(array_unique(array_filter($visiblePages, static function ($page) use ($totalPages) {
+                return $page >= 1 && $page <= $totalPages;
+            })));
+            sort($visiblePages, SORT_NUMERIC);
+
+            $pages = array();
+            $lastPage = 0;
+            foreach ($visiblePages as $page) {
+                if ($lastPage > 0 && $page - $lastPage > 1) {
+                    $pages[] = array("type" => "ellipsis");
+                }
+
+                $pages[] = array(
+                    "type" => "page",
+                    "number" => $page,
+                    "current" => $page === $current,
+                    "url" => szcubeBuildPaginationUrl($pageParam, $page),
+                );
+                $lastPage = $page;
+            }
+
+            $pagination = array(
+                "page_param" => $pageParam,
+                "current_page" => $current,
+                "total_pages" => $totalPages,
+                "total_items" => $total,
+                "prev_url" => $current > 1 ? szcubeBuildPaginationUrl($pageParam, $current - 1) : "",
+                "next_url" => $current < $totalPages ? szcubeBuildPaginationUrl($pageParam, $current + 1) : "",
+                "pages" => $pages,
+            );
+        }
+
+        return array(
+            "items" => $pageItems,
+            "count" => $total,
+            "pagination" => $pagination,
+        );
+    }
+}
+
 if (!function_exists("szcubeGetExtraCards")) {
     function szcubeGetExtraCards($scope, $projectCode = "")
     {

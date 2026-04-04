@@ -38,6 +38,7 @@ $APPLICATION->IncludeComponent(
     array(
         "CACHE_TIME" => "36000000",
         "CATALOG_PAGE_URL" => "/storerooms/",
+        "PAGE_SIZE" => "12",
     ),
     false
 );

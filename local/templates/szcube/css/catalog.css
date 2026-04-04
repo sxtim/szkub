@@ -35,6 +35,69 @@
   padding: 32px 0 72px;
 }
 
+.catalog__pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.catalog-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.catalog-pagination__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.catalog-pagination__page,
+.catalog-pagination__arrow,
+.catalog-pagination__ellipsis {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(26, 59, 136, 0.24);
+  background: #fff;
+  color: var(--gray-800);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.catalog-pagination__page.is-active {
+  background: #1a3b88;
+  border-color: #1a3b88;
+  color: #fff;
+  cursor: default;
+}
+
+.catalog-pagination__arrow:hover,
+.catalog-pagination__page:hover {
+  border-color: #1a3b88;
+  color: #1a3b88;
+}
+
+.catalog-pagination__page.is-active:hover {
+  color: #fff;
+}
+
+.catalog-pagination__ellipsis {
+  min-width: auto;
+  border-color: transparent;
+  background: transparent;
+  padding: 0 4px;
+}
+
 .catalog__toolbar {
   display: flex;
   align-items: center;
@@ -546,6 +609,10 @@
   .catalog-grid.is-list .catalog-list-card .catalog-list-card__price,
   .catalog-grid.is-list .catalog-list-card .apartment-card__icons {
     justify-content: flex-start;
+  }
+
+  .catalog__pagination {
+    margin-top: 24px;
   }
 }
 

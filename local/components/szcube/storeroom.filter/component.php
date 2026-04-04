@@ -155,6 +155,73 @@ if (!function_exists("szcubeStoreroomFilterOptionAppend")) {
     }
 }
 
+if (!function_exists("szcubeStoreroomFilterRequestState")) {
+    function szcubeStoreroomFilterRequestState()
+    {
+        return array(
+            "projects" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("project") : array(),
+            "statuses" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("status") : array(),
+            "price_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("price_from") : null,
+            "price_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("price_to") : null,
+            "area_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("area_from") : null,
+            "area_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("area_to") : null,
+        );
+    }
+}
+
+if (!function_exists("szcubeStoreroomFilterHasRequestCriteria")) {
+    function szcubeStoreroomFilterHasRequestCriteria(array $state)
+    {
+        foreach (array("projects", "statuses") as $key) {
+            if (!empty($state[$key]) && is_array($state[$key])) {
+                return true;
+            }
+        }
+
+        foreach (array("price_from", "price_to", "area_from", "area_to") as $key) {
+            if ($state[$key] !== null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists("szcubeStoreroomFilterMatchesRequestState")) {
+    function szcubeStoreroomFilterMatchesRequestState(array $item, array $state)
+    {
+        if (!empty($state["projects"]) && !in_array((string)$item["project_code"], $state["projects"], true)) {
+            return false;
+        }
+        if (!empty($state["statuses"]) && !in_array((string)$item["status_key"], $state["statuses"], true)) {
+            return false;
+        }
+
+        $priceTotal = isset($item["price_total"]) ? (float)$item["price_total"] : 0.0;
+        if ($priceTotal > 0) {
+            if ($state["price_from"] !== null && $priceTotal + 0.0001 < (float)$state["price_from"]) {
+                return false;
+            }
+            if ($state["price_to"] !== null && $priceTotal - 0.0001 > (float)$state["price_to"]) {
+                return false;
+            }
+        }
+
+        $areaTotal = isset($item["area_total"]) ? (float)$item["area_total"] : 0.0;
+        if ($areaTotal > 0) {
+            if ($state["area_from"] !== null && $areaTotal + 0.0001 < (float)$state["area_from"]) {
+                return false;
+            }
+            if ($state["area_to"] !== null && $areaTotal - 0.0001 > (float)$state["area_to"]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
 if (!Loader::includeModule("iblock")) {
     ShowError("Не удалось подключить модуль iblock");
     return;
@@ -173,6 +240,7 @@ $arResult = array(
         ? trim((string)$arParams["CATALOG_PAGE_URL"])
         : "/storerooms/",
 );
+$pageSize = isset($arParams["PAGE_SIZE"]) ? max(1, (int)$arParams["PAGE_SIZE"]) : 12;
 
 if (!$storeroomsIblock) {
     $this->IncludeComponentTemplate();
@@ -294,10 +362,31 @@ ksort($statusOptions);
 
 $arResult["PROJECTS"] = array_values($projectOptions);
 $arResult["STATUSES"] = array_values($statusOptions);
-$arResult["RANGES"] = array(
+$rangeResult = array(
     "area" => szcubeStoreroomFilterRangeFinalize($ranges["area"], 0, 0),
     "price" => szcubeStoreroomFilterRangeFinalize($ranges["price"], 0, 0),
 );
-$arResult["COUNT"] = count($arResult["STOREROOMS"]);
+
+$requestState = szcubeStoreroomFilterRequestState();
+$rangeResult["price"] = szcubeResolveSelectedRange($rangeResult["price"], "price_from", "price_to");
+$rangeResult["area"] = szcubeResolveSelectedRange($rangeResult["area"], "area_from", "area_to");
+
+$requestState["price_from"] = isset($rangeResult["price"]["actual_min"]) ? (float)$rangeResult["price"]["actual_min"] : null;
+$requestState["price_to"] = isset($rangeResult["price"]["actual_max"]) ? (float)$rangeResult["price"]["actual_max"] : null;
+$requestState["area_from"] = isset($rangeResult["area"]["actual_min"]) ? (float)$rangeResult["area"]["actual_min"] : null;
+$requestState["area_to"] = isset($rangeResult["area"]["actual_max"]) ? (float)$rangeResult["area"]["actual_max"] : null;
+
+$filteredStorerooms = $arResult["STOREROOMS"];
+if (szcubeStoreroomFilterHasRequestCriteria($requestState)) {
+    $filteredStorerooms = array_values(array_filter($filteredStorerooms, static function ($item) use ($requestState) {
+        return szcubeStoreroomFilterMatchesRequestState($item, $requestState);
+    }));
+}
+
+$paginationResult = szcubeBuildArrayPagination($filteredStorerooms, $pageSize, "PAGEN_1");
+$arResult["STOREROOMS"] = isset($paginationResult["items"]) && is_array($paginationResult["items"]) ? $paginationResult["items"] : array();
+$arResult["COUNT"] = isset($paginationResult["count"]) ? (int)$paginationResult["count"] : count($arResult["STOREROOMS"]);
+$arResult["PAGINATION"] = isset($paginationResult["pagination"]) && is_array($paginationResult["pagination"]) ? $paginationResult["pagination"] : null;
+$arResult["RANGES"] = $rangeResult;
 
 $this->IncludeComponentTemplate();

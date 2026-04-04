@@ -9,6 +9,7 @@ $statuses = isset($arResult["STATUSES"]) && is_array($arResult["STATUSES"]) ? $a
 $ranges = isset($arResult["RANGES"]) && is_array($arResult["RANGES"]) ? $arResult["RANGES"] : array();
 $parkings = isset($arResult["PARKINGS"]) && is_array($arResult["PARKINGS"]) ? $arResult["PARKINGS"] : array();
 $count = isset($arResult["COUNT"]) ? (int)$arResult["COUNT"] : count($parkings);
+$pagination = isset($arResult["PAGINATION"]) && is_array($arResult["PAGINATION"]) ? $arResult["PAGINATION"] : null;
 
 $pluralize = static function ($value) {
     $value = abs((int)$value);
@@ -170,6 +171,11 @@ $renderRange = static function ($label, array $range, $namePrefix) {
     <div class="container">
       <div class="catalog__empty" data-parking-empty hidden>Парковочные места не найдены. Измените параметры фильтра.</div>
       <div class="catalog-grid is-list" data-parking-results></div>
+      <?php if (!empty($pagination)): ?>
+        <div class="catalog__pagination">
+          <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/catalog-pagination.php"; ?>
+        </div>
+      <?php endif; ?>
     </div>
   </div>
 </section>
