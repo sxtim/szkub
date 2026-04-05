@@ -64,6 +64,9 @@ if (defined("ABOUT_COMPANY_PAGE") && ABOUT_COMPANY_PAGE === true) {
 if (defined("MORTGAGE_PAGE") && MORTGAGE_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/mortgage.css");
 }
+if (defined("MORTGAGE_CALCULATOR_PAGE") && MORTGAGE_CALCULATOR_PAGE === true) {
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/mortgage-calculator.js");
+}
 if (
     (defined("NEWS_PAGE") && NEWS_PAGE === true)
     || (defined("PROMOTIONS_PAGE") && PROMOTIONS_PAGE === true)

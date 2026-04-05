@@ -1,5 +1,6 @@
 <?php
 define("MORTGAGE_PAGE", true);
+define("MORTGAGE_CALCULATOR_PAGE", true);
 define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Ипотека");
@@ -15,6 +16,13 @@ $mortgageHeroPageCode = "mortgage";
 </div>
 
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/mortgage-hero.php"; ?>
+
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/mortgage-calculator.php"; ?>
+
+<?php
+$purchaseHighlightsPageCode = $mortgageHeroPageCode;
+include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/purchase-highlights.php";
+?>
 
 <?php
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");

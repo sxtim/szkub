@@ -635,6 +635,285 @@ if (!function_exists("szcubeGetExtraCards")) {
     }
 }
 
+if (!function_exists("szcubeGetPurchasePages")) {
+    function szcubeGetPurchasePages()
+    {
+        static $cache = null;
+
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $cache = array();
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache;
+        }
+
+        $iblockId = szcubeGetIblockIdByCode("purchase_pages");
+        if ($iblockId <= 0) {
+            return $cache;
+        }
+
+        $elementRes = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "ACTIVE" => "Y",
+            ),
+            false,
+            false,
+            array("ID", "IBLOCK_ID", "NAME", "CODE", "SORT")
+        );
+
+        while ($element = $elementRes->GetNextElement()) {
+            $fields = $element->GetFields();
+            $properties = $element->GetProperties();
+
+            $code = trim((string)$fields["CODE"]);
+            $label = trim((string)$fields["NAME"]);
+            $url = isset($properties["PAGE_URL"]["VALUE"]) ? trim((string)$properties["PAGE_URL"]["VALUE"]) : "";
+            $title = isset($properties["HERO_TITLE"]["VALUE"]) ? trim((string)$properties["HERO_TITLE"]["VALUE"]) : "";
+            $heroImage = CFile::GetPath((int)($properties["HERO_IMAGE"]["VALUE"] ?? 0));
+            $heroImageAlt = isset($properties["HERO_IMAGE_ALT"]["VALUE"]) ? trim((string)$properties["HERO_IMAGE_ALT"]["VALUE"]) : "";
+            $showCalculatorXml = isset($properties["SHOW_CALCULATOR"]["VALUE_XML_ID"]) ? trim((string)$properties["SHOW_CALCULATOR"]["VALUE_XML_ID"]) : "";
+            $showCalculatorValue = isset($properties["SHOW_CALCULATOR"]["VALUE"]) ? trim((string)$properties["SHOW_CALCULATOR"]["VALUE"]) : "";
+
+            if ($code === "" || $label === "" || $url === "" || $title === "") {
+                continue;
+            }
+
+            $paragraphs = array();
+            foreach (array("HERO_TEXT_1", "HERO_TEXT_2") as $propertyCode) {
+                $paragraph = isset($properties[$propertyCode]["VALUE"]) ? trim((string)$properties[$propertyCode]["VALUE"]) : "";
+                if ($paragraph !== "") {
+                    $paragraphs[] = $paragraph;
+                }
+            }
+
+            $showCalculator = false;
+            if ($showCalculatorXml !== "") {
+                $showCalculator = mb_strtoupper($showCalculatorXml) === "Y";
+            } elseif ($showCalculatorValue !== "") {
+                $showCalculator = in_array(mb_strtoupper($showCalculatorValue), array("Y", "YES", "ДА"), true);
+            }
+
+            $cache[] = array(
+                "code" => $code,
+                "sort" => (int)$fields["SORT"],
+                "label" => $label,
+                "url" => $url,
+                "hero_title" => $title,
+                "hero_paragraphs" => $paragraphs,
+                "hero_image" => (string)$heroImage,
+                "hero_image_alt" => $heroImageAlt,
+                "primary_button_label" => isset($properties["PRIMARY_BUTTON_LABEL"]["VALUE"]) ? trim((string)$properties["PRIMARY_BUTTON_LABEL"]["VALUE"]) : "",
+                "primary_button_title" => isset($properties["PRIMARY_BUTTON_TITLE"]["VALUE"]) ? trim((string)$properties["PRIMARY_BUTTON_TITLE"]["VALUE"]) : "",
+                "primary_button_note" => isset($properties["PRIMARY_BUTTON_NOTE"]["VALUE"]) ? trim((string)$properties["PRIMARY_BUTTON_NOTE"]["VALUE"]) : "",
+                "primary_button_source" => isset($properties["PRIMARY_BUTTON_SOURCE"]["VALUE"]) ? trim((string)$properties["PRIMARY_BUTTON_SOURCE"]["VALUE"]) : "",
+                "secondary_button_label" => isset($properties["SECONDARY_BUTTON_LABEL"]["VALUE"]) ? trim((string)$properties["SECONDARY_BUTTON_LABEL"]["VALUE"]) : "",
+                "secondary_button_url" => isset($properties["SECONDARY_BUTTON_URL"]["VALUE"]) ? trim((string)$properties["SECONDARY_BUTTON_URL"]["VALUE"]) : "",
+                "show_calculator" => $showCalculator,
+                "calculator_title" => isset($properties["CALCULATOR_TITLE"]["VALUE"]) ? trim((string)$properties["CALCULATOR_TITLE"]["VALUE"]) : "",
+                "calculator_subtitle" => isset($properties["CALCULATOR_SUBTITLE"]["VALUE"]) ? trim((string)$properties["CALCULATOR_SUBTITLE"]["VALUE"]) : "",
+            );
+        }
+
+        return $cache;
+    }
+}
+
+if (!function_exists("szcubeGetPurchasePage")) {
+    function szcubeGetPurchasePage($code)
+    {
+        $code = trim((string)$code);
+        if ($code === "") {
+            return array();
+        }
+
+        foreach (szcubeGetPurchasePages() as $page) {
+            if (isset($page["code"]) && (string)$page["code"] === $code) {
+                return $page;
+            }
+        }
+
+        return array();
+    }
+}
+
+if (!function_exists("szcubeGetPurchaseCards")) {
+    function szcubeGetPurchaseCards($pageCode)
+    {
+        static $cache = array();
+
+        $pageCode = trim((string)$pageCode);
+        if ($pageCode === "") {
+            return array();
+        }
+
+        $cacheKey = mb_strtolower($pageCode);
+        if (array_key_exists($cacheKey, $cache)) {
+            return $cache[$cacheKey];
+        }
+
+        $cache[$cacheKey] = array();
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache[$cacheKey];
+        }
+
+        $iblockId = szcubeGetIblockIdByCode("purchase_page_cards");
+        if ($iblockId <= 0) {
+            return $cache[$cacheKey];
+        }
+
+        $sectionId = szcubeGetIblockSectionIdByCodePath($iblockId, array($pageCode));
+        if ($sectionId <= 0) {
+            return $cache[$cacheKey];
+        }
+
+        $elementRes = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "SECTION_ID" => $sectionId,
+                "INCLUDE_SUBSECTIONS" => "N",
+                "ACTIVE" => "Y",
+            ),
+            false,
+            false,
+            array("ID", "IBLOCK_ID", "NAME", "CODE", "SORT", "PREVIEW_PICTURE", "PREVIEW_TEXT", "PREVIEW_TEXT_TYPE")
+        );
+
+        while ($element = $elementRes->GetNextElement()) {
+            $fields = $element->GetFields();
+            $properties = $element->GetProperties();
+
+            $title = trim((string)$fields["NAME"]);
+            $layoutXml = isset($properties["CARD_LAYOUT"]["VALUE_XML_ID"]) ? trim((string)$properties["CARD_LAYOUT"]["VALUE_XML_ID"]) : "";
+            $text = isset($fields["~PREVIEW_TEXT"]) ? trim((string)$fields["~PREVIEW_TEXT"]) : trim((string)$fields["PREVIEW_TEXT"]);
+
+            if ($title === "") {
+                continue;
+            }
+
+            $cache[$cacheKey][] = array(
+                "id" => (int)$fields["ID"],
+                "code" => trim((string)$fields["CODE"]),
+                "title" => $title,
+                "text" => $text,
+                "image" => CFile::GetPath((int)$fields["PREVIEW_PICTURE"]),
+                "image_alt" => isset($properties["IMAGE_ALT"]["VALUE"]) ? trim((string)$properties["IMAGE_ALT"]["VALUE"]) : "",
+                "layout" => $layoutXml !== "" ? $layoutXml : "default",
+            );
+        }
+
+        return $cache[$cacheKey];
+    }
+}
+
+if (!function_exists("szcubeGetMortgageCalculatorPrograms")) {
+    function szcubeGetMortgageCalculatorPrograms()
+    {
+        static $cache = null;
+
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $cache = array();
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache;
+        }
+
+        $iblockId = szcubeGetIblockIdByCode("mortgage_calculator_programs");
+        if ($iblockId <= 0) {
+            return $cache;
+        }
+
+        $elementRes = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "ACTIVE" => "Y",
+            ),
+            false,
+            false,
+            array("ID", "IBLOCK_ID", "NAME", "CODE", "SORT")
+        );
+
+        while ($element = $elementRes->GetNextElement()) {
+            $fields = $element->GetFields();
+            $properties = $element->GetProperties();
+
+            $code = trim((string)$fields["CODE"]);
+            $label = trim((string)$fields["NAME"]);
+            $rate = isset($properties["RATE"]["VALUE"]) ? (float)$properties["RATE"]["VALUE"] : 0;
+            if ($code === "" || $label === "" || $rate <= 0) {
+                continue;
+            }
+
+            $cache[] = array(
+                "code" => $code,
+                "label" => $label,
+                "rate" => $rate,
+            );
+        }
+
+        return $cache;
+    }
+}
+
+if (!function_exists("szcubeGetMortgageCalculatorBanks")) {
+    function szcubeGetMortgageCalculatorBanks()
+    {
+        static $cache = null;
+
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $cache = array();
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache;
+        }
+
+        $iblockId = szcubeGetIblockIdByCode("mortgage_calculator_banks");
+        if ($iblockId <= 0) {
+            return $cache;
+        }
+
+        $elementRes = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "ACTIVE" => "Y",
+            ),
+            false,
+            false,
+            array("ID", "IBLOCK_ID", "NAME", "CODE", "SORT")
+        );
+
+        while ($element = $elementRes->GetNextElement()) {
+            $fields = $element->GetFields();
+            $properties = $element->GetProperties();
+
+            $label = trim((string)$fields["NAME"]);
+            if ($label === "") {
+                continue;
+            }
+
+            $cache[] = array(
+                "code" => trim((string)$fields["CODE"]),
+                "label" => $label,
+                "mark" => isset($properties["MARK"]["VALUE"]) ? trim((string)$properties["MARK"]["VALUE"]) : "",
+                "tone" => isset($properties["TONE_COLOR"]["VALUE"]) ? trim((string)$properties["TONE_COLOR"]["VALUE"]) : "",
+                "accent" => isset($properties["ACCENT_COLOR"]["VALUE"]) ? trim((string)$properties["ACCENT_COLOR"]["VALUE"]) : "",
+            );
+        }
+
+        return $cache;
+    }
+}
+
 if (!function_exists("szcubeNormalizeApartmentCodePart")) {
     function szcubeNormalizeApartmentCodePart($value)
     {

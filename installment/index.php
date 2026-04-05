@@ -17,5 +17,10 @@ $mortgageHeroPageCode = "installment";
 <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/mortgage-hero.php"; ?>
 
 <?php
+$purchaseHighlightsPageCode = $mortgageHeroPageCode;
+include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/purchase-highlights.php";
+?>
+
+<?php
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");
 ?>
