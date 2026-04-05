@@ -318,6 +318,79 @@ if (!function_exists("szcubeAppendProjectFilterToExtraUrl")) {
     }
 }
 
+if (!function_exists("szcubeGetNavigationLinks")) {
+    function szcubeGetNavigationLinks()
+    {
+        static $links = null;
+
+        if ($links !== null) {
+            return $links;
+        }
+
+        $links = array(
+            "projects" => "/projects/",
+            "apartments" => "/apartments/",
+            "commerce" => "/commerce/",
+            "consulting" => "/consulting/",
+            "tenders" => "/tenders/",
+            "about_company" => "/about-company/",
+            "contacts" => "/#contacts",
+            "promotions" => "/promotions/",
+            "news" => "/news/",
+            "parking" => "/parking/",
+            "storerooms" => "/storerooms/",
+            "mortgage" => "/mortgage/",
+            "installment" => "/installment/",
+            "maternal_capital" => "/maternal-capital/",
+            "project_kollekciya" => "/projects/kollekciya/",
+            "project_vertical" => "/projects/vertical/",
+            "apartments_studio" => "/apartments/?rooms=studio",
+            "apartments_1k" => "/apartments/?rooms=1k",
+            "apartments_2k" => "/apartments/?rooms=2k",
+            "apartments_3k" => "/apartments/?rooms=3k",
+            "apartments_1e" => "#",
+            "apartments_2e" => "/apartments/?rooms=2e",
+            "apartments_3e" => "/apartments/?rooms=3e",
+        );
+
+        $links["footer_newbuildings"] = array(
+            array("label" => "ЖК Коллекция", "href" => $links["project_kollekciya"]),
+            array("label" => "ЖК Вертикаль", "href" => $links["project_vertical"]),
+        );
+
+        $links["footer_realty"] = array(
+            array("label" => "Студии", "href" => $links["apartments_studio"]),
+            array("label" => "1-комнатные", "href" => $links["apartments_1k"]),
+            array("label" => "2-комнатные", "href" => $links["apartments_2k"]),
+            array("label" => "3-комнатные", "href" => $links["apartments_3k"]),
+            array("label" => "Еврооднушка", "href" => $links["apartments_1e"]),
+            array("label" => "Евродвушка", "href" => $links["apartments_2e"]),
+            array("label" => "Евротрешка", "href" => $links["apartments_3e"]),
+            array("label" => "Кладовые", "href" => $links["storerooms"]),
+            array("label" => "Парковки", "href" => $links["parking"]),
+        );
+
+        $links["footer_purchase"] = array(
+            array("label" => "Ипотека", "href" => $links["mortgage"]),
+            array("label" => "Рассрочка", "href" => $links["installment"]),
+            array("label" => "Материнский капитал", "href" => $links["maternal_capital"]),
+        );
+
+        $links["footer_clients"] = array(
+            array("label" => "Проекты", "href" => $links["projects"]),
+            array("label" => "Квартиры", "href" => $links["apartments"]),
+            array("label" => "Тендеры", "href" => $links["tenders"]),
+            array("label" => "Акции", "href" => $links["promotions"]),
+            array("label" => "Новости", "href" => $links["news"]),
+            array("label" => "Ипотека", "href" => $links["mortgage"]),
+            array("label" => "О компании", "href" => $links["about_company"]),
+            array("label" => "Коммерция", "href" => $links["commerce"]),
+        );
+
+        return $links;
+    }
+}
+
 if (!function_exists("szcubeGetIblockSectionIdByCodePath")) {
     function szcubeGetIblockSectionIdByCodePath($iblockId, array $codePath)
     {

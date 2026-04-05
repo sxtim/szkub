@@ -1,3 +1,10 @@
+      <?php
+      $navLinks = function_exists("szcubeGetNavigationLinks") ? szcubeGetNavigationLinks() : array();
+      $footerNewbuildings = isset($navLinks["footer_newbuildings"]) && is_array($navLinks["footer_newbuildings"]) ? $navLinks["footer_newbuildings"] : array();
+      $footerRealty = isset($navLinks["footer_realty"]) && is_array($navLinks["footer_realty"]) ? $navLinks["footer_realty"] : array();
+      $footerPurchase = isset($navLinks["footer_purchase"]) && is_array($navLinks["footer_purchase"]) ? $navLinks["footer_purchase"] : array();
+      $footerClients = isset($navLinks["footer_clients"]) && is_array($navLinks["footer_clients"]) ? $navLinks["footer_clients"] : array();
+      ?>
       <footer class="footer">
         <div class="container footer__top">
           <div class="footer__main">
@@ -50,38 +57,27 @@
           <div class="footer__columns">
             <div class="footer__col">
               <div class="footer__title">Новостройки</div>
-              <a class="footer__link" href="#">ЖК Коллекция</a>
-              <a class="footer__link" href="#">ЖК Вертикаль</a>
-              <a class="footer__link" href="#">ЖК Краснознаменная</a>
+              <?php foreach ($footerNewbuildings as $item): ?>
+                <a class="footer__link" href="<?=htmlspecialchars((string)$item["href"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?>"><?=htmlspecialchars((string)$item["label"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?></a>
+              <?php endforeach; ?>
             </div>
             <div class="footer__col">
               <div class="footer__title">Недвижимость</div>
-              <a class="footer__link" href="#">Студии</a>
-              <a class="footer__link" href="#">1-комнатные</a>
-              <a class="footer__link" href="#">2-комнатные</a>
-              <a class="footer__link" href="#">3-комнатные</a>
-              <a class="footer__link" href="#">Еврооднушка</a>
-              <a class="footer__link" href="#">Евродвушка</a>
-              <a class="footer__link" href="#">Евротрешка</a>
-              <a class="footer__link" href="#">Кладовые</a>
-              <a class="footer__link" href="/parking/">Парковки</a>
+              <?php foreach ($footerRealty as $item): ?>
+                <a class="footer__link" href="<?=htmlspecialchars((string)$item["href"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?>"><?=htmlspecialchars((string)$item["label"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?></a>
+              <?php endforeach; ?>
             </div>
             <div class="footer__col">
               <div class="footer__title">Способы покупки</div>
-              <a class="footer__link" href="/mortgage/">Ипотека</a>
-              <a class="footer__link" href="/installment/">Рассрочка</a>
-              <a class="footer__link" href="/maternal-capital/">Материнский капитал</a>
+              <?php foreach ($footerPurchase as $item): ?>
+                <a class="footer__link" href="<?=htmlspecialchars((string)$item["href"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?>"><?=htmlspecialchars((string)$item["label"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?></a>
+              <?php endforeach; ?>
             </div>
             <div class="footer__col">
               <div class="footer__title">Клиентам</div>
-              <a class="footer__link" href="/projects/">Проекты</a>
-              <a class="footer__link" href="/apartments/">Квартиры</a>
-              <a class="footer__link" href="#tenders">Тендеры</a>
-              <a class="footer__link" href="#promo">Акции</a>
-              <a class="footer__link" href="#news">Новости</a>
-              <a class="footer__link" href="/mortgage/">Ипотека</a>
-              <a class="footer__link" href="/about-company/">О компании</a>
-              <a class="footer__link" href="/commerce/">Коммерция</a>
+              <?php foreach ($footerClients as $item): ?>
+                <a class="footer__link" href="<?=htmlspecialchars((string)$item["href"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?>"><?=htmlspecialchars((string)$item["label"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?></a>
+              <?php endforeach; ?>
             </div>
           </div>
         </div>

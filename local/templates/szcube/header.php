@@ -6,6 +6,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 use Bitrix\Main\Page\Asset;
 
 $asset = Asset::getInstance();
+$navLinks = function_exists("szcubeGetNavigationLinks") ? szcubeGetNavigationLinks() : array();
+$getNavLink = static function ($key, $default = "") use ($navLinks) {
+    return isset($navLinks[$key]) ? (string)$navLinks[$key] : (string)$default;
+};
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/main.css");
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/contact-form.css");
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/accordion.css");
@@ -146,13 +150,13 @@ if (!defined("ERROR_404")) {
           </a>
           <nav class="nav">
             <ul class="nav__list">
-              <li><a href="/projects/">Проекты</a></li>
-              <li><a href="/apartments/">Квартиры</a></li>
-              <li><a href="/commerce/">Коммерция</a></li>
-              <li><a href="/consulting/">Консалтинг</a></li>
-              <li><a href="/tenders/">Тендеры</a></li>
-              <li><a href="/about-company/">О компании</a></li>
-              <li><a href="#contacts">Контакты</a></li>
+              <li><a href="<?=$getNavLink("projects", "/projects/")?>">Проекты</a></li>
+              <li><a href="<?=$getNavLink("apartments", "/apartments/")?>">Квартиры</a></li>
+              <li><a href="<?=$getNavLink("commerce", "/commerce/")?>">Коммерция</a></li>
+              <li><a href="<?=$getNavLink("consulting", "/consulting/")?>">Консалтинг</a></li>
+              <li><a href="<?=$getNavLink("tenders", "/tenders/")?>">Тендеры</a></li>
+              <li><a href="<?=$getNavLink("about_company", "/about-company/")?>">О компании</a></li>
+              <li><a href="<?=$getNavLink("contacts", "/#contacts")?>">Контакты</a></li>
               <li class="nav__more">
                 <button
                   class="nav__more-btn"
@@ -163,11 +167,11 @@ if (!defined("ERROR_404")) {
                   Еще
                 </button>
                 <ul class="nav__dropdown">
-                  <li><a href="#promo">Акции</a></li>
-                  <li><a href="#news">Новости</a></li>
-                  <li><a href="/parking/">Паркинг</a></li>
-                  <li><a href="/storerooms/">Кладовые</a></li>
-                  <li><a href="/mortgage/">Ипотека</a></li>
+                  <li><a href="<?=$getNavLink("promotions", "/promotions/")?>">Акции</a></li>
+                  <li><a href="<?=$getNavLink("news", "/news/")?>">Новости</a></li>
+                  <li><a href="<?=$getNavLink("parking", "/parking/")?>">Паркинг</a></li>
+                  <li><a href="<?=$getNavLink("storerooms", "/storerooms/")?>">Кладовые</a></li>
+                  <li><a href="<?=$getNavLink("mortgage", "/mortgage/")?>">Ипотека</a></li>
                 </ul>
               </li>
             </ul>
@@ -188,17 +192,18 @@ if (!defined("ERROR_404")) {
         </div>
         <div class="mobile-nav">
           <ul class="mobile-nav__list">
-            <li><a href="/projects/">Проекты</a></li>
-            <li><a href="/apartments/">Квартиры</a></li>
-            <li><a href="/commerce/">Коммерция</a></li>
-            <li><a href="/consulting/">Консалтинг</a></li>
-            <li><a href="/tenders/">Тендеры</a></li>
-            <li><a href="#promo">Акции</a></li>
-            <li><a href="/parking/">Паркинг</a></li>
-            <li><a href="/storerooms/">Кладовые</a></li>
-            <li><a href="/about-company/">О компании</a></li>
-            <li><a href="/mortgage/">Ипотека</a></li>
-            <li><a href="#contacts">Контакты</a></li>
+            <li><a href="<?=$getNavLink("projects", "/projects/")?>">Проекты</a></li>
+            <li><a href="<?=$getNavLink("apartments", "/apartments/")?>">Квартиры</a></li>
+            <li><a href="<?=$getNavLink("commerce", "/commerce/")?>">Коммерция</a></li>
+            <li><a href="<?=$getNavLink("consulting", "/consulting/")?>">Консалтинг</a></li>
+            <li><a href="<?=$getNavLink("tenders", "/tenders/")?>">Тендеры</a></li>
+            <li><a href="<?=$getNavLink("promotions", "/promotions/")?>">Акции</a></li>
+            <li><a href="<?=$getNavLink("news", "/news/")?>">Новости</a></li>
+            <li><a href="<?=$getNavLink("parking", "/parking/")?>">Паркинг</a></li>
+            <li><a href="<?=$getNavLink("storerooms", "/storerooms/")?>">Кладовые</a></li>
+            <li><a href="<?=$getNavLink("about_company", "/about-company/")?>">О компании</a></li>
+            <li><a href="<?=$getNavLink("mortgage", "/mortgage/")?>">Ипотека</a></li>
+            <li><a href="<?=$getNavLink("contacts", "/#contacts")?>">Контакты</a></li>
             <li>
               <a class="mobile-nav__phone" href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>
             </li>
