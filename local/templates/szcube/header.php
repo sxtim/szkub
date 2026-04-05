@@ -61,6 +61,9 @@ if (defined("ABOUT_COMPANY_PAGE") && ABOUT_COMPANY_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/about-company.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/about-company.js");
 }
+if (defined("MORTGAGE_PAGE") && MORTGAGE_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/mortgage.css");
+}
 if (
     (defined("NEWS_PAGE") && NEWS_PAGE === true)
     || (defined("PROMOTIONS_PAGE") && PROMOTIONS_PAGE === true)
@@ -161,7 +164,7 @@ if (!defined("ERROR_404")) {
                   <li><a href="#news">Новости</a></li>
                   <li><a href="/parking/">Паркинг</a></li>
                   <li><a href="/storerooms/">Кладовые</a></li>
-                  <li><a href="#mortgage">Ипотека</a></li>
+                  <li><a href="/mortgage/">Ипотека</a></li>
                 </ul>
               </li>
             </ul>
@@ -191,7 +194,7 @@ if (!defined("ERROR_404")) {
             <li><a href="/parking/">Паркинг</a></li>
             <li><a href="/storerooms/">Кладовые</a></li>
             <li><a href="/about-company/">О компании</a></li>
-            <li><a href="#mortgage">Ипотека</a></li>
+            <li><a href="/mortgage/">Ипотека</a></li>
             <li><a href="#contacts">Контакты</a></li>
             <li>
               <a class="mobile-nav__phone" href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>

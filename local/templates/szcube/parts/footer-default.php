@@ -68,9 +68,9 @@
             </div>
             <div class="footer__col">
               <div class="footer__title">Способы покупки</div>
-              <a class="footer__link" href="#">Ипотека</a>
-              <a class="footer__link" href="#">Рассрочка</a>
-              <a class="footer__link" href="#">Материнский капитал</a>
+              <a class="footer__link" href="/mortgage/">Ипотека</a>
+              <a class="footer__link" href="/installment/">Рассрочка</a>
+              <a class="footer__link" href="/maternal-capital/">Материнский капитал</a>
             </div>
             <div class="footer__col">
               <div class="footer__title">Клиентам</div>
@@ -79,7 +79,7 @@
               <a class="footer__link" href="#tenders">Тендеры</a>
               <a class="footer__link" href="#promo">Акции</a>
               <a class="footer__link" href="#news">Новости</a>
-              <a class="footer__link" href="#mortgage">Ипотека</a>
+              <a class="footer__link" href="/mortgage/">Ипотека</a>
               <a class="footer__link" href="/about-company/">О компании</a>
               <a class="footer__link" href="/commerce/">Коммерция</a>
             </div>
