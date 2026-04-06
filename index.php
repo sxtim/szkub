@@ -9,12 +9,6 @@ $homeMapEmbedHtml = function_exists("szcubeGetPageMapEmbedHtml")
 
 $homeExtraCards = szcubeGetExtraCards("home");
 ?>
-
-<div class="breadcrumbs-wrap">
-  <div class="container">
-    <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/breadcrumbs.php"; ?>
-  </div>
-</div>
 <h1 class="visually-hidden">СЗ КУБ — застройщик в Воронеже</h1>
 <?php
 $homeHeroBannersIblockType = "content";
