@@ -813,6 +813,80 @@ if (!function_exists("szcubeGetPurchasePage")) {
     }
 }
 
+if (!function_exists("szcubeGetCatalogPages")) {
+    function szcubeGetCatalogPages()
+    {
+        static $cache = null;
+
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $cache = array();
+
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache;
+        }
+
+        $iblockId = szcubeGetIblockIdByCode("catalog_pages");
+        if ($iblockId <= 0) {
+            return $cache;
+        }
+
+        $res = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "ACTIVE" => "Y",
+            ),
+            false,
+            false,
+            array("ID", "IBLOCK_ID", "NAME", "CODE", "SORT")
+        );
+
+        while ($element = $res->GetNextElement()) {
+            $fields = $element->GetFields();
+            $properties = $element->GetProperties();
+
+            $imageId = 0;
+            if (isset($properties["INTRO_IMAGE"]["VALUE"])) {
+                $imageId = (int)$properties["INTRO_IMAGE"]["VALUE"];
+            }
+
+            $cache[] = array(
+                "id" => (int)$fields["ID"],
+                "code" => trim((string)$fields["CODE"]),
+                "label" => trim((string)$fields["NAME"]),
+                "sort" => (int)$fields["SORT"],
+                "intro_text_1" => isset($properties["INTRO_TEXT_1"]["VALUE"]) ? trim((string)$properties["INTRO_TEXT_1"]["VALUE"]) : "",
+                "intro_text_2" => isset($properties["INTRO_TEXT_2"]["VALUE"]) ? trim((string)$properties["INTRO_TEXT_2"]["VALUE"]) : "",
+                "intro_image" => $imageId > 0 ? (string)CFile::GetPath($imageId) : "",
+                "intro_image_alt" => isset($properties["INTRO_IMAGE_ALT"]["VALUE"]) ? trim((string)$properties["INTRO_IMAGE_ALT"]["VALUE"]) : "",
+            );
+        }
+
+        return $cache;
+    }
+}
+
+if (!function_exists("szcubeGetCatalogPage")) {
+    function szcubeGetCatalogPage($code)
+    {
+        $code = trim((string)$code);
+        if ($code === "") {
+            return array();
+        }
+
+        foreach (szcubeGetCatalogPages() as $page) {
+            if ((string)$page["code"] === $code) {
+                return $page;
+            }
+        }
+
+        return array();
+    }
+}
+
 if (!function_exists("szcubeGetPurchaseCards")) {
     function szcubeGetPurchaseCards($pageCode)
     {

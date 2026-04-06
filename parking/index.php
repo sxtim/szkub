@@ -3,6 +3,7 @@ define("PARKING_PAGE", true);
 define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Паркинг");
+$catalogPageIntro = function_exists("szcubeGetCatalogPage") ? szcubeGetCatalogPage("parking") : array();
 ?>
 
 <div class="breadcrumbs-wrap">
@@ -15,21 +16,7 @@ $APPLICATION->SetTitle("Паркинг");
   <h1 class="section-title"><?php $APPLICATION->ShowTitle(false); ?></h1>
 </div>
 
-<section class="parking-intro">
-  <div class="container">
-    <div class="parking-intro__card">
-      <div class="parking-intro__copy">
-        <div class="parking-intro__text">
-          <p>Каталог парковочных мест по нашим жилым комплексам. Выбирайте подходящий уровень, тип места и бюджет в том же контуре, что и квартиры.</p>
-          <p>Сейчас в выдаче используем компактную строчную карточку: номер места, ЖК, тип, уровень, площадь, цена и статус.</p>
-        </div>
-      </div>
-      <div class="parking-intro__media" aria-hidden="true">
-        <img src="<?= SITE_TEMPLATE_PATH ?>/img/figma-683b8703-3ea0-4192-baac-c2b5ed21c8ba.png" alt="" loading="lazy">
-      </div>
-    </div>
-  </div>
-</section>
+<?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/catalog-page-intro.php"; ?>
 
 <?php
 $APPLICATION->IncludeComponent(
