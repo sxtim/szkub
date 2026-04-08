@@ -113,6 +113,24 @@ if (!function_exists("projectsListIsPubliclyHiddenStatus")) {
     }
 }
 
+if (!function_exists("projectsListIsAvailableForSaleStatus")) {
+    function projectsListIsAvailableForSaleStatus($statusKey, $statusLabel = "")
+    {
+        $statusKey = trim(mb_strtolower((string)$statusKey));
+        $statusLabel = trim(mb_strtolower((string)$statusLabel));
+
+        if (in_array($statusKey, array("free", "available"), true)) {
+            return true;
+        }
+
+        if ($statusLabel !== "" && preg_match("/^(свобод|в\\s*продаже)/u", $statusLabel) === 1) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
 if (!Loader::includeModule("iblock") || empty($arResult["ITEMS"]) || !is_array($arResult["ITEMS"])) {
     return;
 }
@@ -174,7 +192,11 @@ while ($flatElement = $flatRes->GetNextElement()) {
     $projectSaleMeta[$projectId]["count"]++;
 
     $priceTotal = isset($flatProperties["PRICE_TOTAL"]["VALUE"]) ? (float)$flatProperties["PRICE_TOTAL"]["VALUE"] : 0.0;
-    if ($priceTotal > 0 && ($projectSaleMeta[$projectId]["min_price"] <= 0 || $priceTotal < $projectSaleMeta[$projectId]["min_price"])) {
+    if (
+        projectsListIsAvailableForSaleStatus($statusKey, $statusLabel)
+        && $priceTotal > 0
+        && ($projectSaleMeta[$projectId]["min_price"] <= 0 || $priceTotal < $projectSaleMeta[$projectId]["min_price"])
+    ) {
         $projectSaleMeta[$projectId]["min_price"] = $priceTotal;
     }
 

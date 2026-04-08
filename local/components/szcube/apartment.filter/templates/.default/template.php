@@ -230,6 +230,10 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
           <?php $renderCheckboxGroup("Планировочные решения", "feature", $featureTags, "popup-feature"); ?>
         </div>
       </div>
+
+      <div class="filters-popup__footer">
+        <button class="btn btn--primary filters-popup__submit" type="button" data-apartment-filter-submit>Выбрать квартиру</button>
+      </div>
     </div>
   </div>
 </div>

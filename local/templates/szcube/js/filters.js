@@ -477,9 +477,9 @@ const initApartmentFilter = () => {
   const payload = apartmentFilterParsePayload(root);
   if (!payload || !Array.isArray(payload.flats)) return;
 
-  const summaryEl = root.querySelector("[data-apartment-filter-summary]");
-  const submitButton = root.querySelector("[data-apartment-filter-submit]");
-  if (!submitButton) return;
+  const summaryEls = root.querySelectorAll("[data-apartment-filter-summary]");
+  const submitButtons = root.querySelectorAll("[data-apartment-filter-submit]");
+  if (!submitButtons.length) return;
 
   const projectIndex = {};
   (payload.projects || []).forEach((project) => {
@@ -495,20 +495,22 @@ const initApartmentFilter = () => {
     root.apartmentFilterMatches = matches;
 
     const count = matches.length;
-    submitButton.disabled = count <= 0;
-    if (count <= 0) {
-      submitButton.textContent = "Квартиры не найдены";
-    } else if (count === 1) {
-      submitButton.textContent = "Выбрать квартиру";
-    } else {
-      submitButton.textContent = `Показать ${count} ${apartmentFilterPluralize(count)}`;
-    }
+    submitButtons.forEach((submitButton) => {
+      submitButton.disabled = count <= 0;
+      if (count <= 0) {
+        submitButton.textContent = "Квартиры не найдены";
+      } else if (count === 1) {
+        submitButton.textContent = "Выбрать квартиру";
+      } else {
+        submitButton.textContent = `Показать ${count} ${apartmentFilterPluralize(count)}`;
+      }
+    });
 
-    if (summaryEl) {
+    summaryEls.forEach((summaryEl) => {
       summaryEl.textContent = count > 0
         ? `Найдено ${count} ${apartmentFilterPluralize(count)}`
         : "Квартиры не найдены";
-    }
+    });
   };
 
   root.addEventListener("change", updateState);
