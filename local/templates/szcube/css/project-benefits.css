@@ -383,6 +383,7 @@ body.scroll-lock {
 .projects-benefit-modal__imageWrap {
   padding: 0 24px;
   margin: 0 0 32px;
+  cursor: zoom-in;
 }
 
 .projects-benefit-modal__image {

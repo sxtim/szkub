@@ -181,6 +181,9 @@ const initBenefitsModal = () => {
   const prevBtn = modalWrap.querySelector("[data-modal-prev]");
   const nextBtn = modalWrap.querySelector("[data-modal-next]");
   const modalCategoryEl = modalWrap.querySelector("[data-modal-category]");
+  const lightbox = document.querySelector("[data-benefit-lightbox]");
+  const lightboxImage = lightbox?.querySelector("[data-benefit-lightbox-image]");
+  const lightboxCaption = lightbox?.querySelector("[data-benefit-lightbox-caption]");
 
   if (!modalEl || !swiperEl || !swiperWrapperEl) return;
 
@@ -189,6 +192,10 @@ const initBenefitsModal = () => {
   let swiper = null;
   let isClosing = false;
   let openCleanupTimer = null;
+
+  if (lightbox instanceof HTMLElement && lightbox.parentElement !== document.body) {
+    document.body.append(lightbox);
+  }
 
   const getScrollbarWidth = () =>
     window.innerWidth - document.documentElement.clientWidth;
@@ -365,6 +372,13 @@ const initBenefitsModal = () => {
     image.className = "projects-benefit-modal__image";
     if (benefit?.image) {
       image.style.backgroundImage = `url('${benefit.image}')`;
+      imageWrap.dataset.modalImageZoom = "true";
+      imageWrap.dataset.modalImageSrc = benefit.image;
+      imageWrap.dataset.modalImageAlt = benefit?.title || "";
+      imageWrap.dataset.modalImageCaption = benefit?.title || "";
+      imageWrap.tabIndex = 0;
+      imageWrap.setAttribute("role", "button");
+      imageWrap.setAttribute("aria-label", "Открыть изображение");
     }
     imageWrap.append(image);
     scroll.append(imageWrap);
@@ -457,9 +471,45 @@ const initBenefitsModal = () => {
     if (closeBtn instanceof HTMLElement) closeBtn.focus();
   };
 
+  const openLightbox = (src, alt = "", caption = "") => {
+    if (!(lightbox instanceof HTMLElement) || !(lightboxImage instanceof HTMLImageElement)) {
+      return;
+    }
+
+    if (!src) return;
+
+    lightboxImage.src = src;
+    lightboxImage.alt = alt;
+
+    if (lightboxCaption instanceof HTMLElement) {
+      const safeCaption = typeof caption === "string" ? caption.trim() : "";
+      lightboxCaption.textContent = safeCaption;
+      lightboxCaption.hidden = safeCaption === "";
+    }
+
+    lightbox.hidden = false;
+  };
+
+  const closeLightbox = () => {
+    if (!(lightbox instanceof HTMLElement) || lightbox.hidden) return;
+
+    lightbox.hidden = true;
+
+    if (lightboxImage instanceof HTMLImageElement) {
+      lightboxImage.src = "";
+      lightboxImage.alt = "";
+    }
+
+    if (lightboxCaption instanceof HTMLElement) {
+      lightboxCaption.textContent = "";
+      lightboxCaption.hidden = true;
+    }
+  };
+
   const closeModal = () => {
     if (modalWrap.hidden || isClosing) return;
     isClosing = true;
+    closeLightbox();
 
     playCloseTransition();
 
@@ -479,6 +529,24 @@ const initBenefitsModal = () => {
   };
 
   document.addEventListener("click", (event) => {
+    const zoomTrigger = event.target.closest("[data-modal-image-zoom]");
+    if (zoomTrigger && !modalWrap.hidden) {
+      event.preventDefault();
+      openLightbox(
+        zoomTrigger.getAttribute("data-modal-image-src") || "",
+        zoomTrigger.getAttribute("data-modal-image-alt") || "",
+        zoomTrigger.getAttribute("data-modal-image-caption") || ""
+      );
+      return;
+    }
+
+    const lightboxClose = event.target.closest("[data-benefit-lightbox-close]");
+    if (lightboxClose && lightbox instanceof HTMLElement && !lightbox.hidden) {
+      event.preventDefault();
+      closeLightbox();
+      return;
+    }
+
     if (event.target === modalWrap && !modalWrap.hidden) {
       closeModal();
       return;
@@ -527,6 +595,11 @@ const initBenefitsModal = () => {
   });
 
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && lightbox instanceof HTMLElement && !lightbox.hidden) {
+      event.preventDefault();
+      closeLightbox();
+      return;
+    }
     if (event.key === "Escape" && !modalWrap.hidden) {
       event.preventDefault();
       closeModal();
@@ -538,6 +611,22 @@ const initBenefitsModal = () => {
     if (event.key === "ArrowRight" && !modalWrap.hidden) {
       event.preventDefault();
       swiper?.slideNext();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!(event.target instanceof Element) || modalWrap.hidden) return;
+
+    const zoomTrigger = event.target.closest("[data-modal-image-zoom]");
+    if (!zoomTrigger) return;
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openLightbox(
+        zoomTrigger.getAttribute("data-modal-image-src") || "",
+        zoomTrigger.getAttribute("data-modal-image-alt") || "",
+        zoomTrigger.getAttribute("data-modal-image-caption") || ""
+      );
     }
   });
 };

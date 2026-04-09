@@ -361,11 +361,58 @@ if ($project) {
     <div class="projects-about">
       <div class="projects-about__grid">
         <div class="projects-about__media">
-          <img
-            src="<?= htmlspecialcharsbx($projectDetail["about"]["image"]) ?>"
-            alt="Проект — изображение"
-            loading="lazy"
-          />
+          <button
+            class="projects-about__zoom"
+            type="button"
+            data-project-about-zoom
+            aria-label="Увеличить изображение проекта"
+          >
+            <img
+              src="<?= htmlspecialcharsbx($projectDetail["about"]["image"]) ?>"
+              alt="Проект — изображение"
+              loading="lazy"
+            />
+          </button>
+        </div>
+
+        <div class="projects-about__lightbox" data-project-about-lightbox hidden>
+          <button
+            class="projects-about__lightbox-backdrop"
+            type="button"
+            data-project-about-lightbox-close
+            aria-label="Закрыть просмотр"
+          ></button>
+          <div
+            class="projects-about__lightbox-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Просмотр изображения проекта"
+          >
+            <button
+              class="projects-about__lightbox-close"
+              type="button"
+              data-project-about-lightbox-close
+              aria-label="Закрыть"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </button>
+            <figure class="projects-about__lightbox-figure">
+              <img
+                class="projects-about__lightbox-image"
+                data-project-about-lightbox-image
+                src=""
+                alt=""
+              />
+              <figcaption
+                class="projects-about__lightbox-caption"
+                data-project-about-lightbox-caption
+                hidden
+              ></figcaption>
+            </figure>
+          </div>
         </div>
 
         <h2 class="projects-about__title">

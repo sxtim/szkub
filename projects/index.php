@@ -288,6 +288,8 @@ $projectsActiveView = isset($_GET["view"]) && trim((string)$_GET["view"]) === "m
               id="projects-view-tab-map"
               aria-controls="projects-view-panel-map"
               aria-selected="<?= $projectsActiveView === "map" ? "true" : "false" ?>"
+              aria-disabled="true"
+              disabled
               data-projects-view-tab="map"
             >На карте</button>
           </div>

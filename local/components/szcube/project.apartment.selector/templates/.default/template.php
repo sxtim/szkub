@@ -273,6 +273,8 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
               type="button"
               role="tab"
               aria-selected="false"
+              aria-disabled="true"
+              disabled
               data-selector-view-tab="map"
               data-selector-open-map
             >На карте</button>
@@ -309,6 +311,8 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
                   type="button"
                   role="tab"
                   aria-selected="false"
+                  aria-disabled="true"
+                  disabled
                   data-selector-view-tab="map"
                   data-selector-open-map
                 >На карте</button>
@@ -478,6 +482,8 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
                 type="button"
                 role="tab"
                 aria-selected="true"
+                aria-disabled="true"
+                disabled
                 data-selector-view-tab="map"
                 data-selector-open-map
               >На карте</button>

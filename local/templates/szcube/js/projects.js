@@ -993,12 +993,75 @@ const initProjectApartmentSelector = () => {
   });
 };
 
+const initProjectAboutLightbox = () => {
+  const trigger = document.querySelector("[data-project-about-zoom]");
+  const lightbox = document.querySelector("[data-project-about-lightbox]");
+  const image = lightbox?.querySelector("[data-project-about-lightbox-image]");
+  const caption = lightbox?.querySelector("[data-project-about-lightbox-caption]");
+  const closeButtons = lightbox
+    ? Array.from(lightbox.querySelectorAll("[data-project-about-lightbox-close]"))
+    : [];
+
+  if (
+    !(trigger instanceof HTMLButtonElement) ||
+    !(lightbox instanceof HTMLElement) ||
+    !(image instanceof HTMLImageElement)
+  ) {
+    return;
+  }
+
+  const sourceImage = trigger.querySelector("img");
+  if (!(sourceImage instanceof HTMLImageElement)) {
+    return;
+  }
+
+  if (lightbox.parentElement !== document.body) {
+    document.body.appendChild(lightbox);
+  }
+
+  const open = () => {
+    image.src = sourceImage.currentSrc || sourceImage.src;
+    image.alt = sourceImage.alt || "";
+
+    if (caption instanceof HTMLElement) {
+      const captionText = sourceImage.alt || "";
+      caption.textContent = captionText;
+      caption.hidden = captionText === "";
+    }
+
+    lightbox.hidden = false;
+    document.documentElement.classList.add("is-project-lightbox-open");
+    document.body.classList.add("is-project-lightbox-open");
+  };
+
+  const close = () => {
+    lightbox.hidden = true;
+    document.documentElement.classList.remove("is-project-lightbox-open");
+    document.body.classList.remove("is-project-lightbox-open");
+  };
+
+  trigger.addEventListener("click", open);
+
+  closeButtons.forEach((button) => {
+    button.addEventListener("click", close);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || lightbox.hidden) {
+      return;
+    }
+
+    close();
+  });
+};
+
 const initProjectsPage = () => {
   initProjectsViewSwitch();
   initProjectsStatusFilter();
   initProjectApartmentSelector();
   initConstructionSlider();
   initConstructionModal();
+  initProjectAboutLightbox();
 };
 
 if (document.readyState === "loading") {
