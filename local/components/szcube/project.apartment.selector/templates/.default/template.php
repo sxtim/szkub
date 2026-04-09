@@ -205,6 +205,7 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
                       $groupHref = "/apartments/?" . http_build_query(array(
                           "project" => (string)$project["CODE"],
                           "rooms" => $groupFilterValue,
+                          "entrance" => isset($entrance["number"]) ? (string)$entrance["number"] : "",
                       ));
                   }
                   ?>
@@ -349,6 +350,7 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
                   </div>
 
                   <div class="apartment-card__meta" data-lot-meta hidden></div>
+                  <div class="apartment-card__meta apartment-card__meta--secondary" data-lot-meta-secondary hidden></div>
 
                   <div class="apartment-card__price">
                     <span class="apartment-card__price-main" data-lot-price-main hidden></span>
@@ -402,8 +404,10 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
                                   data-flat-image-alt="<?= htmlspecialcharsbx((string)$cell["plan_alt"]) ?>"
                                   data-flat-floor="<?= (int)$cell["floor"] ?>"
                                   data-flat-floor-to="<?= (int)$cell["floor_to"] ?>"
+                                  data-flat-floor-short="<?= htmlspecialcharsbx((string)$cell["floor_short"]) ?>"
                                   data-flat-floor-display="<?= htmlspecialcharsbx((string)$cell["floor_display"]) ?>"
                                   data-flat-house-floors="<?= (int)$cell["house_floors"] ?>"
+                                  data-flat-entrance="<?= htmlspecialcharsbx((string)$cell["entrance"]) ?>"
                                   data-flat-number="<?= htmlspecialcharsbx((string)$cell["number"]) ?>"
                                   data-flat-slot-id="<?= htmlspecialcharsbx((string)$cell["slot_id"]) ?>"
                                   data-flat-url="<?= htmlspecialcharsbx((string)$cell["url"]) ?>"

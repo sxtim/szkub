@@ -232,7 +232,10 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
       </div>
 
       <div class="filters-popup__footer">
-        <button class="btn btn--primary filters-popup__submit" type="button" data-apartment-filter-submit>Выбрать квартиру</button>
+        <button class="btn btn--primary filters-popup__submit" type="button" data-apartment-filter-popup-submit>
+          <span class="filters-popup__submit-main">Показать</span>
+          <span class="filters-popup__submit-count"><?= (int)$count ?> <?= htmlspecialcharsbx($pluralize($count)) ?></span>
+        </button>
       </div>
     </div>
   </div>

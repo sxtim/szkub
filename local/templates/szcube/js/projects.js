@@ -476,6 +476,8 @@ const initProjectApartmentSelector = () => {
     const lotDelivery = lotCard?.querySelector("[data-lot-delivery]") || null;
     const lotImage = lotCard?.querySelector("[data-lot-image]") || null;
     const lotMeta = lotCard?.querySelector("[data-lot-meta]") || null;
+    const lotMetaSecondary =
+      lotCard?.querySelector("[data-lot-meta-secondary]") || null;
     const lotPriceMain = lotCard?.querySelector("[data-lot-price-main]") || null;
     const lotPriceOld = lotCard?.querySelector("[data-lot-price-old]") || null;
     const lotBadges = lotCard?.querySelector("[data-lot-badges]") || null;
@@ -666,16 +668,25 @@ const initProjectApartmentSelector = () => {
         const metaParts = [];
         const rooms = button.dataset.flatRooms || "";
         const area = button.dataset.flatArea || "";
-        const floorDisplay = button.dataset.flatFloorDisplay || "";
 
         if (rooms) metaParts.push(rooms);
         if (area) metaParts.push(`${area} м²`);
-        if (floorDisplay) {
-          metaParts.push(floorDisplay);
-        }
 
         lotMeta.textContent = metaParts.join(" • ");
         lotMeta.hidden = metaParts.length === 0;
+      }
+
+      if (lotMetaSecondary) {
+        const metaParts = [];
+        const entrance = button.dataset.flatEntrance || "";
+        const floorDisplay =
+          button.dataset.flatFloorDisplay || button.dataset.flatFloorShort || "";
+
+        if (entrance) metaParts.push(`Подъезд ${entrance}`);
+        if (floorDisplay) metaParts.push(floorDisplay);
+
+        lotMetaSecondary.textContent = metaParts.join(" • ");
+        lotMetaSecondary.hidden = metaParts.length === 0;
       }
 
       if (lotPriceMain) {

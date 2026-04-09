@@ -1416,6 +1416,10 @@
   color: rgba(64, 64, 64, 0.7);
 }
 
+.projects-selector__lot-card .apartment-card__meta--secondary {
+  margin-top: -6px;
+}
+
 .projects-selector__lot-card .apartment-card__price {
   display: flex;
   align-items: baseline;

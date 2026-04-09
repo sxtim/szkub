@@ -46,6 +46,7 @@ $payload = array(
     ),
 );
 $payloadJson = str_replace("</", "<\\/", json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+$submitCountText = $count . " " . $pluralize($count, $countForms);
 
 $renderCheckboxDropdown = static function ($label, $defaultText, $groupName, array $options, $idPrefix) {
     if (empty($options)) {
@@ -152,7 +153,7 @@ $renderRange = static function ($label, array $range, $namePrefix) {
         <div class="filters-popup__overlay" data-filters-close></div>
         <div class="filters-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="storeroom-filters-title">
           <div class="filters-popup__header">
-            <h3 class="filters-popup__title" id="storeroom-filters-title">Фильтр кладовок</h3>
+            <h3 class="filters-popup__title" id="storeroom-filters-title">Все фильтры</h3>
             <button class="filters-popup__close" type="button" aria-label="Закрыть" data-filters-close>×</button>
           </div>
 
@@ -165,6 +166,13 @@ $renderRange = static function ($label, array $range, $namePrefix) {
               <?php $renderRange("Стоимость, ₽", isset($ranges["price"]) ? $ranges["price"] : array(), "price"); ?>
               <?php $renderRange("Площадь, м²", isset($ranges["area"]) ? $ranges["area"] : array(), "area"); ?>
             </div>
+          </div>
+
+          <div class="filters-popup__footer">
+            <button class="btn btn--primary filters-popup__submit" type="button" data-parking-filter-submit>
+              <span class="filters-popup__submit-main">Показать</span>
+              <span class="filters-popup__submit-count"><?= htmlspecialcharsbx($submitCountText) ?></span>
+            </button>
           </div>
         </div>
       </div>

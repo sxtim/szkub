@@ -281,6 +281,8 @@ a {
 }
 .contact-modal__content {
   padding-top: 8px;
+  display: flex;
+  justify-content: center;
 }
 
 .cookie-banner {
@@ -818,7 +820,7 @@ a {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(10, 20, 45, 0.46);
+  background: rgba(10, 20, 45, 0.26);
   pointer-events: none;
   z-index: 1;
 }
@@ -1367,6 +1369,24 @@ a {
   min-width: 189px;
   height: 46px;
   border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.filters-popup__submit-main {
+  display: block;
+  line-height: 1.1;
+}
+
+.filters-popup__submit-count {
+  display: block;
+  font-size: 14px;
+  line-height: 1.1;
+  font-weight: 600;
 }
 
 .filters-popup .filter__range-track {
@@ -1474,6 +1494,7 @@ a {
   .filters-popup__submit {
     width: 100%;
     min-width: 0;
+    height: 52px;
   }
   .filters-popup__summary {
     width: 100%;

@@ -479,7 +479,8 @@ const initApartmentFilter = () => {
 
   const summaryEls = root.querySelectorAll("[data-apartment-filter-summary]");
   const submitButtons = root.querySelectorAll("[data-apartment-filter-submit]");
-  if (!submitButtons.length) return;
+  const popupSubmitButtons = root.querySelectorAll("[data-apartment-filter-popup-submit]");
+  if (!submitButtons.length && !popupSubmitButtons.length) return;
 
   const projectIndex = {};
   (payload.projects || []).forEach((project) => {
@@ -506,6 +507,21 @@ const initApartmentFilter = () => {
       }
     });
 
+    popupSubmitButtons.forEach((submitButton) => {
+      const mainEl = submitButton.querySelector(".filters-popup__submit-main");
+      const countEl = submitButton.querySelector(".filters-popup__submit-count");
+
+      submitButton.disabled = count <= 0;
+
+      if (mainEl) {
+        mainEl.textContent = count <= 0 ? "Не найдено" : "Показать";
+      }
+
+      if (countEl) {
+        countEl.textContent = `${count} ${apartmentFilterPluralize(count)}`;
+      }
+    });
+
     summaryEls.forEach((summaryEl) => {
       summaryEl.textContent = count > 0
         ? `Найдено ${count} ${apartmentFilterPluralize(count)}`
@@ -516,7 +532,7 @@ const initApartmentFilter = () => {
   root.addEventListener("change", updateState);
   root.addEventListener("input", updateState);
   root.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-apartment-filter-submit]");
+    const button = event.target.closest("[data-apartment-filter-submit], [data-apartment-filter-popup-submit]");
     if (!button || !root.contains(button)) {
       return;
     }

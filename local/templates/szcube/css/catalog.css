@@ -319,6 +319,10 @@
   color: rgba(64, 64, 64, 0.7);
 }
 
+.apartment-card__meta--secondary {
+  margin-top: -8px;
+}
+
 .apartment-card__price {
   display: flex;
   align-items: baseline;

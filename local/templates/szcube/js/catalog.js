@@ -117,6 +117,7 @@ const catalogNormalizeState = (value) => {
 
   return {
     projects: normalizeValues(typeof value.projects !== "undefined" ? value.projects : value.project),
+    entrances: normalizeValues(typeof value.entrances !== "undefined" ? value.entrances : value.entrance),
     types: normalizeValues(typeof value.types !== "undefined" ? value.types : value.type),
     rooms: normalizeValues(value.rooms),
     statuses: normalizeValues(typeof value.statuses !== "undefined" ? value.statuses : value.status),
@@ -138,7 +139,7 @@ const catalogHasCriteria = (state) => {
     return false;
   }
 
-  const arrays = ["projects", "rooms", "statuses", "finishes", "features"];
+  const arrays = ["projects", "entrances", "rooms", "statuses", "finishes", "features"];
   if (Array.isArray(state.types) && state.types.length > 0) {
     return true;
   }
@@ -171,6 +172,7 @@ const catalogStateFromQuery = () => {
 
   const state = catalogNormalizeState({
     project: params.get("project"),
+    entrance: params.get("entrance"),
     type: params.get("type"),
     rooms: params.get("rooms"),
     status: params.get("status"),
@@ -206,6 +208,7 @@ const catalogStateToQuery = (state, payload) => {
   };
 
   setCsv("project", state.projects);
+  setCsv("entrance", state.entrances);
   setCsv("type", state.types);
   setCsv("rooms", state.rooms);
   setCsv("status", state.statuses);
@@ -251,6 +254,11 @@ const catalogBuildState = (root, payload) => {
       (item) => item.dataset.syncValue || ""
     )
   );
+  const entrances = catalogUniqueValues(
+    Array.from(root.querySelectorAll('.custom-checkbox[data-sync-group="entrance"]:checked')).map(
+      (checkbox) => checkbox.dataset.syncValue || ""
+    )
+  );
   const rooms = catalogUniqueValues(
     Array.from(root.querySelectorAll('.filter__room.is-active[data-sync-group="rooms"]')).map(
       (pill) => pill.dataset.syncValue || ""
@@ -276,6 +284,7 @@ const catalogBuildState = (root, payload) => {
 
   return {
     projects,
+    entrances,
     types,
     rooms,
     statuses,
@@ -363,6 +372,7 @@ const catalogApplyState = (root, payload, state) => {
   }
 
   catalogSyncCheckboxGroup(root, "project", state.projects);
+  catalogSyncCheckboxGroup(root, "entrance", state.entrances);
   catalogSyncCheckboxGroup(root, "type", state.types);
   catalogSyncCheckboxGroup(root, "status", state.statuses);
   catalogSyncCheckboxGroup(root, "finish", state.finishes);
@@ -379,13 +389,22 @@ const catalogApplyState = (root, payload, state) => {
   catalogUpdateDropdownLabels(root);
 };
 
-const catalogBuildMeta = (flat) => {
+const catalogBuildPrimaryMeta = (flat) => {
   const parts = [];
   if (flat.rooms_label) {
     parts.push(flat.rooms_label);
   }
   if (flat.area_total) {
     parts.push(`${flat.area_total} м²`);
+  }
+
+  return parts.join(" • ");
+};
+
+const catalogBuildSecondaryMeta = (flat) => {
+  const parts = [];
+  if (flat.entrance) {
+    parts.push(`Подъезд ${flat.entrance}`);
   }
   if (flat.floor_short) {
     parts.push(flat.floor_short);
@@ -423,7 +442,11 @@ const catalogStatusBadgeClass = (statusKey) => {
 };
 
 const catalogRenderListCardContent = (flat, boardUrl) => {
-  const title = catalogEscapeHtml(flat.list_title || flat.title || flat.rooms_label || "Лот");
+  const titleParts = [flat.list_title || flat.title || flat.rooms_label || "Лот"];
+  if (flat.area_total) {
+    titleParts.push(`${flat.area_total} м²`);
+  }
+  const title = catalogEscapeHtml(titleParts.filter(Boolean).join(" · "));
   const summarySubtitle = catalogEscapeHtml(flat.list_subtitle || (flat.project_name ? `ЖК ${flat.project_name}` : ""));
   const detailsTitle = catalogEscapeHtml(
     flat.list_details_title
@@ -437,8 +460,8 @@ const catalogRenderListCardContent = (flat, boardUrl) => {
   const metaParts = Array.isArray(flat.list_meta_parts) ? flat.list_meta_parts.filter(Boolean) : [];
   const badges = catalogNormalizeBadges(flat.badges).slice(0, 2);
 
-  if (!metaParts.length && flat.area_total) {
-    metaParts.push(`${flat.area_total} м²`);
+  if (flat.entrance) {
+    metaParts.push(`Подъезд ${flat.entrance}`);
   }
   if (flat.floor_short) {
     metaParts.push(flat.floor_short);
@@ -511,7 +534,8 @@ const catalogRenderListCardContent = (flat, boardUrl) => {
 };
 
 const catalogRenderCard = (flat) => {
-  const meta = catalogBuildMeta(flat);
+  const primaryMeta = catalogBuildPrimaryMeta(flat);
+  const secondaryMeta = catalogBuildSecondaryMeta(flat);
   const badges = catalogNormalizeBadges(flat.badges);
   const planAlt = flat.plan_alt || flat.rooms_label || "Планировка";
   const boardUrl = catalogBuildBoardUrl(flat);
@@ -554,7 +578,8 @@ const catalogRenderCard = (flat) => {
         ${flat.plan_image ? `<img class="apartment-card__plan-image" src="${catalogEscapeHtml(flat.plan_image)}" alt="${catalogEscapeHtml(planAlt)}" loading="lazy" />` : ""}
       </div>
 
-      <div class="apartment-card__meta">${catalogEscapeHtml(meta)}</div>
+      ${primaryMeta ? `<div class="apartment-card__meta">${catalogEscapeHtml(primaryMeta)}</div>` : ""}
+      ${secondaryMeta ? `<div class="apartment-card__meta apartment-card__meta--secondary">${catalogEscapeHtml(secondaryMeta)}</div>` : ""}
 
       <div class="apartment-card__price">
         <span class="apartment-card__price-main">${catalogEscapeHtml(catalogFormatPrice(flat.price_total))}</span>
@@ -677,6 +702,7 @@ const initApartmentCatalog = () => {
   const resultsContainer = root.querySelector("[data-catalog-results]");
   const emptyEl = root.querySelector("[data-catalog-empty]");
   const resetButton = root.querySelector("[data-catalog-reset]");
+  const popupSubmitButton = root.querySelector("[data-catalog-filter-submit]");
 
   if (!resultsContainer) {
     return;
@@ -731,6 +757,10 @@ const initApartmentCatalog = () => {
       return;
     }
 
+    if (event.target.closest(".filters-popup__dialog")) {
+      return;
+    }
+
     if (
       event.target.matches(".custom-checkbox, [data-range-input]")
       || event.target.closest(".filter__room")
@@ -744,10 +774,24 @@ const initApartmentCatalog = () => {
       return;
     }
 
+    if (event.target.closest(".filters-popup__dialog")) {
+      return;
+    }
+
     if (event.target.closest(".filter__room")) {
       navigateWithState();
     }
   });
+
+  if (popupSubmitButton) {
+    popupSubmitButton.addEventListener("click", () => {
+      if (!isReady) {
+        return;
+      }
+
+      navigateWithState();
+    });
+  }
 
   resultsContainer.addEventListener("click", (event) => {
     const boardButton = event.target.closest(".apartment-card__board");

@@ -4,6 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 }
 
 $projects = isset($arResult["PROJECTS"]) && is_array($arResult["PROJECTS"]) ? $arResult["PROJECTS"] : array();
+$entrances = isset($arResult["ENTRANCES"]) && is_array($arResult["ENTRANCES"]) ? $arResult["ENTRANCES"] : array();
 $rooms = isset($arResult["ROOMS"]) && is_array($arResult["ROOMS"]) ? $arResult["ROOMS"] : array();
 $statuses = isset($arResult["STATUSES"]) && is_array($arResult["STATUSES"]) ? $arResult["STATUSES"] : array();
 $finishes = isset($arResult["FINISHES"]) && is_array($arResult["FINISHES"]) ? $arResult["FINISHES"] : array();
@@ -28,6 +29,8 @@ $pluralize = static function ($value) {
 
     return "квартир";
 };
+
+$submitCountText = $count . " " . $pluralize($count);
 
 $payload = array(
     "projects" => $projects,
@@ -235,6 +238,7 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
             <div class="filters-popup__col">
               <?php $renderRange("height", "Высота потолков, м", isset($ranges["ceiling"]) ? $ranges["ceiling"] : array(), "height"); ?>
               <?php $renderRange("floor", "Этаж", isset($ranges["floor"]) ? $ranges["floor"] : array(), "floors"); ?>
+              <?php $renderCheckboxGroup("Подъезд", "entrance", $entrances, "catalog-popup-entrance"); ?>
               <?php $renderCheckboxGroup("Статус", "status", $statuses, "catalog-popup-status"); ?>
               <?php $renderCheckboxGroup("Отделка", "finish", $finishes, "catalog-popup-finish"); ?>
             </div>
@@ -242,6 +246,13 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
             <div class="filters-popup__col">
               <?php $renderCheckboxGroup("Планировочные решения", "feature", $featureTags, "catalog-popup-feature"); ?>
             </div>
+          </div>
+
+          <div class="filters-popup__footer">
+            <button class="btn btn--primary filters-popup__submit" type="button" data-catalog-filter-submit>
+              <span class="filters-popup__submit-main">Показать</span>
+              <span class="filters-popup__submit-count"><?= htmlspecialcharsbx($submitCountText) ?></span>
+            </button>
           </div>
         </div>
       </div>

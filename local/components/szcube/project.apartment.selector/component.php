@@ -915,12 +915,14 @@ if ($this->StartResultCache(false, $cacheId)) {
                     $entranceData["floors_map"][$flatFloor][] = $flatData;
                 }
 
-                $entranceData["stats"]["count"]++;
+                $isSoldFlat = szcubeProjectSelectorIsSoldStatus($statusXmlId, $statusLabel);
+                if (!$isSoldFlat) {
+                    $entranceData["stats"]["count"]++;
+                }
                 $filteredLotsCount++;
                 if (isset($entranceData["stats"][$flatData["status_xml_id"]])) {
                     $entranceData["stats"][$flatData["status_xml_id"]]++;
                 }
-                $isSoldFlat = szcubeProjectSelectorIsSoldStatus($statusXmlId, $statusLabel);
                 if (
                     !$isSoldFlat
                     && $priceTotal > 0
@@ -942,7 +944,9 @@ if ($this->StartResultCache(false, $cacheId)) {
                         "sort" => szcubeProjectSelectorRoomSort($rooms),
                     );
                 }
-                $entranceData["room_groups"][$roomGroupKey]["count"]++;
+                if (!$isSoldFlat) {
+                    $entranceData["room_groups"][$roomGroupKey]["count"]++;
+                }
                 if (
                     !$isSoldFlat
                     && $priceTotal > 0
@@ -1042,7 +1046,9 @@ if ($this->StartResultCache(false, $cacheId)) {
                 );
             }
 
-            $roomGroups = array_values($entranceData["room_groups"]);
+            $roomGroups = array_values(array_filter($entranceData["room_groups"], static function ($group) {
+                return isset($group["count"]) && (int)$group["count"] > 0;
+            }));
             usort($roomGroups, static function ($left, $right) {
                 $sortCompare = ((int)$left["sort"]) <=> ((int)$right["sort"]);
                 if ($sortCompare !== 0) {

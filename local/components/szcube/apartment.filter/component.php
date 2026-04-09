@@ -330,6 +330,7 @@ if (!function_exists("szcubeApartmentFilterRequestState")) {
     {
         return array(
             "projects" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("project") : array(),
+            "entrances" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("entrance") : array(),
             "rooms" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("rooms") : array(),
             "statuses" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("status") : array(),
             "finishes" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("finish") : array(),
@@ -349,7 +350,7 @@ if (!function_exists("szcubeApartmentFilterRequestState")) {
 if (!function_exists("szcubeApartmentFilterHasRequestCriteria")) {
     function szcubeApartmentFilterHasRequestCriteria(array $state)
     {
-        foreach (array("projects", "rooms", "statuses", "finishes", "features") as $key) {
+        foreach (array("projects", "entrances", "rooms", "statuses", "finishes", "features") as $key) {
             if (!empty($state[$key]) && is_array($state[$key])) {
                 return true;
             }
@@ -369,6 +370,9 @@ if (!function_exists("szcubeApartmentFilterMatchesRequestState")) {
     function szcubeApartmentFilterMatchesRequestState(array $flat, array $state)
     {
         if (!empty($state["projects"]) && !in_array((string)$flat["project_code"], $state["projects"], true)) {
+            return false;
+        }
+        if (!empty($state["entrances"]) && !in_array((string)$flat["entrance"], $state["entrances"], true)) {
             return false;
         }
         if (!empty($state["rooms"]) && !in_array((string)$flat["rooms_bucket"], $state["rooms"], true)) {
@@ -545,6 +549,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
     }
 
     $projects = array();
+    $entrances = array();
     $rooms = szcubeApartmentFilterRoomBuckets();
     $statuses = array();
     $finishes = array();
@@ -607,6 +612,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
         }
 
         $priceTotal = isset($flatProperties["PRICE_TOTAL"]["VALUE"]) ? (float)$flatProperties["PRICE_TOTAL"]["VALUE"] : 0.0;
+        $entrance = isset($flatProperties["ENTRANCE"]["VALUE"]) ? trim((string)$flatProperties["ENTRANCE"]["VALUE"]) : "";
         $floor = isset($flatProperties["FLOOR"]["VALUE"]) ? (int)$flatProperties["FLOOR"]["VALUE"] : 0;
         $floorTo = isset($flatProperties["FLOOR_TO"]["VALUE"]) ? (int)$flatProperties["FLOOR_TO"]["VALUE"] : 0;
         $floorMax = szcubeApartmentFilterFloorMax($floor, $floorTo);
@@ -641,6 +647,18 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
             );
         }
         $projects[$projectCode]["count"]++;
+
+        if ($entrance !== "") {
+            if (!isset($entrances[$entrance])) {
+                $entrances[$entrance] = array(
+                    "key" => $entrance,
+                    "label" => "Подъезд " . $entrance,
+                    "count" => 0,
+                    "sort" => (int)$entrance,
+                );
+            }
+            $entrances[$entrance]["count"]++;
+        }
 
         if ($statusKey !== "" && $statusLabel !== "") {
             if (!isset($statuses[$statusKey])) {
@@ -698,6 +716,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
             "project_url" => trim((string)$project["DETAIL_PAGE_URL"]),
             "project_filter_url" => "/projects/detail.php?code=" . rawurlencode($projectCode),
             "project_delivery" => isset($project["DELIVERY_TEXT"]) ? trim((string)$project["DELIVERY_TEXT"]) : "",
+            "entrance" => $entrance,
             "rooms_label" => $roomsLabel,
             "rooms_bucket" => $roomBucket,
             "price_total" => $priceTotal,
@@ -728,6 +747,16 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
         }
 
         return mb_strtolower((string)$left["name"]) <=> mb_strtolower((string)$right["name"]);
+    });
+
+    uasort($entrances, static function ($left, $right) {
+        $leftSort = isset($left["sort"]) ? (int)$left["sort"] : 0;
+        $rightSort = isset($right["sort"]) ? (int)$right["sort"] : 0;
+        if ($leftSort !== $rightSort) {
+            return $leftSort <=> $rightSort;
+        }
+
+        return mb_strtolower((string)$left["label"]) <=> mb_strtolower((string)$right["label"]);
     });
 
     uasort($finishes, static function ($left, $right) {
@@ -784,6 +813,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
 
     $arResult = array(
         "PROJECTS" => array_values($projects),
+        "ENTRANCES" => array_values($entrances),
         "ROOMS" => array_values($rooms),
         "STATUSES" => array_values($statuses),
         "FINISHES" => array_values($finishes),

@@ -42,6 +42,7 @@ $payload = array(
     "current_sort" => $currentSort,
 );
 $payloadJson = str_replace("</", "<\\/", json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+$submitCountText = $count . " " . $pluralize($count, $countForms);
 
 $renderCheckboxDropdown = static function ($label, $defaultText, $groupName, array $options, $idPrefix) {
     ?>
@@ -184,7 +185,7 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
         <div class="filters-popup__overlay" data-filters-close></div>
         <div class="filters-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="commerce-filters-title">
           <div class="filters-popup__header">
-            <h3 class="filters-popup__title" id="commerce-filters-title">Фильтр коммерции</h3>
+            <h3 class="filters-popup__title" id="commerce-filters-title">Все фильтры</h3>
             <button class="filters-popup__close" type="button" aria-label="Закрыть" data-filters-close>×</button>
           </div>
 
@@ -207,6 +208,13 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
             <div class="filters-popup__col">
               <?php $renderCheckboxGroup("Особенности", "feature", $featureTags, "commerce-popup-feature"); ?>
             </div>
+          </div>
+
+          <div class="filters-popup__footer">
+            <button class="btn btn--primary filters-popup__submit" type="button" data-catalog-filter-submit>
+              <span class="filters-popup__submit-main">Показать</span>
+              <span class="filters-popup__submit-count"><?= htmlspecialcharsbx($submitCountText) ?></span>
+            </button>
           </div>
         </div>
       </div>

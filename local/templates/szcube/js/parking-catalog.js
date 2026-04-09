@@ -444,6 +444,10 @@ const initParkingCatalog = () => {
         return;
       }
 
+      if (event.target.closest(".filters-popup__dialog")) {
+        return;
+      }
+
       if (
         event.target.matches(".custom-checkbox, [data-range-input]")
         || event.target.closest(".filter__room")
@@ -454,6 +458,10 @@ const initParkingCatalog = () => {
 
     root.addEventListener("input", (event) => {
       if (!isReady) {
+        return;
+      }
+
+      if (event.target.closest(".filters-popup__dialog")) {
         return;
       }
 
@@ -484,6 +492,17 @@ const initParkingCatalog = () => {
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
         window.location.href = window.location.pathname;
+      });
+    }
+
+    const popupSubmitButton = root.querySelector("[data-parking-filter-submit]");
+    if (popupSubmitButton) {
+      popupSubmitButton.addEventListener("click", () => {
+        if (!isReady) {
+          return;
+        }
+
+        navigateWithState();
       });
     }
 
