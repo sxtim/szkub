@@ -1042,6 +1042,18 @@ const initProjectAboutLightbox = () => {
 
   trigger.addEventListener("click", open);
 
+  lightbox.addEventListener("click", (event) => {
+    if (lightbox.hidden || !(event.target instanceof Element)) {
+      return;
+    }
+
+    if (event.target.closest("[data-project-about-lightbox-image]")) {
+      return;
+    }
+
+    close();
+  });
+
   closeButtons.forEach((button) => {
     button.addEventListener("click", close);
   });

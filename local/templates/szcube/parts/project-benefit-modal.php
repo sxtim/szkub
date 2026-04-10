@@ -48,14 +48,16 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 <div class="projects-about__lightbox" data-benefit-lightbox hidden>
   <button class="projects-about__lightbox-backdrop" type="button" aria-label="Закрыть" data-benefit-lightbox-close></button>
   <div class="projects-about__lightbox-dialog" role="dialog" aria-modal="true" aria-label="Увеличенное изображение преимущества">
-    <button class="projects-about__lightbox-close" type="button" aria-label="Закрыть" data-benefit-lightbox-close>
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-        <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-      </svg>
-    </button>
     <figure class="projects-about__lightbox-figure">
-      <img class="projects-about__lightbox-image" src="" alt="" data-benefit-lightbox-image>
+      <div class="projects-about__lightbox-media">
+        <button class="projects-about__lightbox-close" type="button" aria-label="Закрыть" data-benefit-lightbox-close>
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+            <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+          </svg>
+        </button>
+        <img class="projects-about__lightbox-image" src="" alt="" data-benefit-lightbox-image>
+      </div>
       <figcaption class="projects-about__lightbox-caption" data-benefit-lightbox-caption></figcaption>
     </figure>
   </div>

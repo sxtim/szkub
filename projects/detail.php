@@ -388,24 +388,26 @@ if ($project) {
             aria-modal="true"
             aria-label="Просмотр изображения проекта"
           >
-            <button
-              class="projects-about__lightbox-close"
-              type="button"
-              data-project-about-lightbox-close
-              aria-label="Закрыть"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-            </button>
             <figure class="projects-about__lightbox-figure">
-              <img
-                class="projects-about__lightbox-image"
-                data-project-about-lightbox-image
-                src=""
-                alt=""
-              />
+              <div class="projects-about__lightbox-media">
+                <button
+                  class="projects-about__lightbox-close"
+                  type="button"
+                  data-project-about-lightbox-close
+                  aria-label="Закрыть"
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <img
+                  class="projects-about__lightbox-image"
+                  data-project-about-lightbox-image
+                  src=""
+                  alt=""
+                />
+              </div>
               <figcaption
                 class="projects-about__lightbox-caption"
                 data-project-about-lightbox-caption

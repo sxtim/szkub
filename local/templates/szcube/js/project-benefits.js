@@ -506,6 +506,20 @@ const initBenefitsModal = () => {
     }
   };
 
+  if (lightbox instanceof HTMLElement) {
+    lightbox.addEventListener("click", (event) => {
+      if (lightbox.hidden || !(event.target instanceof Element)) {
+        return;
+      }
+
+      if (event.target.closest("[data-benefit-lightbox-image]")) {
+        return;
+      }
+
+      closeLightbox();
+    });
+  }
+
   const closeModal = () => {
     if (modalWrap.hidden || isClosing) return;
     isClosing = true;
