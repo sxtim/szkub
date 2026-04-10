@@ -7,9 +7,6 @@ $this->setFrameMode(true);
 
 $items = isset($arResult["ITEMS"]) && is_array($arResult["ITEMS"]) ? $arResult["ITEMS"] : array();
 if (empty($items)) {
-	?>
-	<div class="projects-empty">Данные о ходе строительства пока не добавлены.</div>
-	<?
 	return;
 }
 ?>

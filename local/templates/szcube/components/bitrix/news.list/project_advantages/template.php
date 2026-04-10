@@ -5,6 +5,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 
 $this->setFrameMode(true);
 
+$items = isset($arResult["ITEMS"]) && is_array($arResult["ITEMS"]) ? $arResult["ITEMS"] : array();
+if (empty($items)) {
+	return;
+}
+
 if (!function_exists("projectAdvantagesPreviewToHtml")) {
 	function projectAdvantagesPreviewToHtml($text)
 	{
@@ -118,7 +123,7 @@ if (!function_exists("projectAdvantagesResolveCategoryMeta")) {
 $benefitCards = array();
 $benefitCategories = array();
 
-foreach ($arResult["ITEMS"] as $index => $item) {
+foreach ($items as $index => $item) {
 	$this->AddEditAction($item["ID"], $item["EDIT_LINK"], CIBlock::GetArrayByID($item["IBLOCK_ID"], "ELEMENT_EDIT"));
 	$this->AddDeleteAction($item["ID"], $item["DELETE_LINK"], CIBlock::GetArrayByID($item["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage("CT_BNL_ELEMENT_DELETE_CONFIRM")));
 

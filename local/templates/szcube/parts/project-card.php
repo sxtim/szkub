@@ -17,7 +17,9 @@ $saleRooms = isset($projectCard["SALE_ROOMS"]) && is_array($projectCard["SALE_RO
 $saleRoomsLabel = isset($projectCard["SALE_ROOMS_LABEL"]) ? trim((string)$projectCard["SALE_ROOMS_LABEL"]) : "В продаже:";
 $saleCountText = isset($projectCard["SALE_COUNT_TEXT"]) ? (string)$projectCard["SALE_COUNT_TEXT"] : "";
 $priceFromText = isset($projectCard["PRICE_FROM_TEXT"]) ? (string)$projectCard["PRICE_FROM_TEXT"] : "";
+$statusBadgeText = isset($projectCard["STATUS_BADGE_TEXT"]) ? trim((string)$projectCard["STATUS_BADGE_TEXT"]) : "";
 $label = isset($projectCard["LABEL"]) ? (string)$projectCard["LABEL"] : "Жилой комплекс";
+$hasFooter = $saleCountText !== "" || $priceFromText !== "";
 ?>
 
 <a class="project-card" href="<?= htmlspecialcharsbx($href) ?>"<?= $idAttr !== "" ? ' id="' . htmlspecialcharsbx($idAttr) . '"' : "" ?>>
@@ -26,13 +28,16 @@ $label = isset($projectCard["LABEL"]) ? (string)$projectCard["LABEL"] : "Жил�
 			<img src="<?= htmlspecialcharsbx($imageSrc) ?>" alt="<?= htmlspecialcharsbx($title) ?>" loading="lazy" />
 		<? endif; ?>
 
-		<? if ($classLabel !== "" || $tagLabel !== ""): ?>
+		<? if ($classLabel !== "" || $tagLabel !== "" || $statusBadgeText !== ""): ?>
 			<div class="project-card__tags">
 				<? if ($classLabel !== ""): ?>
 					<span class="tag tag--solid"><?= htmlspecialcharsbx($classLabel) ?></span>
 				<? endif; ?>
 				<? if ($tagLabel !== ""): ?>
 					<span class="tag tag--outline"><?= htmlspecialcharsbx($tagLabel) ?></span>
+				<? endif; ?>
+				<? if ($statusBadgeText !== ""): ?>
+					<span class="tag tag--solid"><?= htmlspecialcharsbx($statusBadgeText) ?></span>
 				<? endif; ?>
 			</div>
 		<? endif; ?>
@@ -67,13 +72,15 @@ $label = isset($projectCard["LABEL"]) ? (string)$projectCard["LABEL"] : "Жил�
 			<? endif; ?>
 		</div>
 
-		<div class="project-card__footer">
-			<? if ($saleCountText !== ""): ?>
-				<span class="project-card__sale-count"><?= htmlspecialcharsbx($saleCountText) ?></span>
-			<? endif; ?>
-			<? if ($priceFromText !== ""): ?>
-				<span class="project-card__price"><?= htmlspecialcharsbx($priceFromText) ?></span>
-			<? endif; ?>
-		</div>
+		<? if ($hasFooter): ?>
+			<div class="project-card__footer">
+				<? if ($saleCountText !== ""): ?>
+					<span class="project-card__sale-count"><?= htmlspecialcharsbx($saleCountText) ?></span>
+				<? endif; ?>
+				<? if ($priceFromText !== ""): ?>
+					<span class="project-card__price"><?= htmlspecialcharsbx($priceFromText) ?></span>
+				<? endif; ?>
+			</div>
+		<? endif; ?>
 	</div>
 </a>

@@ -38,6 +38,9 @@ $this->setFrameMode(true);
 			};
 
 			$statusCode = $propertyEnumXmlId($props, "ABOUT_COMPANY_STATUS");
+			$statusBadgeText = "";
+			$classLabel = $propertyValue($props, "CLASS_LABEL");
+			$tagLabel = $propertyValue($props, "TAG_LABEL");
 
 			$manualSaleRooms = array();
 			if (isset($props["ROOMS_IN_SALE"]["VALUE"])) {
@@ -89,6 +92,9 @@ $this->setFrameMode(true);
 			} elseif ($statusCode === "completed") {
 				$saleRooms = array();
 				$saleRoomsLabel = "";
+				$classLabel = "";
+				$tagLabel = "";
+				$statusBadgeText = "Продан";
 			} else {
 				$saleRooms = !empty($autoSaleRooms) ? $autoSaleRooms : $manualSaleRooms;
 				if (!empty($autoSaleRooms)) {
@@ -109,14 +115,16 @@ $this->setFrameMode(true);
 			"ID_ATTR" => $this->GetEditAreaId($item["ID"]),
 			"IMAGE_SRC" => $imageSrc,
 			"TITLE" => (string)$item["NAME"],
-			"CLASS_LABEL" => $propertyValue($props, "CLASS_LABEL"),
-			"TAG_LABEL" => $propertyValue($props, "TAG_LABEL"),
+			"CLASS_LABEL" => $classLabel,
+			"TAG_LABEL" => $tagLabel,
 			"ADDRESS" => $propertyValue($props, "ADDRESS"),
 			"DELIVERY_TEXT" => $propertyValue($props, "DELIVERY_TEXT"),
 			"SALE_ROOMS" => $saleRooms,
 			"SALE_ROOMS_LABEL" => $saleRoomsLabel,
 			"SALE_COUNT_TEXT" => $saleCountText,
 			"PRICE_FROM_TEXT" => $priceFromText,
+			"STATUS_CODE" => $statusCode,
+			"STATUS_BADGE_TEXT" => $statusBadgeText,
 			"LABEL" => "Жилой комплекс",
 		);
 

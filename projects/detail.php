@@ -237,6 +237,23 @@ if (!function_exists("projectDetailPropertyScalar")) {
 	}
 }
 
+if (!function_exists("projectDetailPropertyEnumXmlId")) {
+	function projectDetailPropertyEnumXmlId($properties, $code, $default = "")
+	{
+		if (!is_array($properties) || !isset($properties[$code])) {
+			return (string)$default;
+		}
+
+		$value = isset($properties[$code]["VALUE_XML_ID"]) ? $properties[$code]["VALUE_XML_ID"] : "";
+		if (is_array($value)) {
+			$value = reset($value);
+		}
+
+		$value = trim((string)$value);
+		return $value !== "" ? $value : (string)$default;
+	}
+}
+
 if (!function_exists("projectDetailPropertyFileUrl")) {
 	function projectDetailPropertyFileUrl($properties, $code, $default = "")
 	{
@@ -259,9 +276,36 @@ if (!function_exists("projectDetailPropertyFileUrl")) {
 	}
 }
 
+if (!function_exists("projectDetailHasLinkedElements")) {
+	function projectDetailHasLinkedElements($iblockId, $projectId)
+	{
+		$iblockId = (int)$iblockId;
+		$projectId = (int)$projectId;
+		if ($iblockId <= 0 || $projectId <= 0) {
+			return false;
+		}
+
+		$elementRes = CIBlockElement::GetList(
+			array("ID" => "ASC"),
+			array(
+				"IBLOCK_ID" => $iblockId,
+				"ACTIVE" => "Y",
+				"PROPERTY_PROJECT" => $projectId,
+			),
+			false,
+			array("nTopCount" => 1),
+			array("ID")
+		);
+
+		return (bool)$elementRes->Fetch();
+	}
+}
+
 $projectDetail = array();
+$projectStatusCode = "";
 if ($project) {
 	$projectProperties = isset($project["properties"]) && is_array($project["properties"]) ? $project["properties"] : array();
+	$projectStatusCode = projectDetailPropertyEnumXmlId($projectProperties, "ABOUT_COMPANY_STATUS", "");
 
 	$projectSeoDescriptions = array(
 		"kollekciya" => "ЖК «Коллекция» — дом бизнес-класса в историческом центре Воронежа. Проект сочетает приватный формат, продуманные планировки и удобное расположение рядом с городской инфраструктурой. Выберите квартиру в новостройке от девелопера «КУБ» по приятной цене.",
@@ -278,33 +322,35 @@ if ($project) {
 	$APPLICATION->SetPageProperty("description", $projectDescription);
 
 	$projectDetail["about"] = array(
-		"image" => projectDetailPropertyFileUrl($projectProperties, "ABOUT_IMAGE", SITE_TEMPLATE_PATH . "/img/projects/div.image-lazy__image.jpg"),
-		"title_suffix" => projectDetailPropertyScalar($projectProperties, "ABOUT_TITLE_SUFFIX", "ВАША СУПЕРСИЛА"),
+		"image" => projectDetailPropertyFileUrl($projectProperties, "ABOUT_IMAGE", ""),
+		"title_suffix" => projectDetailPropertyScalar($projectProperties, "ABOUT_TITLE_SUFFIX", ""),
 		"text" => array_filter(array(
-			projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_1", "ЖК «Коллекция» на ул. Жилина – это эксклюзивный комплекс из 52 квартир в самом сердце Воронежа. Проект отличает приватность и комфорт, низкая плотность застройки, эффектные виды на водохранилище, исторический центр города, а также на закаты и рассветы."),
-			projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_2", "В доме всего 5 этажей. Рядом находятся школы, детские сады и магазины, а в 20 минутах ходьбы – набережная, главные парки Воронежа (Орленок, Центральный Парк Динамо) и зоны отдыха. Инфраструктура центра города делает жизнь в комплексе максимально удобной и насыщенной."),
-			projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_3", "За 5 минут на машине можно добраться до общественно-деловых и торговых центров, кафе и ресторанов, спортивных клубов, культурных и развлекательных заведений."),
+			projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_1", ""),
+			projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_2", ""),
+			projectDetailPropertyScalar($projectProperties, "ABOUT_TEXT_3", ""),
 		), static function ($item) {
 			return trim((string)$item) !== "";
 		}),
 		"features" => array(),
 	);
 
-	$aboutFeatureDefaults = array(
-		array("label" => "Высокая ликвидность", "value" => "Бизнес‑класс, мультиформат"),
-		array("label" => "Благоустройство", "value" => "Двор‑парк и зоны отдыха"),
-		array("label" => "Сервис", "value" => "Поддержка 24/7"),
-		array("label" => "Инфраструктура", "value" => "Школы, сад и магазины рядом"),
-	);
-	foreach ($aboutFeatureDefaults as $featureIndex => $featureDefault) {
-		$i = $featureIndex + 1;
+	for ($featureIndex = 1; $featureIndex <= 4; $featureIndex++) {
+		$featureLabel = projectDetailPropertyScalar($projectProperties, "ABOUT_F" . $featureIndex . "_LABEL", "");
+		$featureValue = projectDetailPropertyScalar($projectProperties, "ABOUT_F" . $featureIndex . "_VALUE", "");
+		if ($featureLabel === "" && $featureValue === "") {
+			continue;
+		}
+
 		$projectDetail["about"]["features"][] = array(
-			"label" => projectDetailPropertyScalar($projectProperties, "ABOUT_F" . $i . "_LABEL", $featureDefault["label"]),
-			"value" => projectDetailPropertyScalar($projectProperties, "ABOUT_F" . $i . "_VALUE", $featureDefault["value"]),
+			"label" => $featureLabel,
+			"value" => $featureValue,
 		);
 	}
 
 	$projectDetail["extra"] = szcubeGetExtraCards("project", isset($project["code"]) ? $project["code"] : "");
+	$projectDetail["has_advantages"] = projectDetailHasLinkedElements($projectAdvantagesIblockId, $project["id"]);
+	$projectDetail["has_construction"] = projectDetailHasLinkedElements($projectConstructionIblockId, $project["id"]);
+	$projectDetail["show_purchase"] = $projectStatusCode !== "completed";
 
 	$projectDetail["construction_subtitle"] = projectDetailPropertyScalar($projectProperties, "CONSTRUCTION_SUBTITLE", "Сдача в IV кв. 2026");
 
@@ -360,83 +406,94 @@ if ($project) {
 
     <div class="projects-about">
       <div class="projects-about__grid">
-        <div class="projects-about__media">
-          <button
-            class="projects-about__zoom"
-            type="button"
-            data-project-about-zoom
-            aria-label="Увеличить изображение проекта"
-          >
-            <img
-              src="<?= htmlspecialcharsbx($projectDetail["about"]["image"]) ?>"
-              alt="Проект — изображение"
-              loading="lazy"
-            />
-          </button>
-        </div>
-
-        <div class="projects-about__lightbox" data-project-about-lightbox hidden>
-          <button
-            class="projects-about__lightbox-backdrop"
-            type="button"
-            data-project-about-lightbox-close
-            aria-label="Закрыть просмотр"
-          ></button>
-          <div
-            class="projects-about__lightbox-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Просмотр изображения проекта"
-          >
-            <figure class="projects-about__lightbox-figure">
-              <div class="projects-about__lightbox-media">
-                <button
-                  class="projects-about__lightbox-close"
-                  type="button"
-                  data-project-about-lightbox-close
-                  aria-label="Закрыть"
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                    <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                  </svg>
-                </button>
-                <img
-                  class="projects-about__lightbox-image"
-                  data-project-about-lightbox-image
-                  src=""
-                  alt=""
-                />
-              </div>
-              <figcaption
-                class="projects-about__lightbox-caption"
-                data-project-about-lightbox-caption
-                hidden
-              ></figcaption>
-            </figure>
+        <?php if ($projectDetail["about"]["image"] !== ""): ?>
+          <div class="projects-about__media">
+            <button
+              class="projects-about__zoom"
+              type="button"
+              data-project-about-zoom
+              aria-label="Увеличить изображение проекта"
+            >
+              <img
+                src="<?= htmlspecialcharsbx($projectDetail["about"]["image"]) ?>"
+                alt="ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»"
+                loading="lazy"
+              />
+            </button>
           </div>
-        </div>
+
+          <div class="projects-about__lightbox" data-project-about-lightbox hidden>
+            <button
+              class="projects-about__lightbox-backdrop"
+              type="button"
+              data-project-about-lightbox-close
+              aria-label="Закрыть просмотр"
+            ></button>
+            <div
+              class="projects-about__lightbox-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Просмотр изображения проекта"
+            >
+              <figure class="projects-about__lightbox-figure">
+                <div class="projects-about__lightbox-media">
+                  <button
+                    class="projects-about__lightbox-close"
+                    type="button"
+                    data-project-about-lightbox-close
+                    aria-label="Закрыть"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                      <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                  </button>
+                  <img
+                    class="projects-about__lightbox-image"
+                    data-project-about-lightbox-image
+                    src=""
+                    alt=""
+                  />
+                </div>
+                <figcaption
+                  class="projects-about__lightbox-caption"
+                  data-project-about-lightbox-caption
+                  hidden
+                ></figcaption>
+              </figure>
+            </div>
+          </div>
+        <?php endif; ?>
 
         <h2 class="projects-about__title">
-          <span class="projects-about__title-accent">ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»</span>
-          <?= htmlspecialcharsbx($projectDetail["about"]["title_suffix"]) ?>
+          <span class="projects-about__title-accent">ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»</span><?php if ($projectDetail["about"]["title_suffix"] !== ""): ?>
+            <?= htmlspecialcharsbx($projectDetail["about"]["title_suffix"]) ?>
+          <?php endif; ?>
         </h2>
 
         <div class="projects-about__content">
-          <div class="projects-about__text">
-            <?php foreach ($projectDetail["about"]["text"] as $aboutText): ?>
-              <p><?= nl2br(htmlspecialcharsbx($aboutText)) ?></p>
-            <?php endforeach; ?>
-          </div>
+          <?php if (!empty($projectDetail["about"]["text"])): ?>
+            <div class="projects-about__text">
+              <?php foreach ($projectDetail["about"]["text"] as $aboutText): ?>
+                <p><?= nl2br(htmlspecialcharsbx($aboutText)) ?></p>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
 
-          <ul class="projects-about__features">
-            <?php foreach ($projectDetail["about"]["features"] as $feature): ?>
-              <li class="projects-about__feature">
-                <div class="projects-about__feature-label"><?= htmlspecialcharsbx($feature["label"]) ?></div>
-                <div class="projects-about__feature-value"><?= htmlspecialcharsbx($feature["value"]) ?></div>
-              </li>
-            <?php endforeach; ?>
-          </ul>
+          <?php if (!empty($projectDetail["about"]["features"])): ?>
+            <ul class="projects-about__features">
+              <?php foreach ($projectDetail["about"]["features"] as $feature): ?>
+                <li class="projects-about__feature">
+                  <?php if ($feature["label"] !== ""): ?>
+                    <div class="projects-about__feature-label"><?= htmlspecialcharsbx($feature["label"]) ?></div>
+                  <?php endif; ?>
+                  <?php if ($feature["value"] !== ""): ?>
+                    <div class="projects-about__feature-value"><?= htmlspecialcharsbx($feature["value"]) ?></div>
+                  <?php endif; ?>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -467,9 +524,9 @@ if ($project) {
     }
     ?>
 
-    <section class="projects-benefits" aria-label="Преимущества проекта">
-      <h2 class="projects-benefits__title">Преимущества</h2>
-      <?php if ($projectAdvantagesIblockId > 0): ?>
+    <?php if (!empty($projectDetail["has_advantages"])): ?>
+      <section class="projects-benefits" aria-label="Преимущества проекта">
+        <h2 class="projects-benefits__title">Преимущества</h2>
         <?php
         $APPLICATION->IncludeComponent(
           "bitrix:news.list",
@@ -524,12 +581,8 @@ if ($project) {
           false
         );
         ?>
-      <?php else: ?>
-        <div class="projects-benefits__body" data-benefits-body>
-          <ul class="projects-benefits__list"></ul>
-        </div>
-      <?php endif; ?>
-    </section>
+      </section>
+    <?php endif; ?>
   </div>
 </section>
 
@@ -663,15 +716,17 @@ if ($activeProjectCode !== "") {
   ?>
 <?php endif; ?>
 
-<?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/purchase.php"; ?>
+<?php if (!empty($projectDetail["show_purchase"])): ?>
+  <?php include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/purchase.php"; ?>
+<?php endif; ?>
 
-<section class="construction" id="construction" aria-label="Ход строительства">
-  <div class="container">
-    <header class="construction__header">
-      <h2 class="construction__title">Ход строительства</h2>
-      <p class="construction__subtitle"><?= htmlspecialcharsbx($projectDetail["construction_subtitle"]) ?></p>
-    </header>
-    <?php if ($projectConstructionIblockId > 0): ?>
+<?php if (!empty($projectDetail["has_construction"])): ?>
+  <section class="construction" id="construction" aria-label="Ход строительства">
+    <div class="container">
+      <header class="construction__header">
+        <h2 class="construction__title">Ход строительства</h2>
+        <p class="construction__subtitle"><?= htmlspecialcharsbx($projectDetail["construction_subtitle"]) ?></p>
+      </header>
       <?php
       $APPLICATION->IncludeComponent(
         "bitrix:news.list",
@@ -727,9 +782,9 @@ if ($activeProjectCode !== "") {
         false
       );
       ?>
-    <?php endif; ?>
-  </div>
-</section>
+    </div>
+  </section>
+<?php endif; ?>
 
 <?php if ($projectDocumentsIblockId > 0): ?>
   <?php
