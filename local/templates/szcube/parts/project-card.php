@@ -17,18 +17,20 @@ $saleRooms = isset($projectCard["SALE_ROOMS"]) && is_array($projectCard["SALE_RO
 $saleRoomsLabel = isset($projectCard["SALE_ROOMS_LABEL"]) ? trim((string)$projectCard["SALE_ROOMS_LABEL"]) : "В продаже:";
 $saleCountText = isset($projectCard["SALE_COUNT_TEXT"]) ? (string)$projectCard["SALE_COUNT_TEXT"] : "";
 $priceFromText = isset($projectCard["PRICE_FROM_TEXT"]) ? (string)$projectCard["PRICE_FROM_TEXT"] : "";
+$statusCode = isset($projectCard["STATUS_CODE"]) ? trim((string)$projectCard["STATUS_CODE"]) : "";
 $statusBadgeText = isset($projectCard["STATUS_BADGE_TEXT"]) ? trim((string)$projectCard["STATUS_BADGE_TEXT"]) : "";
 $label = isset($projectCard["LABEL"]) ? (string)$projectCard["LABEL"] : "Жилой комплекс";
 $hasFooter = $saleCountText !== "" || $priceFromText !== "";
+$isCompletedCard = $statusCode === "completed";
 ?>
 
-<a class="project-card" href="<?= htmlspecialcharsbx($href) ?>"<?= $idAttr !== "" ? ' id="' . htmlspecialcharsbx($idAttr) . '"' : "" ?>>
+<a class="project-card<?= $isCompletedCard ? ' project-card--completed' : '' ?>" href="<?= htmlspecialcharsbx($href) ?>"<?= $idAttr !== "" ? ' id="' . htmlspecialcharsbx($idAttr) . '"' : "" ?>>
 	<div class="project-card__image">
 		<? if ($imageSrc !== ""): ?>
 			<img src="<?= htmlspecialcharsbx($imageSrc) ?>" alt="<?= htmlspecialcharsbx($title) ?>" loading="lazy" />
 		<? endif; ?>
 
-		<? if ($classLabel !== "" || $tagLabel !== "" || $statusBadgeText !== ""): ?>
+		<? if (!$isCompletedCard && ($classLabel !== "" || $tagLabel !== "" || $statusBadgeText !== "")): ?>
 			<div class="project-card__tags">
 				<? if ($classLabel !== ""): ?>
 					<span class="tag tag--solid"><?= htmlspecialcharsbx($classLabel) ?></span>
@@ -45,34 +47,41 @@ $hasFooter = $saleCountText !== "" || $priceFromText !== "";
 
 	<div class="project-card__content">
 		<div class="project-card__details">
-			<span class="project-card__label"><?= htmlspecialcharsbx($label) ?></span>
-			<h3 class="project-card__title"><?= htmlspecialcharsbx($title) ?></h3>
+			<? if ($isCompletedCard): ?>
+				<h3 class="project-card__title"><?= htmlspecialcharsbx($title) ?></h3>
+				<? if ($statusBadgeText !== ""): ?>
+					<span class="project-card__status project-card__status--completed"><?= htmlspecialcharsbx($statusBadgeText) ?></span>
+				<? endif; ?>
+			<? else: ?>
+				<span class="project-card__label"><?= htmlspecialcharsbx($label) ?></span>
+				<h3 class="project-card__title"><?= htmlspecialcharsbx($title) ?></h3>
 
-			<? if ($address !== ""): ?>
-				<span class="project-card__meta"><?= htmlspecialcharsbx($address) ?></span>
-			<? endif; ?>
+				<? if ($address !== ""): ?>
+					<span class="project-card__meta"><?= htmlspecialcharsbx($address) ?></span>
+				<? endif; ?>
 
-			<? if ($deliveryText !== ""): ?>
-				<span class="project-card__meta">Срок сдачи <strong><?= htmlspecialcharsbx($deliveryText) ?></strong></span>
-			<? endif; ?>
+				<? if ($deliveryText !== ""): ?>
+					<span class="project-card__meta">Срок сдачи <strong><?= htmlspecialcharsbx($deliveryText) ?></strong></span>
+				<? endif; ?>
 
-			<? if (!empty($saleRooms)): ?>
-				<div class="project-card__sale">
-					<? if ($saleRoomsLabel !== ""): ?>
-						<span class="project-card__sale-label"><?= htmlspecialcharsbx($saleRoomsLabel) ?></span>
-					<? endif; ?>
-					<div class="project-card__rooms">
-						<? foreach ($saleRooms as $room): ?>
-							<? $room = trim((string)$room); ?>
-							<? if ($room === "") { continue; } ?>
-							<span class="project-card__room"><?= htmlspecialcharsbx($room) ?></span>
-						<? endforeach; ?>
+				<? if (!empty($saleRooms)): ?>
+					<div class="project-card__sale">
+						<? if ($saleRoomsLabel !== ""): ?>
+							<span class="project-card__sale-label"><?= htmlspecialcharsbx($saleRoomsLabel) ?></span>
+						<? endif; ?>
+						<div class="project-card__rooms">
+							<? foreach ($saleRooms as $room): ?>
+								<? $room = trim((string)$room); ?>
+								<? if ($room === "") { continue; } ?>
+								<span class="project-card__room"><?= htmlspecialcharsbx($room) ?></span>
+							<? endforeach; ?>
+						</div>
 					</div>
-				</div>
+				<? endif; ?>
 			<? endif; ?>
 		</div>
 
-		<? if ($hasFooter): ?>
+		<? if (!$isCompletedCard && $hasFooter): ?>
 			<div class="project-card__footer">
 				<? if ($saleCountText !== ""): ?>
 					<span class="project-card__sale-count"><?= htmlspecialcharsbx($saleCountText) ?></span>
