@@ -37,21 +37,6 @@
               <button class="btn btn--light footer__callback" type="button" data-contact-open="contact" data-contact-title="Заказать обратный звонок" data-contact-type="callback" data-contact-source="footer_default">
                 Перезвоните мне
               </button>
-              <p class="footer__legal">
-                Все права и материалы, публикуемые на сайте szcube.ru принадлежат ООО "СЗ КУБ" © 2026. Все права защищены
-                <br> <br>
-                Любая информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ
-              </p>
-              <div class="footer__policy-links">
-                <a class="footer__policy" href="/privacy-policy/">Политика конфиденциальности</a>
-                <a class="footer__policy" href="/personal-data-consent/">Согласие на обработку ПДн</a>
-                <a class="footer__policy" href="/user-agreement/">Пользовательское соглашение</a>
-                <a class="footer__policy" href="/cookie-policy/">Политика cookies</a>
-              </div>
-              <div class="footer__social">
-                <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-1.svg" alt="VK" />
-                <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-2.svg" alt="Telegram" />
-              </div>
             </div>
           </div>
           <div class="footer__columns">
@@ -78,6 +63,27 @@
               <?php foreach ($footerClients as $item): ?>
                 <a class="footer__link" href="<?=htmlspecialchars((string)$item["href"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?>"><?=htmlspecialchars((string)$item["label"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8")?></a>
               <?php endforeach; ?>
+            </div>
+          </div>
+        </div>
+        <div class="container footer__bottom footer__bottom--default">
+          <div class="footer__bottom-inner footer__bottom-inner--default">
+            <div class="footer__policy-block footer__policy-block--default">
+              <p class="footer__legal">
+                Все права и материалы, публикуемые на сайте szcube.ru принадлежат ООО "СЗ КУБ" © 2026. Все права защищены
+                <br> <br>
+                Любая информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ
+              </p>
+              <div class="footer__policy-links">
+                <a class="footer__policy" href="/privacy-policy/">Политика конфиденциальности</a>
+                <a class="footer__policy" href="/personal-data-consent/">Согласие на обработку ПДн</a>
+                <a class="footer__policy" href="/user-agreement/">Пользовательское соглашение</a>
+                <a class="footer__policy" href="/cookie-policy/">Политика cookies</a>
+              </div>
+            </div>
+            <div class="footer__social">
+              <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-1.svg" alt="VK" />
+              <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-2.svg" alt="Telegram" />
             </div>
           </div>
         </div>

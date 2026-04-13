@@ -592,6 +592,7 @@
   overflow-x: auto;
   padding-bottom: 12px;
   scrollbar-width: thin;
+  scroll-snap-type: x proximity;
 }
 
 .about-company-projects__tab {
@@ -608,6 +609,7 @@
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.03);
   text-align: left;
   transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  scroll-snap-align: start;
 }
 
 .about-company-projects__tab:hover {
@@ -836,6 +838,63 @@
   .about-company-projects__panel-media {
     min-height: 280px;
     max-height: 600px;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-company-projects__rail {
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .about-company-projects__tab {
+    flex-basis: 220px;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 80px;
+    padding: 10px;
+  }
+
+  .about-company-projects__tab-thumb {
+    width: 56px;
+    height: 46px;
+  }
+
+  .about-company-projects__tab-content {
+    gap: 8px;
+  }
+
+  .about-company-projects__tab-name {
+    font-size: 14px;
+  }
+
+  .about-company-projects__status {
+    min-height: 24px;
+    padding: 4px 8px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .about-company-projects__panel-media {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 420px) {
+  .about-company-projects__tab {
+    flex-basis: 204px;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .about-company-projects__tab-thumb {
+    width: 52px;
+    height: 42px;
+  }
+
+  .about-company-projects__tab-name {
+    font-size: 13px;
+    line-height: 1.3;
   }
 }
 
