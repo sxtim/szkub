@@ -37,6 +37,17 @@
               <button class="btn btn--light footer__callback" type="button" data-contact-open="contact" data-contact-title="Заказать обратный звонок" data-contact-type="callback" data-contact-source="footer_default">
                 Перезвоните мне
               </button>
+              <p class="footer__legal">
+                Все права и материалы, публикуемые на сайте szcube.ru принадлежат ООО "СЗ КУБ" © 2026. Все права защищены
+                <br> <br>
+                Любая информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ
+              </p>
+              <div class="footer__policy-links">
+                <a class="footer__policy" href="/privacy-policy/">Политика конфиденциальности</a>
+                <a class="footer__policy" href="/personal-data-consent/">Согласие на обработку ПДн</a>
+                <a class="footer__policy" href="/user-agreement/">Пользовательское соглашение</a>
+                <a class="footer__policy" href="/cookie-policy/">Политика cookies</a>
+              </div>
             </div>
           </div>
           <div class="footer__columns">
@@ -68,22 +79,11 @@
         </div>
         <div class="container footer__bottom footer__bottom--default">
           <div class="footer__bottom-inner footer__bottom-inner--default">
-            <div class="footer__policy-block footer__policy-block--default">
-              <p class="footer__legal">
-                Все права и материалы, публикуемые на сайте szcube.ru принадлежат ООО "СЗ КУБ" © 2026. Все права защищены
-                <br> <br>
-                Любая информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой, определяемой положениями статьи 437 ГК РФ
-              </p>
-              <div class="footer__policy-links">
-                <a class="footer__policy" href="/privacy-policy/">Политика конфиденциальности</a>
-                <a class="footer__policy" href="/personal-data-consent/">Согласие на обработку ПДн</a>
-                <a class="footer__policy" href="/user-agreement/">Пользовательское соглашение</a>
-                <a class="footer__policy" href="/cookie-policy/">Политика cookies</a>
-              </div>
-            </div>
             <div class="footer__social">
               <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-1.svg" alt="VK" />
-              <img src="<?=SITE_TEMPLATE_PATH?>/img/footer-social-2.svg" alt="Telegram" />
+              <svg class="footer__social-icon footer__social-icon--max" viewBox="0 0 720 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MAX">
+                <path d="M350.4 9.6C141.8 20.5 4.1 184.1 12.8 390.4c3.8 90.3 40.1 168 48.7 253.7 2.2 22.2-4.2 49.6 21.4 59.3 31.5 11.9 79.8-8.1 106.2-26.4 9-6.1 17.6-13.2 24.2-22 27.3 18.1 53.2 35.6 85.7 43.4 143.1 34.3 299.9-44.2 369.6-170.3C799.6 291.2 622.5-4.6 350.4 9.6ZM269.4 504c-11.3 8.8-22.2 20.8-34.7 27.7-18.1 9.7-23.7-.4-30.5-16.4-21.4-50.9-24-137.6-11.5-190.9 16.8-72.5 72.9-136.3 150-143.1 78-6.9 150.4 32.7 183.1 104.2 72.4 159.1-112.9 316.2-256.4 218.6Z" />
+              </svg>
             </div>
           </div>
         </div>

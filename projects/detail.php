@@ -389,7 +389,6 @@ if ($project) {
 
 <section class="projects-page">
   <div class="container">
-    <h1 class="section-title">ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»</h1>
     <?php
     $activeProjectId = isset($project["id"]) ? (int)$project["id"] : 0;
 
@@ -465,11 +464,11 @@ if ($project) {
           </div>
         <?php endif; ?>
 
-        <h2 class="projects-about__title">
+        <h1 class="projects-about__title">
           <span class="projects-about__title-accent">ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»</span><?php if ($projectDetail["about"]["title_suffix"] !== ""): ?>
             <?= htmlspecialcharsbx($projectDetail["about"]["title_suffix"]) ?>
           <?php endif; ?>
-        </h2>
+        </h1>
 
         <div class="projects-about__content">
           <?php if (!empty($projectDetail["about"]["text"])): ?>
@@ -875,8 +874,8 @@ if ($activeProjectCode !== "") {
               <div class="projects-call__subtitle">в MAX</div>
             </div>
             <div class="projects-call__btn projects-call__btn--white" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 6.5C6 5.1 7.1 4 8.5 4h7C17.9 4 19 5.1 19 6.5v6.2c0 1.4-1.1 2.5-2.5 2.5H12l-4.5 3v-3H8.5C7.1 15.2 6 14.1 6 12.7V6.5z" fill="currentColor"/>
+              <svg class="projects-call__icon projects-call__icon--max" viewBox="0 0 720 720" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M350.4 9.6C141.8 20.5 4.1 184.1 12.8 390.4c3.8 90.3 40.1 168 48.7 253.7 2.2 22.2-4.2 49.6 21.4 59.3 31.5 11.9 79.8-8.1 106.2-26.4 9-6.1 17.6-13.2 24.2-22 27.3 18.1 53.2 35.6 85.7 43.4 143.1 34.3 299.9-44.2 369.6-170.3C799.6 291.2 622.5-4.6 350.4 9.6ZM269.4 504c-11.3 8.8-22.2 20.8-34.7 27.7-18.1 9.7-23.7-.4-30.5-16.4-21.4-50.9-24-137.6-11.5-190.9 16.8-72.5 72.9-136.3 150-143.1 78-6.9 150.4 32.7 183.1 104.2 72.4 159.1-112.9 316.2-256.4 218.6Z" />
               </svg>
             </div>
           </div>
