@@ -10,9 +10,12 @@ $navLinks = function_exists("szcubeGetNavigationLinks") ? szcubeGetNavigationLin
 $getNavLink = static function ($key, $default = "") use ($navLinks) {
     return isset($navLinks[$key]) ? (string)$navLinks[$key] : (string)$default;
 };
+$isApartmentDetailPrintPage = defined("APARTMENT_DETAIL_PRINT_PAGE") && APARTMENT_DETAIL_PRINT_PAGE === true;
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/main.css");
-$asset->addCss(SITE_TEMPLATE_PATH . "/css/contact-form.css");
-$asset->addCss(SITE_TEMPLATE_PATH . "/css/accordion.css");
+if (!$isApartmentDetailPrintPage) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/contact-form.css");
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/accordion.css");
+}
 if (defined("CONSULTING_PAGE") && CONSULTING_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
 }
@@ -38,8 +41,10 @@ if (defined("COMMERCIAL_PAGE") && COMMERCIAL_PAGE === true) {
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
 if (
-    (defined("APARTMENT_DETAIL_PAGE") && APARTMENT_DETAIL_PAGE === true)
-    || (defined("COMMERCIAL_DETAIL_PAGE") && COMMERCIAL_DETAIL_PAGE === true)
+    (
+        (defined("APARTMENT_DETAIL_PAGE") && APARTMENT_DETAIL_PAGE === true)
+        || (defined("COMMERCIAL_DETAIL_PAGE") && COMMERCIAL_DETAIL_PAGE === true)
+    ) && !$isApartmentDetailPrintPage
 ) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-detail.css");
@@ -51,6 +56,10 @@ if (
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-detail.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-similar.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/project-benefits.js");
+}
+if ($isApartmentDetailPrintPage) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-print.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-print.js");
 }
 if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
@@ -80,10 +89,12 @@ if (
 if (defined("FOOTER_FLAT") && FOOTER_FLAT === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/footer-flat.css");
 }
-$asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
-$asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
-$asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");
-$asset->addJs(SITE_TEMPLATE_PATH . "/js/accordion.js");
+if (!$isApartmentDetailPrintPage) {
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/accordion.js");
+}
 $asset->addString('<link rel="preconnect" href="https://fonts.googleapis.com">');
 $asset->addString('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>');
 $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">');
@@ -136,10 +147,17 @@ if (!defined("ERROR_404")) {
     </script>
     <!-- /Yandex.Metrika counter -->
   </head>
-  <body>
+  <?php
+  $bodyClasses = array();
+  if ($isApartmentDetailPrintPage) {
+      $bodyClasses[] = "is-apartment-print-page";
+  }
+  ?>
+  <body<?= !empty($bodyClasses) ? ' class="' . htmlspecialchars(implode(" ", $bodyClasses), ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8") . '"' : "" ?>>
     <noscript><div><img src="https://mc.yandex.ru/watch/108149201" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <?php $APPLICATION->ShowPanel(); ?>
     <div class="page">
+      <?php if (!$isApartmentDetailPrintPage): ?>
       <header class="header">
         <div class="container header__inner">
           <a class="logo" href="/">
@@ -213,4 +231,5 @@ if (!defined("ERROR_404")) {
           </ul>
         </div>
       </header>
-      <main class="main">
+      <?php endif; ?>
+      <main class="main<?= $isApartmentDetailPrintPage ? ' main--print' : '' ?>">

@@ -1,5 +1,7 @@
 <?php
+$apartmentDetailPrintMode = isset($_GET["print"]) && mb_strtoupper(trim((string)$_GET["print"])) === "Y";
 define("APARTMENT_DETAIL_PAGE", true);
+define("APARTMENT_DETAIL_PRINT_PAGE", $apartmentDetailPrintMode);
 define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 
@@ -23,6 +25,76 @@ if (!function_exists("apartmentDetailAppendFact")) {
 			),
 			is_array($extra) ? $extra : array()
 		);
+	}
+}
+
+if (!function_exists("apartmentDetailIsHttpsRequest")) {
+	function apartmentDetailIsHttpsRequest()
+	{
+		if (!empty($_SERVER["HTTPS"]) && strtolower((string)$_SERVER["HTTPS"]) !== "off") {
+			return true;
+		}
+
+		if (!empty($_SERVER["HTTP_X_FORWARDED_PROTO"])) {
+			return strtolower((string)$_SERVER["HTTP_X_FORWARDED_PROTO"]) === "https";
+		}
+
+		return false;
+	}
+}
+
+if (!function_exists("apartmentDetailBuildAbsoluteUrl")) {
+	function apartmentDetailBuildAbsoluteUrl($url)
+	{
+		$url = trim((string)$url);
+		if ($url === "") {
+			return "";
+		}
+
+		if (strpos($url, "http://") === 0 || strpos($url, "https://") === 0) {
+			return $url;
+		}
+
+		$host = trim((string)($_SERVER["HTTP_HOST"] ?? ""));
+		if ($host === "") {
+			return $url;
+		}
+
+		$scheme = apartmentDetailIsHttpsRequest() ? "https" : "http";
+		$path = $url[0] === "/" ? $url : "/" . $url;
+
+		return $scheme . "://" . $host . $path;
+	}
+}
+
+if (!function_exists("apartmentDetailBuildQrImageUrl")) {
+	function apartmentDetailBuildQrImageUrl($url, $size = 164)
+	{
+		$url = trim((string)$url);
+		if ($url === "") {
+			return "";
+		}
+
+		$size = max(96, (int)$size);
+		return "https://api.qrserver.com/v1/create-qr-code/?size=" . $size . "x" . $size . "&data=" . rawurlencode($url);
+	}
+}
+
+if (!function_exists("apartmentDetailFindSlideByKind")) {
+	function apartmentDetailFindSlideByKind(array $slides, $kind)
+	{
+		$kind = trim((string)$kind);
+		foreach ($slides as $slide) {
+			if (!is_array($slide)) {
+				continue;
+			}
+
+			if (isset($slide["kind"]) && trim((string)$slide["kind"]) === $kind) {
+				return $slide;
+			}
+		}
+
+		return !empty($slides) && is_array($slides[0]) ? $slides[0] : array();
 	}
 }
 
@@ -1071,6 +1143,72 @@ if (!$apartment) {
 	$APPLICATION->SetTitle($apartment["title"]);
 	$APPLICATION->SetPageProperty("title", $apartment["title"] . " — КУБ");
 }
+
+$apartmentDetailPublicUrl = "";
+$apartmentDetailPrintUrl = "";
+$apartmentPrintPlanSlide = array();
+$apartmentPrintFacts = array();
+$apartmentPrintQrItems = array();
+$apartmentPrintDisclaimer = "";
+$apartmentPrintGeneratedAt = "";
+
+if ($apartment) {
+	$apartmentDetailPublicUrl = trim((string)$apartment["lot"]) !== ""
+		? "/apartments/" . rawurlencode((string)$apartment["lot"]) . "/"
+		: $APPLICATION->GetCurPageParam("", array("print"));
+	$apartmentDetailPrintUrl = "/apartments/detail.php?code=" . rawurlencode((string)$apartment["lot"]) . "&print=Y";
+	$apartmentPrintPlanSlide = apartmentDetailFindSlideByKind(
+		isset($apartment["slides"]) && is_array($apartment["slides"]) ? $apartment["slides"] : array(),
+		"plan"
+	);
+	$apartmentPrintFacts = array_merge(
+		isset($apartment["primary_facts"]) && is_array($apartment["primary_facts"]) ? $apartment["primary_facts"] : array(),
+		isset($apartment["detail_facts"]) && is_array($apartment["detail_facts"]) ? $apartment["detail_facts"] : array()
+	);
+
+	$apartmentQrUrl = apartmentDetailBuildAbsoluteUrl($apartmentDetailPublicUrl);
+	$projectQrUrl = apartmentDetailBuildAbsoluteUrl(
+		isset($apartment["project_url"]) && trim((string)$apartment["project_url"]) !== ""
+			? (string)$apartment["project_url"]
+			: "/projects/"
+	);
+
+	$apartmentPrintQrItems = array(
+		array(
+			"title" => "Квартиру можно посмотреть онлайн",
+			"text" => "Отсканируйте QR-код и откройте эту квартиру на сайте.",
+			"url" => $apartmentQrUrl,
+			"image" => apartmentDetailBuildQrImageUrl($apartmentQrUrl),
+		),
+		array(
+			"title" => "Смотрите проект на сайте",
+			"text" => "Перейдите на страницу жилого комплекса и изучите доступные предложения.",
+			"url" => $projectQrUrl,
+			"image" => apartmentDetailBuildQrImageUrl($projectQrUrl),
+		),
+	);
+
+	$apartmentPrintDisclaimer = "Материал подготовлен для ознакомления с параметрами квартиры. Окончательные условия оформления и детали предложения уточняются при обращении в отдел продаж.";
+	$apartmentPrintGeneratedAt = "Актуально на дату формирования " . date("d.m.Y") . ".";
+}
+
+if ($apartmentDetailPrintMode) {
+	if (!$apartment) {
+		?>
+		<section class="apartment-detail apartment-detail--empty">
+		  <div class="container">
+		    <h1 class="section-title"><?php $APPLICATION->ShowTitle(false); ?></h1>
+		    <p>Квартира не найдена.</p>
+		  </div>
+		</section>
+		<?php
+	} else {
+		include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/apartment-print.php";
+	}
+
+	require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");
+	return;
+}
 ?>
 
 <div class="breadcrumbs-wrap">
@@ -1131,7 +1269,13 @@ if (!$apartment) {
 	                  <path d="M9.37988 5.68164H16.3199V12.6216" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 	                </svg>
 	              </button>
-	              <button class="apartment-hero__action" type="button" data-apartment-action="print" aria-label="Печать">
+	              <button
+	                class="apartment-hero__action"
+	                type="button"
+	                data-apartment-action="print"
+	                data-print-url="<?= htmlspecialcharsbx($apartmentDetailPrintUrl) ?>"
+	                aria-label="Печать"
+	              >
 	                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 	                  <path d="M17 13.01L17.01 12.9989" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 	                  <path d="M7 17H17M6 10V3.6C6 3.26863 6.26863 3 6.6 3H17.4C17.7314 3 18 3.26863 18 3.6V10M21 20.4V14C21 11.7909 19.2091 10 17 10H7C4.79086 10 3 11.7909 3 14V20.4C3 20.7314 3.26863 21 3.6 21H20.4C20.7314 21 21 20.7314 21 20.4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />

@@ -208,7 +208,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (action === "print") {
-        window.print();
+        const printUrl = button.dataset.printUrl?.trim();
+
+        if (!printUrl) {
+          return;
+        }
+
+        const printWindow = window.open(printUrl, "_blank", "noopener");
+        if (!printWindow) {
+          window.location.href = printUrl;
+        }
       }
     });
   });
