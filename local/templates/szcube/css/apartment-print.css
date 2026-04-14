@@ -200,6 +200,16 @@
   line-height: 1.2;
 }
 
+.apartment-print__badge--available {
+  min-height: 22px;
+  padding: 2px 8px;
+  border: 1px solid rgba(17, 168, 157, 0.42);
+  background: rgba(17, 168, 157, 0.16);
+  color: rgba(17, 168, 157, 0.92);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
 .apartment-print__badge--sold {
   background: rgba(203, 74, 67, 0.12);
   color: #b13a34;

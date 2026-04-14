@@ -10,9 +10,12 @@ $navLinks = function_exists("szcubeGetNavigationLinks") ? szcubeGetNavigationLin
 $getNavLink = static function ($key, $default = "") use ($navLinks) {
     return isset($navLinks[$key]) ? (string)$navLinks[$key] : (string)$default;
 };
-$isApartmentDetailPrintPage = defined("APARTMENT_DETAIL_PRINT_PAGE") && APARTMENT_DETAIL_PRINT_PAGE === true;
+$isDetailPrintPage = (
+    (defined("APARTMENT_DETAIL_PRINT_PAGE") && APARTMENT_DETAIL_PRINT_PAGE === true)
+    || (defined("COMMERCIAL_DETAIL_PRINT_PAGE") && COMMERCIAL_DETAIL_PRINT_PAGE === true)
+);
 $asset->addCss(SITE_TEMPLATE_PATH . "/css/main.css");
-if (!$isApartmentDetailPrintPage) {
+if (!$isDetailPrintPage) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/contact-form.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/accordion.css");
 }
@@ -44,7 +47,7 @@ if (
     (
         (defined("APARTMENT_DETAIL_PAGE") && APARTMENT_DETAIL_PAGE === true)
         || (defined("COMMERCIAL_DETAIL_PAGE") && COMMERCIAL_DETAIL_PAGE === true)
-    ) && !$isApartmentDetailPrintPage
+    ) && !$isDetailPrintPage
 ) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-detail.css");
@@ -57,7 +60,7 @@ if (
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-similar.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/project-benefits.js");
 }
-if ($isApartmentDetailPrintPage) {
+if ($isDetailPrintPage) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-print.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-print.js");
 }
@@ -89,7 +92,7 @@ if (
 if (defined("FOOTER_FLAT") && FOOTER_FLAT === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/footer-flat.css");
 }
-if (!$isApartmentDetailPrintPage) {
+if (!$isDetailPrintPage) {
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");
@@ -149,7 +152,7 @@ if (!defined("ERROR_404")) {
   </head>
   <?php
   $bodyClasses = array();
-  if ($isApartmentDetailPrintPage) {
+  if ($isDetailPrintPage) {
       $bodyClasses[] = "is-apartment-print-page";
   }
   ?>
@@ -157,7 +160,7 @@ if (!defined("ERROR_404")) {
     <noscript><div><img src="https://mc.yandex.ru/watch/108149201" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <?php $APPLICATION->ShowPanel(); ?>
     <div class="page">
-      <?php if (!$isApartmentDetailPrintPage): ?>
+      <?php if (!$isDetailPrintPage): ?>
       <header class="header">
         <div class="container header__inner">
           <a class="logo" href="/">

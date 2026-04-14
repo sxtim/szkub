@@ -894,44 +894,42 @@ if ($activeProjectCode !== "") {
       </svg>
     </button>
 
-	    <div class="construction-modal__left">
-	      <div class="construction-modal__heading">
-	        <h4 class="construction-modal__title">
-	          Ход строительства<br />
-	          <span class="construction-modal__title-muted">ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»</span>
-	        </h4>
+    <div class="construction-modal__heading">
+      <h4 class="construction-modal__title">
+        Ход строительства<br />
+        <span class="construction-modal__title-muted">ЖК «<?= htmlspecialcharsbx($project["name"]) ?>»</span>
+      </h4>
 
-	        <p class="construction-modal__date" data-construction-modal-date></p>
-	      </div>
+      <p class="construction-modal__date" data-construction-modal-date></p>
+    </div>
 
-	      <div class="construction-modal__text" data-construction-modal-text></div>
-	    </div>
+    <div class="construction-modal__text" data-construction-modal-text></div>
 
-	    <div class="construction-modal__right">
-	      <div class="construction-modal__swiper swiper" data-construction-modal-swiper>
-	        <div class="swiper-wrapper" data-construction-modal-wrapper></div>
+    <div class="construction-modal__right">
+      <div class="construction-modal__swiper swiper" data-construction-modal-swiper>
+        <div class="swiper-wrapper" data-construction-modal-wrapper></div>
+      </div>
+    </div>
 
-        <div class="construction-modal__controls" aria-label="Управление галереей">
-          <div class="construction-modal__nav" role="group" aria-label="Переключение фотографий">
-            <button class="construction-modal__navBtn" type="button" aria-label="Предыдущее фото" data-construction-modal-prev>
-              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M4.00049 6.00024L7.00049 3.00024V9.00024L4.00049 6.00024Z" fill="currentColor"></path>
-              </svg>
-            </button>
-            <span class="construction-modal__navSep" aria-hidden="true"></span>
-            <button class="construction-modal__navBtn" type="button" aria-label="Следующее фото" data-construction-modal-next>
-              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
-              </svg>
-            </button>
-          </div>
+    <div class="construction-modal__controls" aria-label="Управление галереей">
+      <div class="construction-modal__nav" role="group" aria-label="Переключение фотографий">
+        <button class="construction-modal__navBtn" type="button" aria-label="Предыдущее фото" data-construction-modal-prev>
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4.00049 6.00024L7.00049 3.00024V9.00024L4.00049 6.00024Z" fill="currentColor"></path>
+          </svg>
+        </button>
+        <span class="construction-modal__navSep" aria-hidden="true"></span>
+        <button class="construction-modal__navBtn" type="button" aria-label="Следующее фото" data-construction-modal-next>
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M7.99951 6.00024L4.99951 9.00024V3.00024L7.99951 6.00024Z" fill="currentColor"></path>
+          </svg>
+        </button>
+      </div>
 
-          <div class="construction-modal__pagination" aria-label="Счётчик фотографий">
-            <span class="construction-modal__pagination-num" data-construction-modal-current>1</span>
-            <span class="construction-modal__pagination-sep" aria-hidden="true"></span>
-            <span class="construction-modal__pagination-num" data-construction-modal-total>1</span>
-          </div>
-        </div>
+      <div class="construction-modal__pagination" aria-label="Счётчик фотографий">
+        <span class="construction-modal__pagination-num" data-construction-modal-current>1</span>
+        <span class="construction-modal__pagination-sep" aria-hidden="true"></span>
+        <span class="construction-modal__pagination-num" data-construction-modal-total>1</span>
       </div>
     </div>
   </div>

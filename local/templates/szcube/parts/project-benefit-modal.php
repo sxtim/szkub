@@ -5,13 +5,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 ?>
 <div class="projects-modal-wrap modal-wrap-custom" data-benefit-modal hidden>
   <div class="projects-modal modal-wrap-container" role="dialog" aria-modal="true" aria-label="Преимущество проекта">
-    <button class="projects-modal__close" type="button" aria-label="Закрыть" data-modal-close>
-      <span class="projects-modal__close-text">
-        <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M1 1L9 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
-          <path d="M9 1L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
-        </svg>
-      </span>
+    <button class="construction-modal__close" type="button" aria-label="Закрыть" data-modal-close>
+      <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M1 1L9 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+        <path d="M9 1L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+      </svg>
     </button>
 
     <div class="projects-benefit-modal">

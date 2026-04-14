@@ -279,6 +279,7 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
               data-selector-open-map
             >На карте</button>
           </div>
+
         </div>
       </div>
 
@@ -297,26 +298,6 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
                 <?php endif; ?>
               </div>
 
-              <div class="projects-selector__view-switch projects-view-switch" role="tablist" aria-label="Вид отображения проекта">
-                <button
-                  class="projects-view-switch__button"
-                  type="button"
-                  role="tab"
-                  aria-selected="true"
-                  data-selector-view-tab="scene"
-                  data-selector-open-scene
-                >На плане</button>
-                <button
-                  class="projects-view-switch__button"
-                  type="button"
-                  role="tab"
-                  aria-selected="false"
-                  aria-disabled="true"
-                  disabled
-                  data-selector-view-tab="map"
-                  data-selector-open-map
-                >На карте</button>
-              </div>
             </div>
 
           <div class="projects-selector__board-content">
@@ -468,26 +449,6 @@ $mapEmbedHtml = isset($project["MAP_EMBED_HTML"]) ? trim((string)$project["MAP_E
               <?php endif; ?>
             </div>
 
-            <div class="projects-selector__view-switch projects-view-switch" role="tablist" aria-label="Вид отображения проекта">
-              <button
-                class="projects-view-switch__button"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                data-selector-view-tab="scene"
-                data-selector-open-scene
-              >На плане</button>
-              <button
-                class="projects-view-switch__button"
-                type="button"
-                role="tab"
-                aria-selected="true"
-                aria-disabled="true"
-                disabled
-                data-selector-view-tab="map"
-                data-selector-open-map
-              >На карте</button>
-            </div>
           </div>
 
           <?php

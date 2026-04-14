@@ -281,37 +281,6 @@ body.scroll-lock {
   transform: translateY(80px);
 }
 
-.projects-modal__close {
-  position: absolute;
-  top: 0;
-  right: calc(100% + 7px);
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  background: #fff;
-  color: var(--gray-900);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.projects-modal__close:hover {
-  background: #f6f6f6;
-}
-
-.projects-modal__close:focus-visible {
-  outline: 2px solid rgba(26, 59, 136, 0.35);
-  outline-offset: 2px;
-}
-
-.projects-modal__close svg {
-  width: 18px;
-  height: 18px;
-  display: block;
-}
-
 .projects-benefit-modal {
   display: flex;
   flex-direction: column;
@@ -575,18 +544,13 @@ body.scroll-lock {
     padding: 12px;
   }
 
-  .projects-modal__close {
-    right: 12px;
-    top: 12px;
-  }
-
   .projects-modal {
     width: 100%;
     height: calc(100vh - 24px);
   }
 
   .projects-benefit-modal__imageWrap {
-    padding: 0 16px;
+    padding: 16px 16px 0;
     margin-bottom: 20px;
   }
 

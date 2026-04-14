@@ -8,16 +8,38 @@ $printFacts = isset($apartmentPrintFacts) && is_array($apartmentPrintFacts) ? $a
 $printQrItems = isset($apartmentPrintQrItems) && is_array($apartmentPrintQrItems) ? $apartmentPrintQrItems : array();
 $printDisclaimer = isset($apartmentPrintDisclaimer) ? trim((string)$apartmentPrintDisclaimer) : "";
 $printGeneratedAt = isset($apartmentPrintGeneratedAt) ? trim((string)$apartmentPrintGeneratedAt) : "";
-$apartmentNumber = isset($apartment["apartment_number"]) ? trim((string)$apartment["apartment_number"]) : "";
-$entrance = isset($apartment["entrance"]) ? trim((string)$apartment["entrance"]) : "";
-$projectName = isset($apartment["project"]) ? trim((string)$apartment["project"]) : "";
-$statusBadges = isset($apartment["availability_badges"]) && is_array($apartment["availability_badges"]) ? $apartment["availability_badges"] : array();
-$featureTags = isset($apartment["feature_tags"]) && is_array($apartment["feature_tags"]) ? $apartment["feature_tags"] : array();
-$titleLine1 = isset($apartment["title_line_1"]) ? trim((string)$apartment["title_line_1"]) : "";
-$titleLine2 = isset($apartment["title_line_2"]) ? trim((string)$apartment["title_line_2"]) : "";
-$priceCurrent = isset($apartment["price_total"]) ? trim((string)$apartment["price_total"]) : "";
-$priceOld = isset($apartment["price_old"]) ? trim((string)$apartment["price_old"]) : "";
-$priceMeter = isset($apartment["price_meter"]) ? trim((string)$apartment["price_meter"]) : "";
+$apartmentNumber = isset($printNumberValue)
+    ? trim((string)$printNumberValue)
+    : (isset($apartment["apartment_number"]) ? trim((string)$apartment["apartment_number"]) : "");
+$numberLabel = isset($printNumberLabel) ? trim((string)$printNumberLabel) : "Квартира №";
+$entrance = isset($printEntranceValue)
+    ? trim((string)$printEntranceValue)
+    : (isset($apartment["entrance"]) ? trim((string)$apartment["entrance"]) : "");
+$entranceLabel = isset($printEntranceLabel) ? trim((string)$printEntranceLabel) : "Подъезд";
+$projectName = isset($printProjectName)
+    ? trim((string)$printProjectName)
+    : (isset($apartment["project"]) ? trim((string)$apartment["project"]) : "");
+$statusBadges = isset($printStatusBadges) && is_array($printStatusBadges)
+    ? $printStatusBadges
+    : (isset($apartment["availability_badges"]) && is_array($apartment["availability_badges"]) ? $apartment["availability_badges"] : array());
+$featureTags = isset($printFeatureTags) && is_array($printFeatureTags)
+    ? $printFeatureTags
+    : (isset($apartment["feature_tags"]) && is_array($apartment["feature_tags"]) ? $apartment["feature_tags"] : array());
+$titleLine1 = isset($printTitleLine1)
+    ? trim((string)$printTitleLine1)
+    : (isset($apartment["title_line_1"]) ? trim((string)$apartment["title_line_1"]) : "");
+$titleLine2 = isset($printTitleLine2)
+    ? trim((string)$printTitleLine2)
+    : (isset($apartment["title_line_2"]) ? trim((string)$apartment["title_line_2"]) : "");
+$priceCurrent = isset($printPriceCurrent)
+    ? trim((string)$printPriceCurrent)
+    : (isset($apartment["price_total"]) ? trim((string)$apartment["price_total"]) : "");
+$priceOld = isset($printPriceOld)
+    ? trim((string)$printPriceOld)
+    : (isset($apartment["price_old"]) ? trim((string)$apartment["price_old"]) : "");
+$priceMeter = isset($printPriceMeter)
+    ? trim((string)$printPriceMeter)
+    : (isset($apartment["price_meter"]) ? trim((string)$apartment["price_meter"]) : "");
 $officeAddress = "Воронеж, ул. Фридриха Энгельса, дом 7а офис 201";
 $officeEmail = "cube-develop@yandex.ru";
 $headerLogoSvg = "";
@@ -33,10 +55,10 @@ if ($projectName !== "") {
     $headerChipParts[] = $projectName;
 }
 if ($apartmentNumber !== "") {
-    $headerChipParts[] = "Квартира № " . $apartmentNumber;
+    $headerChipParts[] = ($numberLabel !== "" ? $numberLabel . " " : "") . $apartmentNumber;
 }
 if ($entrance !== "") {
-    $headerChipParts[] = "Подъезд " . $entrance;
+    $headerChipParts[] = ($entranceLabel !== "" ? $entranceLabel . " " : "") . $entrance;
 }
 ?>
 <section class="apartment-print" data-apartment-print-page>

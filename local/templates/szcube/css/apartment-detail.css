@@ -645,6 +645,10 @@
     padding: 40px 0 72px;
   }
 
+  .apartment-hero__action[data-apartment-action="print"] {
+    display: none;
+  }
+
   .apartment-hero__actions {
     gap: 10px;
   }
@@ -786,8 +790,7 @@
     margin: 0;
   }
 
-  .apartment-hero__action[data-apartment-action="zoom"],
-  .apartment-hero__action[data-apartment-action="print"] {
+  .apartment-hero__action[data-apartment-action="zoom"] {
     display: none;
   }
 

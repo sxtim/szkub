@@ -1,5 +1,8 @@
       </main>
-      <?php if (!(defined('APARTMENT_DETAIL_PRINT_PAGE') && APARTMENT_DETAIL_PRINT_PAGE === true)): ?>
+      <?php if (!(
+          (defined('APARTMENT_DETAIL_PRINT_PAGE') && APARTMENT_DETAIL_PRINT_PAGE === true)
+          || (defined('COMMERCIAL_DETAIL_PRINT_PAGE') && COMMERCIAL_DETAIL_PRINT_PAGE === true)
+      )): ?>
       <?php
       $footerFlat = defined('FOOTER_FLAT') && FOOTER_FLAT === true;
       $footerTemplate = $footerFlat ? 'footer-flat.php' : 'footer-default.php';
