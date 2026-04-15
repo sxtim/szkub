@@ -52,10 +52,12 @@ if (
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-detail.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/media-lightbox.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/project-benefits.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-similar.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/purchase.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/swiper-bundle.min.js");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/media-lightbox.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-detail.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/apartment-similar.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/project-benefits.js");
@@ -67,9 +69,11 @@ if ($isDetailPrintPage) {
 if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/projects.css");
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/media-lightbox.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/project-benefits.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/purchase.css");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/swiper-bundle.min.js");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/media-lightbox.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/project-benefits.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/projects.js");
 }

@@ -162,6 +162,7 @@ const initConstructionModal = () => {
   let lastActiveElement = null;
   let isClosing = false;
   let openCleanupTimer = null;
+  let lightboxItems = [];
 
   const getScrollbarWidth = () =>
     window.innerWidth - document.documentElement.clientWidth;
@@ -290,7 +291,11 @@ const initConstructionModal = () => {
     const media = document.createElement("div");
     media.className = "construction-modal__image";
     media.style.backgroundImage = `url('${image}')`;
-    media.setAttribute("aria-hidden", "true");
+    media.dataset.constructionLightboxOpen = "true";
+    media.dataset.constructionLightboxSrc = image;
+    media.setAttribute("role", "button");
+    media.setAttribute("tabindex", "0");
+    media.setAttribute("aria-label", "Открыть фото");
 
     slide.append(media);
     return slide;
@@ -340,6 +345,13 @@ const initConstructionModal = () => {
     }
 
     mountSlides(payload?.images || []);
+    lightboxItems = (payload?.images || [])
+      .filter(Boolean)
+      .map((image) => ({
+        src: image,
+        alt: payload?.date || payload?.month || "",
+        caption: payload?.date || payload?.month || "",
+      }));
     lockBodyScroll();
     playOpenTransition();
     initSwiper();
@@ -350,6 +362,7 @@ const initConstructionModal = () => {
   const closeModal = () => {
     if (modalWrap.hidden || isClosing) return;
     isClosing = true;
+    window.SzcubeMediaLightbox?.close();
 
     playCloseTransition();
 
@@ -368,6 +381,20 @@ const initConstructionModal = () => {
 
   document.addEventListener("click", (event) => {
     if (!modalWrap.hidden) {
+      const zoomTrigger = event.target.closest("[data-construction-lightbox-open]");
+      if (zoomTrigger) {
+        event.preventDefault();
+        const slideEl = zoomTrigger.closest(".swiper-slide");
+        const initialIndex = Math.max(0, Array.from(swiper?.slides || []).indexOf(slideEl));
+        window.SzcubeMediaLightbox?.open({
+          items: lightboxItems,
+          initialIndex,
+          trigger: zoomTrigger,
+          ariaLabel: "Просмотр фото хода строительства",
+        });
+        return;
+      }
+
       if (event.target === modalWrap) {
         closeModal();
         return;
@@ -405,6 +432,29 @@ const initConstructionModal = () => {
       openModal(JSON.parse(payload));
     } catch {
       // ignore invalid payload
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (window.SzcubeMediaLightbox?.isOpen()) {
+      return;
+    }
+
+    const zoomTrigger = event.target.closest?.("[data-construction-lightbox-open]");
+    if (
+      zoomTrigger &&
+      (event.key === "Enter" || event.key === " ") &&
+      !modalWrap.hidden
+    ) {
+      event.preventDefault();
+      const slideEl = zoomTrigger.closest(".swiper-slide");
+      const initialIndex = Math.max(0, Array.from(swiper?.slides || []).indexOf(slideEl));
+      window.SzcubeMediaLightbox?.open({
+        items: lightboxItems,
+        initialIndex,
+        trigger: zoomTrigger,
+        ariaLabel: "Просмотр фото хода строительства",
+      });
     }
   });
 };
@@ -995,76 +1045,31 @@ const initProjectApartmentSelector = () => {
 
 const initProjectAboutLightbox = () => {
   const trigger = document.querySelector("[data-project-about-zoom]");
-  const lightbox = document.querySelector("[data-project-about-lightbox]");
-  const image = lightbox?.querySelector("[data-project-about-lightbox-image]");
-  const caption = lightbox?.querySelector("[data-project-about-lightbox-caption]");
-  const closeButtons = lightbox
-    ? Array.from(lightbox.querySelectorAll("[data-project-about-lightbox-close]"))
-    : [];
-
-  if (
-    !(trigger instanceof HTMLButtonElement) ||
-    !(lightbox instanceof HTMLElement) ||
-    !(image instanceof HTMLImageElement)
-  ) {
+  if (!(trigger instanceof HTMLButtonElement)) {
     return;
   }
 
   const sourceImage = trigger.querySelector("img");
-  if (!(sourceImage instanceof HTMLImageElement)) {
+  if (!(sourceImage instanceof HTMLImageElement) || !window.SzcubeMediaLightbox) {
     return;
   }
 
-  if (lightbox.parentElement !== document.body) {
-    document.body.appendChild(lightbox);
-  }
-
   const open = () => {
-    image.src = sourceImage.currentSrc || sourceImage.src;
-    image.alt = sourceImage.alt || "";
-
-    if (caption instanceof HTMLElement) {
-      const captionText = sourceImage.alt || "";
-      caption.textContent = captionText;
-      caption.hidden = captionText === "";
-    }
-
-    lightbox.hidden = false;
-    document.documentElement.classList.add("is-project-lightbox-open");
-    document.body.classList.add("is-project-lightbox-open");
-  };
-
-  const close = () => {
-    lightbox.hidden = true;
-    document.documentElement.classList.remove("is-project-lightbox-open");
-    document.body.classList.remove("is-project-lightbox-open");
+    window.SzcubeMediaLightbox.open({
+      items: [
+        {
+          src: sourceImage.currentSrc || sourceImage.src,
+          alt: sourceImage.alt || "",
+          caption: sourceImage.alt || "",
+        },
+      ],
+      initialIndex: 0,
+      trigger,
+      ariaLabel: "Просмотр изображения проекта",
+    });
   };
 
   trigger.addEventListener("click", open);
-
-  lightbox.addEventListener("click", (event) => {
-    if (lightbox.hidden || !(event.target instanceof Element)) {
-      return;
-    }
-
-    if (event.target.closest("[data-project-about-lightbox-image]")) {
-      return;
-    }
-
-    close();
-  });
-
-  closeButtons.forEach((button) => {
-    button.addEventListener("click", close);
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || lightbox.hidden) {
-      return;
-    }
-
-    close();
-  });
 };
 
 const initProjectsPage = () => {

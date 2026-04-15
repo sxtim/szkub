@@ -181,9 +181,6 @@ const initBenefitsModal = () => {
   const prevBtn = modalWrap.querySelector("[data-modal-prev]");
   const nextBtn = modalWrap.querySelector("[data-modal-next]");
   const modalCategoryEl = modalWrap.querySelector("[data-modal-category]");
-  const lightbox = document.querySelector("[data-benefit-lightbox]");
-  const lightboxImage = lightbox?.querySelector("[data-benefit-lightbox-image]");
-  const lightboxCaption = lightbox?.querySelector("[data-benefit-lightbox-caption]");
 
   if (!modalEl || !swiperEl || !swiperWrapperEl) return;
 
@@ -192,10 +189,6 @@ const initBenefitsModal = () => {
   let swiper = null;
   let isClosing = false;
   let openCleanupTimer = null;
-
-  if (lightbox instanceof HTMLElement && lightbox.parentElement !== document.body) {
-    document.body.append(lightbox);
-  }
 
   const getScrollbarWidth = () =>
     window.innerWidth - document.documentElement.clientWidth;
@@ -471,59 +464,10 @@ const initBenefitsModal = () => {
     if (closeBtn instanceof HTMLElement) closeBtn.focus();
   };
 
-  const openLightbox = (src, alt = "", caption = "") => {
-    if (!(lightbox instanceof HTMLElement) || !(lightboxImage instanceof HTMLImageElement)) {
-      return;
-    }
-
-    if (!src) return;
-
-    lightboxImage.src = src;
-    lightboxImage.alt = alt;
-
-    if (lightboxCaption instanceof HTMLElement) {
-      const safeCaption = typeof caption === "string" ? caption.trim() : "";
-      lightboxCaption.textContent = safeCaption;
-      lightboxCaption.hidden = safeCaption === "";
-    }
-
-    lightbox.hidden = false;
-  };
-
-  const closeLightbox = () => {
-    if (!(lightbox instanceof HTMLElement) || lightbox.hidden) return;
-
-    lightbox.hidden = true;
-
-    if (lightboxImage instanceof HTMLImageElement) {
-      lightboxImage.src = "";
-      lightboxImage.alt = "";
-    }
-
-    if (lightboxCaption instanceof HTMLElement) {
-      lightboxCaption.textContent = "";
-      lightboxCaption.hidden = true;
-    }
-  };
-
-  if (lightbox instanceof HTMLElement) {
-    lightbox.addEventListener("click", (event) => {
-      if (lightbox.hidden || !(event.target instanceof Element)) {
-        return;
-      }
-
-      if (event.target.closest("[data-benefit-lightbox-image]")) {
-        return;
-      }
-
-      closeLightbox();
-    });
-  }
-
   const closeModal = () => {
     if (modalWrap.hidden || isClosing) return;
     isClosing = true;
-    closeLightbox();
+    window.SzcubeMediaLightbox?.close();
 
     playCloseTransition();
 
@@ -546,18 +490,27 @@ const initBenefitsModal = () => {
     const zoomTrigger = event.target.closest("[data-modal-image-zoom]");
     if (zoomTrigger && !modalWrap.hidden) {
       event.preventDefault();
-      openLightbox(
-        zoomTrigger.getAttribute("data-modal-image-src") || "",
-        zoomTrigger.getAttribute("data-modal-image-alt") || "",
-        zoomTrigger.getAttribute("data-modal-image-caption") || ""
+      const items = benefitList
+        .filter((benefit) => benefit?.image)
+        .map((benefit) => ({
+          id: benefit?.id != null ? String(benefit.id) : "",
+          src: benefit.image,
+          alt: benefit?.title || "",
+          caption: benefit?.title || "",
+        }));
+      const slideEl = zoomTrigger.closest(".swiper-slide");
+      const benefitId = slideEl?.getAttribute("data-benefit-id") || "";
+      const initialIndex = Math.max(
+        0,
+        items.findIndex((item) => item.id === benefitId)
       );
-      return;
-    }
 
-    const lightboxClose = event.target.closest("[data-benefit-lightbox-close]");
-    if (lightboxClose && lightbox instanceof HTMLElement && !lightbox.hidden) {
-      event.preventDefault();
-      closeLightbox();
+      window.SzcubeMediaLightbox?.open({
+        items,
+        initialIndex,
+        trigger: zoomTrigger,
+        ariaLabel: "Увеличенное изображение преимущества",
+      });
       return;
     }
 
@@ -609,11 +562,10 @@ const initBenefitsModal = () => {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && lightbox instanceof HTMLElement && !lightbox.hidden) {
-      event.preventDefault();
-      closeLightbox();
+    if (window.SzcubeMediaLightbox?.isOpen()) {
       return;
     }
+
     if (event.key === "Escape" && !modalWrap.hidden) {
       event.preventDefault();
       closeModal();
@@ -636,11 +588,27 @@ const initBenefitsModal = () => {
 
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      openLightbox(
-        zoomTrigger.getAttribute("data-modal-image-src") || "",
-        zoomTrigger.getAttribute("data-modal-image-alt") || "",
-        zoomTrigger.getAttribute("data-modal-image-caption") || ""
+      const items = benefitList
+        .filter((benefit) => benefit?.image)
+        .map((benefit) => ({
+          id: benefit?.id != null ? String(benefit.id) : "",
+          src: benefit.image,
+          alt: benefit?.title || "",
+          caption: benefit?.title || "",
+        }));
+      const slideEl = zoomTrigger.closest(".swiper-slide");
+      const benefitId = slideEl?.getAttribute("data-benefit-id") || "";
+      const initialIndex = Math.max(
+        0,
+        items.findIndex((item) => item.id === benefitId)
       );
+
+      window.SzcubeMediaLightbox?.open({
+        items,
+        initialIndex,
+        trigger: zoomTrigger,
+        ariaLabel: "Увеличенное изображение преимущества",
+      });
     }
   });
 };

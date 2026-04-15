@@ -7,15 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabsScroller = document.querySelector(".apartment-hero__tabs");
   const paramsToggle = document.querySelector("[data-apartment-params-toggle]");
   const paramsBody = document.querySelector("[data-apartment-params]");
-  const lightbox = document.querySelector("[data-apartment-lightbox]");
-  const lightboxImage = document.querySelector("[data-apartment-lightbox-image]");
-  const lightboxCaption = document.querySelector("[data-apartment-lightbox-caption]");
-  const lightboxFigure = document.querySelector(".apartment-hero__lightbox-figure");
-  const lightboxPrev = document.querySelector("[data-apartment-lightbox-prev]");
-  const lightboxNext = document.querySelector("[data-apartment-lightbox-next]");
-  const lightboxCloseButtons = Array.from(
-    document.querySelectorAll("[data-apartment-lightbox-close]")
-  );
 
   const scrollActiveTabIntoView = (index) => {
     const activeTab = tabs[index];
@@ -46,84 +37,66 @@ document.addEventListener("DOMContentLoaded", () => {
   let swiper = null;
   let isLightboxOpen = false;
 
-  if (lightbox && document.body && lightbox.parentElement !== document.body) {
-    document.body.appendChild(lightbox);
-  }
-
-  const getSlideData = () => {
+  const getLightboxSlides = () => {
     const slides = swiper?.slides?.length
       ? Array.from(swiper.slides)
       : Array.from(swiperEl?.querySelectorAll(".swiper-slide") || []);
-    const total = slides.length || 1;
-    const index = swiper?.activeIndex ?? 0;
-    const slide = slides[index] || slides[0] || null;
-    const image = slide?.querySelector("img") || null;
-    const title = slide?.querySelector(".apartment-hero__slide-title")?.textContent?.trim() || "";
 
-    return {
-      index,
-      total,
-      src: image?.getAttribute("src") || "",
-      alt: image?.getAttribute("alt") || "",
-      title,
-    };
-  };
+    return slides
+      .map((slide) => {
+        const image = slide.querySelector("img");
+        const title =
+          slide.querySelector(".apartment-hero__slide-title")?.textContent?.trim() || "";
 
-  const updateLightbox = () => {
-    if (!lightbox || !lightboxImage) {
-      return;
-    }
+        const src = image?.getAttribute("src") || "";
+        if (!src) {
+          return null;
+        }
 
-    const slide = getSlideData();
-    if (!slide.src) {
-      return;
-    }
-
-    lightboxImage.src = slide.src;
-    lightboxImage.alt = slide.alt || slide.title || document.title;
-    if (lightboxFigure) {
-      lightboxFigure.scrollTop = 0;
-      lightboxFigure.scrollLeft = 0;
-    }
-
-    if (lightboxCaption) {
-      const caption = slide.title || slide.alt;
-      lightboxCaption.textContent = caption;
-      lightboxCaption.hidden = !caption;
-    }
-
-    if (lightboxPrev instanceof HTMLButtonElement) {
-      lightboxPrev.disabled = slide.index <= 0;
-    }
-
-    if (lightboxNext instanceof HTMLButtonElement) {
-      lightboxNext.disabled = slide.index >= slide.total - 1;
-    }
+        return {
+          src,
+          alt: image?.getAttribute("alt") || "",
+          title,
+        };
+      })
+      .filter(Boolean);
   };
 
   const closeLightbox = () => {
-    if (!lightbox || lightbox.hidden) {
+    if (!isLightboxOpen) {
       return;
     }
 
-    lightbox.hidden = true;
+    window.SzcubeMediaLightbox?.close();
     isLightboxOpen = false;
     zoomButton?.classList.remove("is-active");
-    document.documentElement.classList.remove("is-apartment-lightbox-open");
-    document.body.classList.remove("is-apartment-lightbox-open");
   };
 
   const openLightbox = () => {
-    if (!lightbox) {
+    const slides = getLightboxSlides();
+    if (!slides.length || !window.SzcubeMediaLightbox) {
       return;
     }
 
-    updateLightbox();
-    lightbox.hidden = false;
+    const initialIndex = Math.min(Math.max(swiper?.activeIndex ?? 0, 0), slides.length - 1);
+
+    const opened = window.SzcubeMediaLightbox.open({
+      items: slides.map((slide) => ({
+        src: slide.src,
+        alt: slide.alt || slide.title || document.title,
+        caption: slide.title || slide.alt || "",
+      })),
+      initialIndex,
+      trigger: zoomButton,
+      ariaLabel: "Просмотр изображения",
+    });
+
+    if (!opened) {
+      return;
+    }
+
     isLightboxOpen = true;
     zoomButton?.classList.add("is-active");
-    document.documentElement.classList.add("is-apartment-lightbox-open");
-    document.body.classList.add("is-apartment-lightbox-open");
   };
 
   if (swiperEl && typeof window.Swiper !== "undefined") {
@@ -144,9 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         slideChange(instance) {
           setActiveTab(instance.activeIndex);
-          if (isLightboxOpen) {
-            updateLightbox();
-          }
         },
       },
     });
@@ -230,29 +200,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  lightboxPrev?.addEventListener("click", () => swiper?.slidePrev());
-  lightboxNext?.addEventListener("click", () => swiper?.slideNext());
-  lightboxCloseButtons.forEach((button) => {
-    button.addEventListener("click", closeLightbox);
-  });
-
-  document.addEventListener("keydown", (event) => {
+  document.addEventListener("media-lightbox:close", () => {
     if (!isLightboxOpen) {
       return;
     }
 
-    if (event.key === "Escape") {
-      closeLightbox();
-      return;
-    }
-
-    if (event.key === "ArrowLeft") {
-      swiper?.slidePrev();
-      return;
-    }
-
-    if (event.key === "ArrowRight") {
-      swiper?.slideNext();
-    }
+    isLightboxOpen = false;
+    zoomButton?.classList.remove("is-active");
   });
+
 });
