@@ -581,6 +581,10 @@
 }
 
 @media (max-width: 1200px) {
+  .catalog__view {
+    display: none;
+  }
+
   .catalog-grid {
     grid-template-columns: repeat(3, 1fr);
   }

@@ -596,8 +596,9 @@ const catalogRenderCard = (flat) => {
 const initCatalogView = () => {
   const viewContainer = document.querySelector("[data-view-container]");
   const viewButtons = document.querySelectorAll(".catalog__view-btn");
+  const desktopOnlyViewToggle = window.matchMedia("(max-width: 1200px)");
 
-  const setView = (view) => {
+  const setView = (view, options = {}) => {
     if (!viewContainer || !viewButtons.length) {
       return;
     }
@@ -610,15 +611,39 @@ const initCatalogView = () => {
       button.classList.toggle("btn--primary", isActive);
       button.classList.toggle("btn--outline", !isActive);
     });
-    localStorage.setItem("catalogView", view);
+
+    if (options.persist !== false) {
+      localStorage.setItem("catalogView", view);
+    }
+  };
+
+  const syncViewForViewport = () => {
+    if (!viewContainer || !viewButtons.length) {
+      return;
+    }
+
+    if (desktopOnlyViewToggle.matches) {
+      setView("grid", { persist: false });
+      return;
+    }
+
+    const saved = localStorage.getItem("catalogView");
+    setView(saved === "list" ? "list" : "grid", { persist: false });
   };
 
   if (viewContainer && viewButtons.length) {
-    const saved = localStorage.getItem("catalogView");
-    setView(saved === "list" ? "list" : "grid");
+    syncViewForViewport();
     viewButtons.forEach((button) => {
-      button.addEventListener("click", () => setView(button.dataset.view));
+      button.addEventListener("click", () => {
+        if (desktopOnlyViewToggle.matches) {
+          setView("grid", { persist: false });
+          return;
+        }
+
+        setView(button.dataset.view);
+      });
     });
+    desktopOnlyViewToggle.addEventListener("change", syncViewForViewport);
   }
 };
 

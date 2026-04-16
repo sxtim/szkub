@@ -22,7 +22,16 @@ $APPLICATION->SetPageProperty("title", "Консалтинг — КУБ");
             «КУБ» обеспечивает прозрачность строительных процессов, помогая выявить риски,
             исключить перерасход бюджета и соблюсти сроки. Наш системный подход — защита качества актива.
           </p>
-          <button class="consulting-hero__btn" type="button">Оставить заявку</button>
+          <button
+            class="btn btn--primary consulting-hero__btn"
+            type="button"
+            data-contact-open="contact"
+            data-contact-title="Получить консультацию"
+            data-contact-type="consulting"
+            data-contact-source="consulting_hero"
+          >
+            Оставить заявку
+          </button>
         </div>
       </div>
       <div class="consulting-hero__image">

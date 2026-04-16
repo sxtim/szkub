@@ -241,10 +241,6 @@
   padding: 40px 0 90px;
 }
 
-.projects-about {
-  margin-top: 32px;
-}
-
 .projects-about__grid {
   display: grid;
   grid-template-columns: minmax(0, 540px) minmax(0, 1fr);
@@ -703,7 +699,6 @@
 }
 
 .projects-selector__scene-overlay .projects-selector__section-fill {
-  fill: rgba(46, 209, 194, 0.22);
   opacity: 0;
   cursor: pointer;
   pointer-events: all;

@@ -126,8 +126,10 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  cursor: pointer;
   border-radius: 2px;
   overflow: hidden;
+  
 }
 
 .projects-benefit-card__tags {
