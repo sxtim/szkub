@@ -15,6 +15,7 @@
     "sass": "^1.97.1"
   },
   "dependencies": {
-    "nouislider": "^15.8.1"
+    "nouislider": "^15.8.1",
+    "photoswipe": "^5.4.4"
   }
 }
