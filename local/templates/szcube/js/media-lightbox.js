@@ -17,6 +17,7 @@
   let desktopPanFrame = null;
   let desktopPanTarget = null;
   let desktopPanPoint = { x: 0.5, y: 0.5 };
+  let lastTouchTap = { time: 0, x: 0, y: 0 };
 
   const closeIcon = `
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -171,6 +172,16 @@
     return image instanceof HTMLImageElement ? image : null;
   };
 
+  const isPointInsideImage = (target, x, y) => {
+    const image = getZoomImage(target);
+    if (!image) {
+      return false;
+    }
+
+    const rect = image.getBoundingClientRect();
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  };
+
   const cancelDesktopPanFrame = () => {
     if (desktopPanFrame !== null) {
       window.cancelAnimationFrame(desktopPanFrame);
@@ -199,23 +210,6 @@
         image.style.transitionDuration = "";
       }
     });
-  };
-
-  const resetTouchZoomPosition = (scale = swiper?.zoom?.scale || 1) => {
-    if (!isCoarsePointer()) {
-      return;
-    }
-
-    const target = getActiveZoomTarget();
-    const image = getZoomImage(target);
-    if (!(target instanceof HTMLElement) || !image) {
-      return;
-    }
-
-    target.style.transitionDuration = "0ms";
-    target.style.transform = "translate3d(0px, 0px, 0px)";
-    image.style.transitionDuration = "0ms";
-    image.style.transform = scale > 1.02 ? `translate3d(0px, 0px, 0px) scale(${scale})` : "";
   };
 
   const applyDesktopPan = () => {
@@ -412,10 +406,8 @@
 
     if (isZoomed) {
       hideGestureHint();
-      resetTouchZoomPosition(scale);
     } else {
       resetDesktopPan();
-      resetTouchZoomPosition(1);
     }
   };
 
@@ -449,6 +441,7 @@
     }
 
     resetDesktopPan();
+    lastTouchTap = { time: 0, x: 0, y: 0 };
     hideGestureHint();
   };
 
@@ -514,7 +507,7 @@
             </div>
             <div class="media-lightbox__gesture-hint" hidden aria-hidden="true">
               <span class="media-lightbox__gesture-icon">${gestureHintIcon}</span>
-              <span class="media-lightbox__gesture-text">Раздвиньте пальцы, чтобы увеличить</span>
+              <span class="media-lightbox__gesture-text">Двойной тап или щипок для увеличения</span>
             </div>
           </div>
         </div>
@@ -523,6 +516,8 @@
     } else if (root.parentElement !== document.body) {
       document.body.append(root);
     }
+
+    root.classList.toggle("is-touch", isCoarsePointer());
 
     dialog = root.querySelector(".media-lightbox__dialog");
     swiperEl = root.querySelector(".media-lightbox__swiper.swiper");
@@ -574,6 +569,16 @@
         const isInteractiveArea = target.closest(
           "[data-media-lightbox-zoom-target], [data-media-lightbox-close], .media-lightbox__nav, .media-lightbox__footer, .media-lightbox__caption, .media-lightbox__gesture-hint"
         );
+        if (
+          isCoarsePointer() &&
+          target instanceof HTMLElement &&
+          target.matches("[data-media-lightbox-zoom-target]") &&
+          !isPointInsideImage(target, event.clientX, event.clientY)
+        ) {
+          close();
+          return;
+        }
+
         if (isInteractiveArea) {
           return;
         }
@@ -609,6 +614,70 @@
         });
       });
       root.dataset.mediaLightboxPanBound = "1";
+    }
+
+    if (root.dataset.mediaLightboxTouchZoomBound !== "1") {
+      // Mobile-only: toggle zoom on double tap without changing desktop behavior.
+      root.addEventListener(
+        "touchend",
+        (event) => {
+          if (!isCoarsePointer() || !swiper?.zoom || event.changedTouches.length !== 1) {
+            return;
+          }
+
+          const touch = event.changedTouches[0];
+          const zoomTarget = event.target.closest?.("[data-media-lightbox-zoom-target]");
+          if (
+            zoomTarget instanceof HTMLElement &&
+            zoomTarget.closest(".swiper-slide") === getActiveSlide() &&
+            !isPointInsideImage(zoomTarget, touch.clientX, touch.clientY)
+          ) {
+            event.preventDefault();
+            lastTouchTap = { time: 0, x: 0, y: 0 };
+            close();
+            return;
+          }
+
+          const target = event.target;
+          const isInteractiveArea =
+            target instanceof Element &&
+            target.closest(
+              "[data-media-lightbox-zoom-target], [data-media-lightbox-close], .media-lightbox__nav, .media-lightbox__footer, .media-lightbox__caption, .media-lightbox__gesture-hint"
+            );
+          if (!zoomTarget && !isInteractiveArea && target instanceof Element && target.closest("[data-media-lightbox]")) {
+            event.preventDefault();
+            lastTouchTap = { time: 0, x: 0, y: 0 };
+            close();
+            return;
+          }
+
+          if (
+            !(zoomTarget instanceof HTMLElement) ||
+            zoomTarget.closest(".swiper-slide") !== getActiveSlide() ||
+            zoomTarget.dataset.canZoom !== "1" ||
+            !isPointInsideImage(zoomTarget, touch.clientX, touch.clientY)
+          ) {
+            lastTouchTap = { time: 0, x: 0, y: 0 };
+            return;
+          }
+
+          const now = Date.now();
+          const deltaTime = now - lastTouchTap.time;
+          const deltaX = Math.abs(touch.clientX - lastTouchTap.x);
+          const deltaY = Math.abs(touch.clientY - lastTouchTap.y);
+
+          if (deltaTime > 0 && deltaTime < 320 && deltaX < 28 && deltaY < 28) {
+            event.preventDefault();
+            lastTouchTap = { time: 0, x: 0, y: 0 };
+            toggleActiveZoom();
+            return;
+          }
+
+          lastTouchTap = { time: now, x: touch.clientX, y: touch.clientY };
+        },
+        { passive: false }
+      );
+      root.dataset.mediaLightboxTouchZoomBound = "1";
     }
 
     return root;
