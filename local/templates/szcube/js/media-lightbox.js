@@ -1,7 +1,6 @@
 (() => {
   const OPEN_CLASS = "is-media-lightbox-open";
   const ROOT_SELECTOR = "[data-media-lightbox]";
-  const MOBILE_HINT_STORAGE_KEY = "szcubeMediaLightboxPinchHintSeen";
 
   let root = null;
   let dialog = null;
@@ -52,22 +51,6 @@
   const supportsDesktopClickZoom = () => !isCoarsePointer();
 
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
-  const getStoredFlag = (key) => {
-    try {
-      return window.localStorage.getItem(key);
-    } catch (error) {
-      return null;
-    }
-  };
-
-  const setStoredFlag = (key, value) => {
-    try {
-      window.localStorage.setItem(key, value);
-    } catch (error) {
-      // ignore storage failures
-    }
-  };
 
   const normalizeItems = (items) =>
     Array.isArray(items)
@@ -150,11 +133,6 @@
       return;
     }
 
-    if (getStoredFlag(MOBILE_HINT_STORAGE_KEY) === "1") {
-      hideGestureHint();
-      return;
-    }
-
     clearGestureHintTimer();
     gestureHintEl.hidden = false;
     requestAnimationFrame(() => {
@@ -162,7 +140,6 @@
     });
     gestureHintTimer = window.setTimeout(() => {
       hideGestureHint();
-      setStoredFlag(MOBILE_HINT_STORAGE_KEY, "1");
     }, 2800);
   };
 
@@ -224,6 +201,23 @@
     });
   };
 
+  const resetTouchZoomPosition = (scale = swiper?.zoom?.scale || 1) => {
+    if (!isCoarsePointer()) {
+      return;
+    }
+
+    const target = getActiveZoomTarget();
+    const image = getZoomImage(target);
+    if (!(target instanceof HTMLElement) || !image) {
+      return;
+    }
+
+    target.style.transitionDuration = "0ms";
+    target.style.transform = "translate3d(0px, 0px, 0px)";
+    image.style.transitionDuration = "0ms";
+    image.style.transform = scale > 1.02 ? `translate3d(0px, 0px, 0px) scale(${scale})` : "";
+  };
+
   const applyDesktopPan = () => {
     desktopPanFrame = null;
 
@@ -280,6 +274,16 @@
   };
 
   const fitZoomTargetToImage = (zoomTarget, image) => {
+    if (isCoarsePointer()) {
+      zoomTarget.style.width = "";
+      zoomTarget.style.height = "";
+
+      return {
+        width: image.clientWidth || zoomTarget.clientWidth,
+        height: image.clientHeight || zoomTarget.clientHeight,
+      };
+    }
+
     const naturalWidth = image.naturalWidth;
     const naturalHeight = image.naturalHeight;
     if (!naturalWidth || !naturalHeight) {
@@ -408,9 +412,10 @@
 
     if (isZoomed) {
       hideGestureHint();
-      setStoredFlag(MOBILE_HINT_STORAGE_KEY, "1");
+      resetTouchZoomPosition(scale);
     } else {
       resetDesktopPan();
+      resetTouchZoomPosition(1);
     }
   };
 

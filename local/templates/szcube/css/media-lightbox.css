@@ -286,6 +286,8 @@
   }
 
   .media-lightbox__zoom {
+    width: 100%;
+    height: calc(100dvh - 260px);
     max-height: calc(100dvh - 260px);
   }
 }
@@ -326,6 +328,7 @@
   }
 
   .media-lightbox__zoom {
+    height: calc(100dvh - 248px);
     max-height: calc(100dvh - 248px);
   }
 
