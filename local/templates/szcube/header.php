@@ -50,7 +50,6 @@ if (
     ) && !$isDetailPrintPage
 ) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
-    $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/photoswipe.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/apartment-detail.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/media-lightbox.css");
@@ -69,7 +68,6 @@ if ($isDetailPrintPage) {
 }
 if (defined("PROJECTS_PAGE") && PROJECTS_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/swiper-bundle.min.css");
-    $asset->addCss(SITE_TEMPLATE_PATH . "/css/vendor/photoswipe.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/projects.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/media-lightbox.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/project-benefits.css");

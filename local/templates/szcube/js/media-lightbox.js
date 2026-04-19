@@ -1,13 +1,56 @@
 (() => {
   const OPEN_CLASS = "is-media-lightbox-open";
-  const PHOTO_SWIPE_URL = "/local/templates/szcube/js/vendor/photoswipe.esm.min.js";
+  const ROOT_SELECTOR = "[data-media-lightbox]";
 
-  let PhotoSwipeClass = null;
-  let photoSwipePromise = null;
-  let pswp = null;
+  let root = null;
+  let dialog = null;
+  let wrapperEl = null;
+  let swiperEl = null;
+  let prevEl = null;
+  let nextEl = null;
+  let paginationEl = null;
+  let closeButtons = [];
+  let swiper = null;
   let lastActiveElement = null;
-  let lastOpenDetail = null;
-  let isClosingFromApi = false;
+  let gestureHintEl = null;
+  let gestureHintTimer = null;
+  let desktopPanFrame = null;
+  let desktopPanTarget = null;
+  let desktopPanPoint = { x: 0.5, y: 0.5 };
+
+  const closeIcon = `
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M5 5L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    </svg>
+  `;
+
+  const gestureHintIcon = `
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M6.5 6.5L3.5 3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" />
+      <path d="M11.5 11.5L14.5 14.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" />
+      <path d="M11.5 6.5L14.5 3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" />
+      <path d="M6.5 11.5L3.5 14.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" />
+      <path d="M7.25 7.25L5.25 7.25L5.25 5.25" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M10.75 7.25L12.75 7.25L12.75 5.25" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M7.25 10.75L5.25 10.75L5.25 12.75" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M10.75 10.75L12.75 10.75L12.75 12.75" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  `;
+
+  const isCoarsePointer = () => {
+    const hasCoarsePointer =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(pointer: coarse)").matches;
+    const hasTouchPoints =
+      typeof navigator !== "undefined" && Number(navigator.maxTouchPoints) > 0;
+
+    return hasCoarsePointer || hasTouchPoints;
+  };
+
+  const supportsDesktopClickZoom = () => !isCoarsePointer();
+
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
   const normalizeItems = (items) =>
     Array.isArray(items)
@@ -17,10 +60,44 @@
             src: item.src.trim(),
             alt: typeof item.alt === "string" ? item.alt : "",
             caption: typeof item.caption === "string" ? item.caption : "",
-            width: Number(item.width || item.w) || 0,
-            height: Number(item.height || item.h) || 0,
           }))
       : [];
+
+  const buildSlide = (item) => {
+    const slide = document.createElement("div");
+    slide.className = "swiper-slide";
+
+    const figure = document.createElement("figure");
+    figure.className = "media-lightbox__slide";
+
+    const zoomContainer = document.createElement("div");
+    zoomContainer.className = "media-lightbox__zoom swiper-zoom-container";
+    zoomContainer.dataset.mediaLightboxZoomTarget = "1";
+    zoomContainer.dataset.canZoom = "0";
+    zoomContainer.setAttribute("tabindex", "0");
+    zoomContainer.setAttribute("role", "button");
+    zoomContainer.setAttribute("aria-label", "Увеличить изображение");
+
+    const image = document.createElement("img");
+    image.className = "media-lightbox__image";
+    image.src = item.src;
+    image.alt = item.alt;
+    image.decoding = "async";
+    image.loading = "eager";
+    zoomContainer.append(image);
+    figure.append(zoomContainer);
+
+    const safeCaption = item.caption.trim();
+    if (safeCaption !== "") {
+      const caption = document.createElement("figcaption");
+      caption.className = "media-lightbox__caption";
+      caption.textContent = safeCaption;
+      figure.append(caption);
+    }
+
+    slide.append(figure);
+    return slide;
+  };
 
   const setScrollLock = (enabled) => {
     document.documentElement.classList.toggle(OPEN_CLASS, enabled);
@@ -31,169 +108,529 @@
     document.dispatchEvent(new CustomEvent(name, { detail }));
   };
 
-  const loadPhotoSwipe = () => {
-    if (PhotoSwipeClass) {
-      return Promise.resolve(PhotoSwipeClass);
+  const clearGestureHintTimer = () => {
+    if (gestureHintTimer) {
+      window.clearTimeout(gestureHintTimer);
+      gestureHintTimer = null;
     }
-
-    if (!photoSwipePromise) {
-      photoSwipePromise = import(PHOTO_SWIPE_URL).then((module) => {
-        PhotoSwipeClass = module.default;
-        return PhotoSwipeClass;
-      });
-    }
-
-    return photoSwipePromise;
   };
 
-  const getImageSize = (src) =>
-    new Promise((resolve) => {
-      const image = new Image();
-      image.onload = () => {
-        resolve({
-          width: image.naturalWidth || 1600,
-          height: image.naturalHeight || 1000,
-        });
-      };
-      image.onerror = () => {
-        resolve({ width: 1600, height: 1000 });
-      };
-      image.src = src;
+  const hideGestureHint = () => {
+    clearGestureHintTimer();
+    if (gestureHintEl instanceof HTMLElement) {
+      gestureHintEl.hidden = true;
+      gestureHintEl.classList.remove("is-visible");
+    }
+  };
+
+  const showGestureHint = () => {
+    if (
+      !(gestureHintEl instanceof HTMLElement) ||
+      !isCoarsePointer() ||
+      window.innerWidth > 768
+    ) {
+      hideGestureHint();
+      return;
+    }
+
+    clearGestureHintTimer();
+    gestureHintEl.hidden = false;
+    requestAnimationFrame(() => {
+      gestureHintEl.classList.add("is-visible");
     });
-
-  const resolveItemSizes = async (items) => {
-    const measuredItems = await Promise.all(
-      items.map(async (item) => {
-        if (item.width > 0 && item.height > 0) {
-          return item;
-        }
-
-        const size = await getImageSize(item.src);
-        return {
-          ...item,
-          width: size.width,
-          height: size.height,
-        };
-      })
-    );
-
-    return measuredItems;
+    gestureHintTimer = window.setTimeout(() => {
+      hideGestureHint();
+    }, 2800);
   };
 
-  const updateCaption = () => {
-    const root = pswp?.element;
+  const getActiveSlide = () => {
+    if (!swiper?.slides?.length) {
+      return null;
+    }
+
+    return swiper.slides[swiper.activeIndex] instanceof HTMLElement
+      ? swiper.slides[swiper.activeIndex]
+      : null;
+  };
+
+  const getActiveZoomTarget = () =>
+    getActiveSlide()?.querySelector("[data-media-lightbox-zoom-target]") || null;
+
+  const getActiveZoomRatio = () => {
+    const target = getActiveZoomTarget();
+    if (!(target instanceof HTMLElement)) {
+      return 1;
+    }
+
+    const ratio = Number(target.getAttribute("data-swiper-zoom")) || 1;
+    return ratio > 1 ? ratio : 1;
+  };
+
+  const getZoomImage = (target = getActiveZoomTarget()) => {
+    const image = target?.querySelector(".media-lightbox__image");
+    return image instanceof HTMLImageElement ? image : null;
+  };
+
+  const cancelDesktopPanFrame = () => {
+    if (desktopPanFrame !== null) {
+      window.cancelAnimationFrame(desktopPanFrame);
+      desktopPanFrame = null;
+    }
+  };
+
+  const resetDesktopPan = (target = null) => {
+    cancelDesktopPanFrame();
+    desktopPanTarget = null;
+    desktopPanPoint = { x: 0.5, y: 0.5 };
+
+    const targets =
+      target instanceof HTMLElement
+        ? [target]
+        : Array.from(wrapperEl?.querySelectorAll("[data-media-lightbox-zoom-target]") || []);
+
+    targets.forEach((zoomTarget) => {
+      if (!(zoomTarget instanceof HTMLElement)) {
+        return;
+      }
+
+      const image = getZoomImage(zoomTarget);
+      if (image) {
+        image.style.transform = "";
+        image.style.transitionDuration = "";
+      }
+    });
+  };
+
+  const resetTouchZoomPosition = (scale = swiper?.zoom?.scale || 1) => {
+    if (!isCoarsePointer()) {
+      return;
+    }
+
+    const target = getActiveZoomTarget();
+    const image = getZoomImage(target);
+    if (!(target instanceof HTMLElement) || !image) {
+      return;
+    }
+
+    target.style.transitionDuration = "0ms";
+    target.style.transform = "translate3d(0px, 0px, 0px)";
+    image.style.transitionDuration = "0ms";
+    image.style.transform = scale > 1.02 ? `translate3d(0px, 0px, 0px) scale(${scale})` : "";
+  };
+
+  const applyDesktopPan = () => {
+    desktopPanFrame = null;
+
+    const target = desktopPanTarget;
+    if (
+      !(target instanceof HTMLElement) ||
+      !supportsDesktopClickZoom() ||
+      target !== getActiveZoomTarget() ||
+      !swiper?.zoom ||
+      swiper.zoom.scale <= 1.02
+    ) {
+      return;
+    }
+
+    const image = getZoomImage(target);
+    if (!image) {
+      return;
+    }
+
+    const targetRect = target.getBoundingClientRect();
+    const imageWidth = image.offsetWidth;
+    const imageHeight = image.offsetHeight;
+    const scale = swiper.zoom.scale;
+
+    if (!targetRect.width || !targetRect.height || !imageWidth || !imageHeight) {
+      return;
+    }
+
+    const scaledWidth = imageWidth * scale;
+    const scaledHeight = imageHeight * scale;
+    const maxTranslateX = Math.max(0, (scaledWidth - targetRect.width) / 2);
+    const maxTranslateY = Math.max(0, (scaledHeight - targetRect.height) / 2);
+    const translateX = (0.5 - desktopPanPoint.x) * maxTranslateX * 2;
+    const translateY = (0.5 - desktopPanPoint.y) * maxTranslateY * 2;
+
+    image.style.transitionDuration = "0ms";
+    image.style.transform = `translate3d(${translateX.toFixed(2)}px, ${translateY.toFixed(2)}px, 0px) scale(${scale})`;
+  };
+
+  const requestDesktopPan = (target, point = desktopPanPoint) => {
+    if (!(target instanceof HTMLElement) || !supportsDesktopClickZoom()) {
+      return;
+    }
+
+    desktopPanTarget = target;
+    desktopPanPoint = {
+      x: clamp(point.x, 0, 1),
+      y: clamp(point.y, 0, 1),
+    };
+
+    if (desktopPanFrame === null) {
+      desktopPanFrame = window.requestAnimationFrame(applyDesktopPan);
+    }
+  };
+
+  const fitZoomTargetToImage = (zoomTarget, image) => {
+    if (isCoarsePointer()) {
+      zoomTarget.style.width = "";
+      zoomTarget.style.height = "";
+
+      return {
+        width: image.clientWidth || zoomTarget.clientWidth,
+        height: image.clientHeight || zoomTarget.clientHeight,
+      };
+    }
+
+    const naturalWidth = image.naturalWidth;
+    const naturalHeight = image.naturalHeight;
+    if (!naturalWidth || !naturalHeight) {
+      return null;
+    }
+
+    zoomTarget.style.width = "";
+    zoomTarget.style.height = "";
+
+    const maxWidth =
+      zoomTarget.parentElement?.clientWidth ||
+      swiperEl?.clientWidth ||
+      window.innerWidth;
+    const maxHeight = parseFloat(window.getComputedStyle(zoomTarget).maxHeight);
+
+    if (!maxWidth || !maxHeight) {
+      return null;
+    }
+
+    const fitRatio = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight, 1);
+    const width = Math.max(1, Math.round(naturalWidth * fitRatio));
+    const height = Math.max(1, Math.round(naturalHeight * fitRatio));
+
+    zoomTarget.style.width = `${width}px`;
+    zoomTarget.style.height = `${height}px`;
+
+    return { width, height };
+  };
+
+  const updateZoomAvailability = (slide) => {
+    if (!(slide instanceof HTMLElement)) {
+      return;
+    }
+
+    const zoomTarget = slide.querySelector("[data-media-lightbox-zoom-target]");
+    const image = slide.querySelector(".media-lightbox__image");
+    if (!(zoomTarget instanceof HTMLElement) || !(image instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const applyRatio = () => {
+      const fitSize = fitZoomTargetToImage(zoomTarget, image);
+      const renderedWidth = fitSize?.width || image.clientWidth;
+      const renderedHeight = fitSize?.height || image.clientHeight;
+      const naturalWidth = image.naturalWidth;
+      const naturalHeight = image.naturalHeight;
+
+      if (!renderedWidth || !renderedHeight || !naturalWidth || !naturalHeight) {
+        return;
+      }
+
+      const widthRatio = naturalWidth / renderedWidth;
+      const heightRatio = naturalHeight / renderedHeight;
+      const nativeRatio = Math.max(widthRatio, heightRatio, 1);
+      const fallbackRatio = isCoarsePointer() ? 2 : 1.75;
+      const safeRatio = Math.min(4, Math.max(fallbackRatio, nativeRatio));
+      const canZoom = safeRatio > 1.02;
+
+      zoomTarget.setAttribute("data-swiper-zoom", safeRatio.toFixed(3));
+      zoomTarget.dataset.nativeRatio = nativeRatio.toFixed(3);
+      zoomTarget.dataset.canZoom = canZoom ? "1" : "0";
+      slide.classList.toggle("is-zoomable", canZoom);
+      zoomTarget.setAttribute(
+        "aria-label",
+        canZoom ? "Увеличить изображение" : "Изображение открыто в полном размере"
+      );
+    };
+
+    if (image.complete) {
+      applyRatio();
+      return;
+    }
+
+    image.addEventListener("load", applyRatio, { once: true });
+  };
+
+  const prepareSlides = () => {
+    if (!wrapperEl) {
+      return;
+    }
+
+    Array.from(wrapperEl.children).forEach((slide) => {
+      updateZoomAvailability(slide);
+    });
+  };
+
+  const setZoomState = (scale = swiper?.zoom?.scale || 1) => {
     if (!(root instanceof HTMLElement)) {
       return;
     }
 
-    const caption = root.querySelector("[data-media-lightbox-caption]");
-    if (!(caption instanceof HTMLElement)) {
+    const isZoomed = scale > 1.02;
+    const activeSlide = getActiveSlide();
+    const activeTarget = getActiveZoomTarget();
+    const canZoom = activeTarget instanceof HTMLElement && activeTarget.dataset.canZoom === "1";
+
+    root.classList.toggle("is-zoomed", isZoomed);
+    root.classList.toggle("is-zoom-available", canZoom);
+
+    Array.from(wrapperEl?.children || []).forEach((slide) => {
+      if (!(slide instanceof HTMLElement)) {
+        return;
+      }
+
+      const target = slide.querySelector("[data-media-lightbox-zoom-target]");
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const isActive = slide === activeSlide;
+      target.setAttribute(
+        "aria-label",
+        isActive && canZoom
+          ? isZoomed
+            ? "Уменьшить изображение"
+            : "Увеличить изображение"
+          : target.dataset.canZoom === "1"
+            ? "Увеличить изображение"
+            : "Изображение открыто в полном размере"
+      );
+    });
+
+    if (swiper) {
+      swiper.allowTouchMove = !isZoomed;
+    }
+
+    if (isZoomed) {
+      hideGestureHint();
+      resetTouchZoomPosition(scale);
+    } else {
+      resetDesktopPan();
+      resetTouchZoomPosition(1);
+    }
+  };
+
+  const toggleActiveZoom = () => {
+    if (!swiper?.zoom) {
       return;
     }
 
-    const text = pswp?.currSlide?.data?.caption || "";
-    caption.textContent = text;
-    caption.hidden = text.trim() === "";
-  };
-
-  const cleanup = () => {
-    const detail = lastOpenDetail || {};
-    const trigger = lastActiveElement;
-
-    pswp = null;
-    lastOpenDetail = null;
-    setScrollLock(false);
-
-    dispatch("media-lightbox:close", {
-      ...detail,
-      trigger,
-    });
-
-    if (trigger instanceof HTMLElement) {
-      trigger.focus();
+    const activeTarget = getActiveZoomTarget();
+    if (!(activeTarget instanceof HTMLElement) || activeTarget.dataset.canZoom !== "1") {
+      return;
     }
 
-    lastActiveElement = null;
-    isClosingFromApi = false;
+    const targetRatio = getActiveZoomRatio();
+    if (swiper.zoom.scale > 1.02) {
+      swiper.zoom.out();
+      return;
+    }
+
+    swiper.zoom.in(targetRatio);
   };
 
-  const registerCaption = (instance) => {
-    instance.on("uiRegister", () => {
-      instance.ui.registerElement({
-        name: "mediaLightboxCaption",
-        className: "media-lightbox__caption",
-        appendTo: "root",
-        order: 9,
-        html: "",
-        onInit: (element) => {
-          element.setAttribute("data-media-lightbox-caption", "");
-          element.hidden = true;
-        },
-      });
-    });
+  const destroySwiper = () => {
+    if (swiper) {
+      swiper.destroy(true, true);
+      swiper = null;
+    }
 
-    instance.on("change", updateCaption);
-    instance.on("afterInit", updateCaption);
+    if (wrapperEl) {
+      wrapperEl.textContent = "";
+    }
+
+    resetDesktopPan();
+    hideGestureHint();
   };
 
-  const createPhotoSwipe = (PhotoSwipe, slides, safeIndex, ariaLabel) => {
-    const instance = new PhotoSwipe({
-      dataSource: slides.map((item) => ({
-        src: item.src,
-        width: item.width,
-        height: item.height,
-        w: item.width,
-        h: item.height,
-        alt: item.alt,
-        caption: item.caption,
-      })),
-      index: safeIndex,
-      mainClass: "media-lightbox pswp--szcube",
-      bgOpacity: 0.94,
-      showHideAnimationType: "fade",
-      returnFocus: false,
-      trapFocus: true,
-      initialZoomLevel: "fit",
-      secondaryZoomLevel: "zoom",
-      maxZoomLevel: 4,
-      imageClickAction: "zoom",
-      tapAction: "toggle-controls",
-      bgClickAction: "close",
-      paddingFn: (viewportSize) => ({
-        top: viewportSize.x <= 640 ? 56 : 72,
-        bottom: viewportSize.x <= 640 ? 132 : 92,
-        left: viewportSize.x <= 640 ? 16 : 86,
-        right: viewportSize.x <= 640 ? 16 : 86,
-      }),
-      arrowPrevTitle: "Предыдущее изображение",
-      arrowNextTitle: "Следующее изображение",
-      closeTitle: "Закрыть",
-      zoomTitle: "Увеличить изображение",
-      indexIndicatorSep: " / ",
-      errorMsg: "Изображение не удалось загрузить",
-    });
+  const handleKeydown = (event) => {
+    if (!root || root.hidden) {
+      return;
+    }
 
-    instance.on("beforeOpen", () => {
-      const root = instance.element;
-      if (root instanceof HTMLElement) {
-        root.setAttribute("aria-label", ariaLabel);
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+      return;
+    }
+
+    const zoomTarget = event.target.closest?.("[data-media-lightbox-zoom-target]");
+    if (
+      zoomTarget &&
+      (event.key === "Enter" || event.key === " ") &&
+      supportsDesktopClickZoom()
+    ) {
+      event.preventDefault();
+      toggleActiveZoom();
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      swiper?.slidePrev();
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      swiper?.slideNext();
+    }
+  };
+
+  const ensureRoot = () => {
+    if (root instanceof HTMLElement) {
+      return root;
+    }
+
+    root = document.querySelector(ROOT_SELECTOR);
+    if (!(root instanceof HTMLElement)) {
+      root = document.createElement("div");
+      root.className = "media-lightbox";
+      root.hidden = true;
+      root.setAttribute("data-media-lightbox", "");
+      root.innerHTML = `
+        <button class="media-lightbox__backdrop" type="button" aria-label="Закрыть просмотр" data-media-lightbox-close></button>
+        <div class="media-lightbox__dialog" role="dialog" aria-modal="true" aria-label="Просмотр изображения">
+          <button class="media-lightbox__close" type="button" aria-label="Закрыть" data-media-lightbox-close>
+            ${closeIcon}
+          </button>
+          <div class="media-lightbox__stage">
+            <button class="media-lightbox__nav swiper-button-prev" type="button" aria-label="Предыдущее изображение"></button>
+            <div class="media-lightbox__swiper swiper">
+              <div class="swiper-wrapper"></div>
+            </div>
+            <button class="media-lightbox__nav swiper-button-next" type="button" aria-label="Следующее изображение"></button>
+            <div class="media-lightbox__footer">
+              <div class="media-lightbox__pagination swiper-pagination"></div>
+            </div>
+            <div class="media-lightbox__gesture-hint" hidden aria-hidden="true">
+              <span class="media-lightbox__gesture-icon">${gestureHintIcon}</span>
+              <span class="media-lightbox__gesture-text">Раздвиньте пальцы, чтобы увеличить</span>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.append(root);
+    } else if (root.parentElement !== document.body) {
+      document.body.append(root);
+    }
+
+    dialog = root.querySelector(".media-lightbox__dialog");
+    swiperEl = root.querySelector(".media-lightbox__swiper.swiper");
+    wrapperEl = root.querySelector(".media-lightbox__swiper .swiper-wrapper");
+    prevEl = root.querySelector(".media-lightbox__nav.swiper-button-prev");
+    nextEl = root.querySelector(".media-lightbox__nav.swiper-button-next");
+    paginationEl = root.querySelector(".media-lightbox__pagination.swiper-pagination");
+    closeButtons = Array.from(root.querySelectorAll("[data-media-lightbox-close]"));
+    gestureHintEl = root.querySelector(".media-lightbox__gesture-hint");
+
+    closeButtons.forEach((button) => {
+      if (button.dataset.mediaLightboxBound === "1") {
+        return;
       }
-      setScrollLock(true);
+      button.dataset.mediaLightboxBound = "1";
+      button.addEventListener("click", close);
     });
 
-    instance.on("destroy", cleanup);
-    registerCaption(instance);
+    if (root.dataset.mediaLightboxKeyBound !== "1") {
+      document.addEventListener("keydown", handleKeydown);
+      root.dataset.mediaLightboxKeyBound = "1";
+    }
 
-    return instance;
+    if (root.dataset.mediaLightboxZoomBound !== "1") {
+      root.addEventListener("click", (event) => {
+        const zoomTarget = event.target.closest("[data-media-lightbox-zoom-target]");
+        if (!(zoomTarget instanceof HTMLElement) || !supportsDesktopClickZoom()) {
+          return;
+        }
+
+        if (zoomTarget.closest(".swiper-slide") !== getActiveSlide()) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        toggleActiveZoom();
+      });
+      root.dataset.mediaLightboxZoomBound = "1";
+    }
+
+    if (root.dataset.mediaLightboxBackdropBound !== "1") {
+      root.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) {
+          return;
+        }
+
+        const isInteractiveArea = target.closest(
+          "[data-media-lightbox-zoom-target], [data-media-lightbox-close], .media-lightbox__nav, .media-lightbox__footer, .media-lightbox__caption, .media-lightbox__gesture-hint"
+        );
+        if (isInteractiveArea) {
+          return;
+        }
+
+        if (target.closest("[data-media-lightbox]")) {
+          close();
+        }
+      });
+      root.dataset.mediaLightboxBackdropBound = "1";
+    }
+
+    if (root.dataset.mediaLightboxPanBound !== "1") {
+      root.addEventListener("mousemove", (event) => {
+        const zoomTarget = event.target.closest("[data-media-lightbox-zoom-target]");
+        if (
+          !(zoomTarget instanceof HTMLElement) ||
+          !supportsDesktopClickZoom() ||
+          zoomTarget.closest(".swiper-slide") !== getActiveSlide() ||
+          !swiper?.zoom ||
+          swiper.zoom.scale <= 1.02
+        ) {
+          return;
+        }
+
+        const rect = zoomTarget.getBoundingClientRect();
+        if (!rect.width || !rect.height) {
+          return;
+        }
+
+        requestDesktopPan(zoomTarget, {
+          x: (event.clientX - rect.left) / rect.width,
+          y: (event.clientY - rect.top) / rect.height,
+        });
+      });
+      root.dataset.mediaLightboxPanBound = "1";
+    }
+
+    return root;
   };
 
   function close() {
-    if (!pswp) {
+    if (!(root instanceof HTMLElement) || root.hidden) {
       return;
     }
 
-    isClosingFromApi = true;
-    pswp.close();
+    root.hidden = true;
+    destroySwiper();
+    setScrollLock(false);
+    dispatch("media-lightbox:close", {
+      trigger: lastActiveElement,
+    });
+
+    if (lastActiveElement instanceof HTMLElement) {
+      lastActiveElement.focus();
+    }
+
+    lastActiveElement = null;
   }
 
   const open = ({
@@ -202,6 +639,21 @@
     trigger = null,
     ariaLabel = "Просмотр изображения",
   } = {}) => {
+    ensureRoot();
+
+    if (
+      !(root instanceof HTMLElement) ||
+      !(dialog instanceof HTMLElement) ||
+      !(swiperEl instanceof HTMLElement) ||
+      !(wrapperEl instanceof HTMLElement) ||
+      !(prevEl instanceof HTMLElement) ||
+      !(nextEl instanceof HTMLElement) ||
+      !(paginationEl instanceof HTMLElement) ||
+      typeof window.Swiper !== "function"
+    ) {
+      return false;
+    }
+
     const slides = normalizeItems(items);
     if (!slides.length) {
       return false;
@@ -212,11 +664,6 @@
       slides.length - 1
     );
 
-    if (pswp) {
-      isClosingFromApi = true;
-      pswp.destroy();
-    }
-
     lastActiveElement =
       trigger instanceof HTMLElement
         ? trigger
@@ -224,37 +671,82 @@
           ? document.activeElement
           : null;
 
-    lastOpenDetail = {
+    destroySwiper();
+    slides.forEach((item) => {
+      wrapperEl.append(buildSlide(item));
+    });
+    prepareSlides();
+
+    dialog.setAttribute("aria-label", ariaLabel);
+    root.hidden = false;
+    setScrollLock(true);
+
+    swiper = new window.Swiper(swiperEl, {
+      initialSlide: safeIndex,
+      slidesPerView: 1,
+      spaceBetween: 0,
+      speed: 500,
+      watchOverflow: true,
+      keyboard: {
+        enabled: true,
+        onlyInViewport: false,
+      },
+      zoom: {
+        enabled: true,
+        maxRatio: 4,
+        minRatio: 1,
+        toggle: false,
+      },
+      navigation: {
+        prevEl,
+        nextEl,
+      },
+      pagination: {
+        el: paginationEl,
+        type: "fraction",
+      },
+      on: {
+        init(instance) {
+          prepareSlides();
+          setZoomState(instance.zoom?.scale || 1);
+          showGestureHint();
+        },
+        slideChangeTransitionStart(instance) {
+          if (instance.zoom?.scale > 1.02) {
+            resetDesktopPan();
+            instance.zoom.out();
+          }
+        },
+        slideChange(instance) {
+          requestAnimationFrame(() => {
+            prepareSlides();
+            setZoomState(instance.zoom?.scale || 1);
+          });
+        },
+        zoomChange(instance, scale) {
+          setZoomState(scale);
+        },
+      },
+    });
+
+    requestAnimationFrame(() => {
+      swiper?.update();
+      swiper?.slideTo(safeIndex, 0, false);
+      prepareSlides();
+      setZoomState(swiper?.zoom?.scale || 1);
+    });
+
+    dispatch("media-lightbox:open", {
       trigger: lastActiveElement,
       initialIndex: safeIndex,
       items: slides,
       ariaLabel,
-    };
-
-    Promise.all([loadPhotoSwipe(), resolveItemSizes(slides)])
-      .then(([PhotoSwipe, measuredSlides]) => {
-        if (pswp || !lastOpenDetail) {
-          return;
-        }
-
-        pswp = createPhotoSwipe(PhotoSwipe, measuredSlides, safeIndex, ariaLabel);
-        pswp.init();
-        dispatch("media-lightbox:open", {
-          trigger: lastActiveElement,
-          initialIndex: safeIndex,
-          items: measuredSlides,
-          ariaLabel,
-        });
-      })
-      .catch((error) => {
-        console.error("Failed to open media lightbox", error);
-        cleanup();
-      });
+    });
 
     return true;
   };
 
-  const isOpen = () => Boolean(pswp && !pswp.isDestroying);
+  const isOpen = () => root instanceof HTMLElement && !root.hidden;
 
   window.SzcubeMediaLightbox = {
     open,
