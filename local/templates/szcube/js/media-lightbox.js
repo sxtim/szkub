@@ -18,6 +18,17 @@
   let desktopPanTarget = null;
   let desktopPanPoint = { x: 0.5, y: 0.5 };
   let lastTouchTap = { time: 0, x: 0, y: 0 };
+  let mobileZoomState = {
+    scale: 1,
+    x: 0,
+    y: 0,
+    startX: 0,
+    startY: 0,
+    originX: 0,
+    originY: 0,
+    moved: false,
+    isPanning: false,
+  };
 
   const closeIcon = `
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -180,6 +191,79 @@
 
     const rect = image.getBoundingClientRect();
     return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  };
+
+  const isPointInsideElement = (element, x, y) => {
+    if (!(element instanceof HTMLElement)) {
+      return false;
+    }
+
+    const rect = element.getBoundingClientRect();
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  };
+
+  const getMobileScale = () => mobileZoomState.scale;
+
+  const clampMobileZoomPosition = (target, scale, x, y) => {
+    const image = getZoomImage(target);
+    if (!(target instanceof HTMLElement) || !image) {
+      return { x: 0, y: 0 };
+    }
+
+    const viewportWidth = target.clientWidth;
+    const viewportHeight = target.clientHeight;
+    const imageWidth = image.offsetWidth;
+    const imageHeight = image.offsetHeight;
+
+    if (!viewportWidth || !viewportHeight || !imageWidth || !imageHeight) {
+      return { x: 0, y: 0 };
+    }
+
+    const scaledWidth = imageWidth * scale;
+    const scaledHeight = imageHeight * scale;
+    const maxX = Math.max(0, (scaledWidth - viewportWidth) / 2);
+    const maxY = Math.max(0, (scaledHeight - viewportHeight) / 2);
+
+    return {
+      x: clamp(x, -maxX, maxX),
+      y: clamp(y, -maxY, maxY),
+    };
+  };
+
+  const applyMobileZoom = (target = getActiveZoomTarget(), animated = false) => {
+    const image = getZoomImage(target);
+    if (!(target instanceof HTMLElement) || !image) {
+      return;
+    }
+
+    const { x, y } = clampMobileZoomPosition(
+      target,
+      mobileZoomState.scale,
+      mobileZoomState.x,
+      mobileZoomState.y
+    );
+
+    mobileZoomState.x = x;
+    mobileZoomState.y = y;
+
+    image.style.transitionDuration = animated ? "240ms" : "0ms";
+    image.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0px) scale(${mobileZoomState.scale})`;
+  };
+
+  const resetMobileZoom = (animated = false) => {
+    mobileZoomState = {
+      scale: 1,
+      x: 0,
+      y: 0,
+      startX: 0,
+      startY: 0,
+      originX: 0,
+      originY: 0,
+      moved: false,
+      isPanning: false,
+    };
+
+    applyMobileZoom(getActiveZoomTarget(), animated);
   };
 
   const cancelDesktopPanFrame = () => {
@@ -369,7 +453,8 @@
       return;
     }
 
-    const isZoomed = scale > 1.02;
+    const effectiveScale = isCoarsePointer() ? getMobileScale() : scale;
+    const isZoomed = effectiveScale > 1.02;
     const activeSlide = getActiveSlide();
     const activeTarget = getActiveZoomTarget();
     const canZoom = activeTarget instanceof HTMLElement && activeTarget.dataset.canZoom === "1";
@@ -440,6 +525,7 @@
       wrapperEl.textContent = "";
     }
 
+    resetMobileZoom();
     resetDesktopPan();
     lastTouchTap = { time: 0, x: 0, y: 0 };
     hideGestureHint();
@@ -617,20 +703,89 @@
     }
 
     if (root.dataset.mediaLightboxTouchZoomBound !== "1") {
-      // Mobile-only: toggle zoom on double tap without changing desktop behavior.
+      // Mobile-only: keep viewport fixed and pan the image itself, not the overlay block.
+      root.addEventListener(
+        "touchstart",
+        (event) => {
+          if (!isCoarsePointer() || event.touches.length !== 1) {
+            return;
+          }
+
+          const touch = event.touches[0];
+          const zoomTarget = event.target.closest?.("[data-media-lightbox-zoom-target]");
+          if (
+            !(zoomTarget instanceof HTMLElement) ||
+            zoomTarget.closest(".swiper-slide") !== getActiveSlide() ||
+            getMobileScale() <= 1.02 ||
+            !isPointInsideImage(zoomTarget, touch.clientX, touch.clientY)
+          ) {
+            mobileZoomState.isPanning = false;
+            return;
+          }
+
+          mobileZoomState.isPanning = true;
+          mobileZoomState.moved = false;
+          mobileZoomState.startX = touch.clientX;
+          mobileZoomState.startY = touch.clientY;
+          mobileZoomState.originX = mobileZoomState.x;
+          mobileZoomState.originY = mobileZoomState.y;
+        },
+        { passive: true }
+      );
+
+      root.addEventListener(
+        "touchmove",
+        (event) => {
+          if (!isCoarsePointer() || !mobileZoomState.isPanning || event.touches.length !== 1) {
+            return;
+          }
+
+          const zoomTarget = getActiveZoomTarget();
+          if (!(zoomTarget instanceof HTMLElement)) {
+            return;
+          }
+
+          const touch = event.touches[0];
+          const deltaX = touch.clientX - mobileZoomState.startX;
+          const deltaY = touch.clientY - mobileZoomState.startY;
+          if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
+            mobileZoomState.moved = true;
+          }
+
+          mobileZoomState.x = mobileZoomState.originX + deltaX;
+          mobileZoomState.y = mobileZoomState.originY + deltaY;
+          applyMobileZoom(zoomTarget, false);
+          event.preventDefault();
+        },
+        { passive: false }
+      );
+
       root.addEventListener(
         "touchend",
         (event) => {
-          if (!isCoarsePointer() || !swiper?.zoom || event.changedTouches.length !== 1) {
+          if (!isCoarsePointer() || event.changedTouches.length !== 1) {
             return;
           }
 
           const touch = event.changedTouches[0];
-          const zoomTarget = event.target.closest?.("[data-media-lightbox-zoom-target]");
+          const activeZoomTarget = getActiveZoomTarget();
+          const hitTarget =
+            document.elementFromPoint(touch.clientX, touch.clientY) || event.target;
+          const zoomTarget = hitTarget.closest?.("[data-media-lightbox-zoom-target]");
+
+          if (mobileZoomState.isPanning) {
+            mobileZoomState.isPanning = false;
+            if (mobileZoomState.moved) {
+              mobileZoomState.moved = false;
+              lastTouchTap = { time: 0, x: 0, y: 0 };
+              return;
+            }
+          }
+
           if (
-            zoomTarget instanceof HTMLElement &&
-            zoomTarget.closest(".swiper-slide") === getActiveSlide() &&
-            !isPointInsideImage(zoomTarget, touch.clientX, touch.clientY)
+            activeZoomTarget instanceof HTMLElement &&
+            isPointInsideElement(activeZoomTarget, touch.clientX, touch.clientY) &&
+            !isPointInsideImage(activeZoomTarget, touch.clientX, touch.clientY)
           ) {
             event.preventDefault();
             lastTouchTap = { time: 0, x: 0, y: 0 };
@@ -638,7 +793,7 @@
             return;
           }
 
-          const target = event.target;
+          const target = hitTarget;
           const isInteractiveArea =
             target instanceof Element &&
             target.closest(
@@ -669,7 +824,15 @@
           if (deltaTime > 0 && deltaTime < 320 && deltaX < 28 && deltaY < 28) {
             event.preventDefault();
             lastTouchTap = { time: 0, x: 0, y: 0 };
-            toggleActiveZoom();
+            if (getMobileScale() > 1.02) {
+              resetMobileZoom(true);
+            } else {
+              mobileZoomState.scale = Math.min(3, getActiveZoomRatio());
+              mobileZoomState.x = 0;
+              mobileZoomState.y = 0;
+              applyMobileZoom(zoomTarget, true);
+            }
+            setZoomState(swiper?.zoom?.scale || 1);
             return;
           }
 
@@ -777,6 +940,7 @@
       on: {
         init(instance) {
           prepareSlides();
+          resetMobileZoom();
           setZoomState(instance.zoom?.scale || 1);
           showGestureHint();
         },
@@ -789,6 +953,7 @@
         slideChange(instance) {
           requestAnimationFrame(() => {
             prepareSlides();
+            resetMobileZoom();
             setZoomState(instance.zoom?.scale || 1);
           });
         },

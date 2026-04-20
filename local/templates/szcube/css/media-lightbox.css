@@ -137,6 +137,12 @@
 .media-lightbox.is-touch .media-lightbox__image {
   width: auto;
   height: auto;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.media-lightbox.is-touch .media-lightbox__zoom {
+  touch-action: none;
 }
 
 .media-lightbox__gesture-hint {
