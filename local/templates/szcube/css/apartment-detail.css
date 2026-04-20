@@ -507,8 +507,9 @@
   .apartment-hero__viewer-shell {
     position: relative;
     top: auto;
-    height: min(630px, calc(100vh - 110px));
-    max-height: 630px;
+    height: min(70vh, 560px);
+    height: min(70svh, 560px);
+    max-height: 560px;
     min-height: 0;
     padding-bottom: 90px;
   }
@@ -580,7 +581,7 @@
   }
 
   .apartment-hero__price-current {
-    font-size: 30px;
+    font-size: 24px;
   }
 
   .apartment-hero__price-meta {
@@ -593,12 +594,16 @@
     flex: 0 0 auto;
     position: relative;
     inset: auto;
+    height: min(70vh, 520px);
+    height: min(70svh, 520px);
+    max-height: 520px;
     min-height: auto;
     padding: 36px 72px 18px 14px;
   }
 
   .apartment-hero__slide-media {
-    min-height: 250px;
+    min-height: 0;
+    height: 100%;
   }
 
   .apartment-hero__tabs-row {
@@ -651,7 +656,7 @@
   }
 
   .apartment-hero__title {
-    font-size: 32px;
+    font-size: 22px;
   }
 
   .apartment-hero__summary {
@@ -670,10 +675,6 @@
 
   .apartment-hero__actions {
     margin: 0;
-  }
-
-  .apartment-hero__action[data-apartment-action="zoom"] {
-    display: none;
   }
 
 }
