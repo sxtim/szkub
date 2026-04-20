@@ -102,6 +102,7 @@ if (!$isDetailPrintPage) {
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/accordion.js");
 }
+$asset->addString('<link rel="icon" href="' . SITE_TEMPLATE_PATH . '/img/favicon.svg" type="image/svg+xml">');
 $asset->addString('<link rel="preconnect" href="https://fonts.googleapis.com">');
 $asset->addString('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>');
 $asset->addString('<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">');

@@ -593,6 +593,41 @@ const catalogRenderCard = (flat) => {
   `;
 };
 
+const catalogGetContactInsertIndex = () => {
+  if (window.matchMedia("(max-width: 600px)").matches) {
+    return 1;
+  }
+
+  if (window.matchMedia("(max-width: 900px)").matches) {
+    return 2;
+  }
+
+  if (window.matchMedia("(max-width: 1200px)").matches) {
+    return 3;
+  }
+
+  return 4;
+};
+
+const catalogPlaceContactBlock = (root, resultsContainer, count) => {
+  const contactBlock = root.querySelector("[data-catalog-contact-block]");
+  if (!contactBlock || !resultsContainer) {
+    return;
+  }
+
+  if (count <= 0) {
+    contactBlock.hidden = true;
+    return;
+  }
+
+  const cards = Array.from(resultsContainer.querySelectorAll(":scope > .apartment-card"));
+  const insertIndex = Math.min(catalogGetContactInsertIndex(), cards.length);
+  const referenceCard = cards[insertIndex] || null;
+
+  contactBlock.hidden = false;
+  resultsContainer.insertBefore(contactBlock, referenceCard);
+};
+
 const initCatalogView = () => {
   const viewContainer = document.querySelector("[data-view-container]");
   const viewButtons = document.querySelectorAll(".catalog__view-btn");
@@ -737,11 +772,18 @@ const initApartmentCatalog = () => {
   let currentSort = payload.current_sort || "default";
   let isReady = false;
   const render = () => {
+    const contactBlock = root.querySelector("[data-catalog-contact-block]");
+    const contactHolder = root.querySelector("[data-catalog-contact-holder]");
+    if (contactBlock && contactHolder) {
+      contactHolder.appendChild(contactBlock);
+    }
+
     resultsContainer.innerHTML = payload.flats
       .map((flat) => catalogRenderCard(flat))
       .join("");
 
     const count = Array.isArray(payload.flats) ? payload.flats.length : 0;
+    catalogPlaceContactBlock(root, resultsContainer, count);
     if (emptyEl) {
       emptyEl.hidden = count > 0;
     }
@@ -750,6 +792,13 @@ const initApartmentCatalog = () => {
       resetButton.hidden = !catalogHasCriteria(catalogBuildState(root, payload));
     }
   };
+
+  ["(max-width: 1200px)", "(max-width: 900px)", "(max-width: 600px)"].forEach((query) => {
+    window.matchMedia(query).addEventListener("change", () => {
+      const count = Array.isArray(payload.flats) ? payload.flats.length : 0;
+      catalogPlaceContactBlock(root, resultsContainer, count);
+    });
+  });
 
   const navigateWithState = (sortValue = currentSort) => {
     const state = catalogBuildState(root, payload);

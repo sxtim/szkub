@@ -285,6 +285,28 @@ $renderCheckboxGroup = static function ($label, $groupName, array $options, $idP
 
     <div class="container">
       <div class="catalog__empty" data-catalog-empty hidden>Квартиры не найдены. Измените параметры фильтра.</div>
+      <div data-catalog-contact-holder hidden>
+        <section class="catalog-contact" data-catalog-contact-block hidden aria-label="Подобрать квартиру">
+          <div class="catalog-contact__copy">
+            <h2 class="catalog-contact__title">Поможем подобрать квартиру</h2>
+            <p class="catalog-contact__text">
+              Оставьте контакт, и команда КУБ подберет планировки под ваш запрос, расскажет об условиях покупки и актуальных предложениях.
+            </p>
+          </div>
+
+          <div class="catalog-contact__form catalog-contact__form--no-title">
+            <?php
+            $contactFormId = "apartments-catalog-contact-form";
+            $contactFormTitle = "Подобрать квартиру";
+            $contactFormLeadType = "apartments_catalog";
+            $contactFormLeadSource = "apartments_inline";
+            $contactFormLeadNote = "Форма в каталоге квартир";
+            include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php";
+            unset($contactFormId, $contactFormTitle, $contactFormLeadType, $contactFormLeadSource, $contactFormLeadNote);
+            ?>
+          </div>
+        </section>
+      </div>
       <div class="catalog-grid is-grid" data-view-container data-catalog-results></div>
       <?php if (!empty($pagination)): ?>
         <div class="catalog__pagination">

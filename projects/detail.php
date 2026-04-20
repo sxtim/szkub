@@ -369,6 +369,15 @@ if ($project) {
 		"map_embed_html" => $projectSelectorMapEmbedHtml,
 		"scene_config" => $selectorSceneConfig,
 	);
+
+	$projectContactBackground = $projectDetail["about"]["image"] !== ""
+		? $projectDetail["about"]["image"]
+		: $projectDetail["selector"]["scene_image"];
+	$projectDetail["contact"] = array(
+		"title" => "Подберем квартиру и расскажем об условиях покупки",
+		"text" => "Оставьте контакт, и команда КУБ свяжется с вами, чтобы рассказать о планировках, способах покупки и актуальных предложениях в ЖК «" . $project["name"] . "».",
+		"background_image" => $projectContactBackground,
+	);
 }
 ?>
 
@@ -455,6 +464,29 @@ if ($project) {
         </div>
       </div>
     </div>
+
+    <section
+      class="projects-contact"
+      aria-label="Получить консультацию по проекту"
+      style="--projects-contact-bg-image: url('<?= htmlspecialcharsbx($projectDetail["contact"]["background_image"]) ?>');"
+    >
+      <div class="projects-contact__copy">
+        <h2 class="projects-contact__title"><?= htmlspecialcharsbx($projectDetail["contact"]["title"]) ?></h2>
+        <p class="projects-contact__text"><?= htmlspecialcharsbx($projectDetail["contact"]["text"]) ?></p>
+      </div>
+
+      <div class="projects-contact__form projects-contact__form--no-title">
+        <?php
+        $contactFormId = "project-detail-contact-form";
+        $contactFormTitle = "Получить консультацию";
+        $contactFormLeadType = "project_detail";
+        $contactFormLeadSource = "project_inline";
+        $contactFormLeadNote = "ЖК «" . $project["name"] . "», код: " . $project["code"];
+        include $_SERVER["DOCUMENT_ROOT"] . "/local/templates/szcube/parts/contact-form.php";
+        unset($contactFormId, $contactFormTitle, $contactFormLeadType, $contactFormLeadSource, $contactFormLeadNote);
+        ?>
+      </div>
+    </section>
 
     <?php
     if (!empty($projectDetail["selector"]["enabled"])) {
