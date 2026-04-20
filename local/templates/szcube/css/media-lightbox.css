@@ -28,7 +28,7 @@
 .media-lightbox__dialog {
   position: relative;
   z-index: 1;
-  width: min(100%, 1280px);
+  width: min(100%, 1872px);
   max-height: calc(100dvh - 48px);
   min-height: 0;
 }
@@ -85,7 +85,7 @@
 
 .media-lightbox__swiper {
   grid-area: swiper;
-  width: min(100%, 1280px);
+  width: min(100%, 1872px);
   max-width: 100%;
   min-width: 0;
   min-height: 0;
@@ -117,9 +117,10 @@
   align-items: center;
   justify-content: center;
   max-width: 100%;
-  max-height: calc(100dvh - 200px);
+  max-height: calc(100dvh - 80px);
   outline: none;
   overflow: hidden;
+  cursor: zoom-in;
 }
 
 .media-lightbox__image {

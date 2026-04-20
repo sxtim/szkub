@@ -381,7 +381,7 @@
       return null;
     }
 
-    const fitRatio = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight, 1);
+    const fitRatio = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight, 1.3);
     const width = Math.max(1, Math.round(naturalWidth * fitRatio));
     const height = Math.max(1, Math.round(naturalHeight * fitRatio));
 
