@@ -627,6 +627,18 @@
       root.dataset.mediaLightboxKeyBound = "1";
     }
 
+    if (root.dataset.mediaLightboxNavBound !== "1") {
+      root.addEventListener("click", (event) => {
+        const navButton = event.target.closest(".media-lightbox__nav");
+        if (!(navButton instanceof HTMLElement)) {
+          return;
+        }
+
+        event.stopPropagation();
+      });
+      root.dataset.mediaLightboxNavBound = "1";
+    }
+
     if (root.dataset.mediaLightboxZoomBound !== "1") {
       root.addEventListener("click", (event) => {
         const zoomTarget = event.target.closest("[data-media-lightbox-zoom-target]");

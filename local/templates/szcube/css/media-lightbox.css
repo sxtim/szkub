@@ -242,9 +242,7 @@
 }
 
 .media-lightbox__nav.swiper-button-disabled {
-  opacity: 0.34;
-  cursor: default;
-  transform: none;
+  display: none;
 }
 
 .media-lightbox__footer {
