@@ -593,7 +593,7 @@
             </div>
             <div class="media-lightbox__gesture-hint" hidden aria-hidden="true">
               <span class="media-lightbox__gesture-icon">${gestureHintIcon}</span>
-              <span class="media-lightbox__gesture-text">Двойной тап или щипок для увеличения</span>
+              <span class="media-lightbox__gesture-text">Двойной тап для увеличения</span>
             </div>
           </div>
         </div>
@@ -924,7 +924,7 @@
         onlyInViewport: false,
       },
       zoom: {
-        enabled: true,
+        enabled: supportsDesktopClickZoom(),
         maxRatio: 4,
         minRatio: 1,
         toggle: false,
