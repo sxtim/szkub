@@ -4,6 +4,8 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_ad
 global $APPLICATION;
 global $USER;
 
+$APPLICATION->AddHeadString('<link rel="icon" href="/local/templates/szcube/img/favicon.svg" type="image/svg+xml">', true);
+
 if (!is_object($USER) || !$USER->IsAdmin()) {
     $APPLICATION->AuthForm("Доступ запрещен");
 }
