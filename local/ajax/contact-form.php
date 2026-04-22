@@ -54,22 +54,29 @@ function szcubeContactSanitizeSlug(string $value, string $default): string
 
 function szcubeContactNormalizePhone(string $value): string
 {
+    $value = preg_replace("/[^\d\+\(\)\-\s]+/u", "", $value);
+    if ($value === null) {
+        return "";
+    }
+
+    $value = trim(preg_replace("/\s+/u", " ", $value));
+    $value = preg_replace("/(?!^)\+/u", "", $value);
+
+    if ($value === null) {
+        return "";
+    }
+
+    return trim((string) $value);
+}
+
+function szcubeContactPhoneDigitsCount(string $value): int
+{
     $digits = preg_replace("/\D+/", "", $value);
     if ($digits === null) {
-        return "";
+        return 0;
     }
 
-    if (strlen($digits) === 10) {
-        $digits = "7" . $digits;
-    } elseif (strlen($digits) === 11 && $digits[0] === "8") {
-        $digits = "7" . substr($digits, 1);
-    }
-
-    if (strlen($digits) !== 11 || $digits[0] !== "7") {
-        return "";
-    }
-
-    return "+" . $digits;
+    return strlen($digits);
 }
 
 function szcubeContactStoreStub(array $payload): array
@@ -186,6 +193,72 @@ function szcubeContactBuildBitrixFormValues(array $webForm, array $payload): arr
     return $values;
 }
 
+function szcubeContactMapBitrixFieldError(string $fieldSid): string
+{
+    $fieldSid = trim(mb_strtoupper($fieldSid));
+
+    if ($fieldSid === "NAME") {
+        return "name";
+    }
+
+    if ($fieldSid === "PHONE") {
+        return "phone";
+    }
+
+    if ($fieldSid === "CONSENT") {
+        return "consent";
+    }
+
+    return "";
+}
+
+function szcubeContactNormalizeBitrixCheckErrors($errors): array
+{
+    if (is_string($errors)) {
+        $errors = trim($errors);
+        if ($errors === "") {
+            return array();
+        }
+
+        return array(
+            "_common" => $errors,
+        );
+    }
+
+    if (!is_array($errors)) {
+        return array();
+    }
+
+    $normalized = array();
+    foreach ($errors as $key => $message) {
+        $message = trim((string) $message);
+        if ($message === "") {
+            continue;
+        }
+
+        $mappedKey = is_string($key) ? szcubeContactMapBitrixFieldError($key) : "";
+        if ($mappedKey !== "") {
+            $normalized[$mappedKey] = $message;
+            continue;
+        }
+
+        $normalized[] = $message;
+    }
+
+    return $normalized;
+}
+
+function szcubeContactValidateBitrixWebForm(array $webForm, array $formValues): array
+{
+    $formId = isset($webForm["ID"]) ? (int) $webForm["ID"] : 0;
+    if ($formId <= 0 || !class_exists("CForm")) {
+        return array();
+    }
+
+    $checkResult = CForm::Check($formId, $formValues, false, "N", "Y");
+    return szcubeContactNormalizeBitrixCheckErrors($checkResult);
+}
+
 function szcubeContactSubmit(array $payload): array
 {
     global $strError;
@@ -198,6 +271,25 @@ function szcubeContactSubmit(array $payload): array
             }
 
             $formValues = szcubeContactBuildBitrixFormValues($webForm, $payload);
+            $bitrixErrors = szcubeContactValidateBitrixWebForm($webForm, $formValues);
+            if (!empty($bitrixErrors)) {
+                $message = "Проверьте заполнение формы.";
+                if (isset($bitrixErrors["_common"]) && trim((string) $bitrixErrors["_common"]) !== "") {
+                    $message = trim((string) $bitrixErrors["_common"]);
+                    unset($bitrixErrors["_common"]);
+                } elseif (isset($bitrixErrors[0]) && trim((string) $bitrixErrors[0]) !== "") {
+                    $message = trim((string) $bitrixErrors[0]);
+                    unset($bitrixErrors[0]);
+                }
+
+                return array(
+                    "success" => false,
+                    "code" => "bitrix_form_validation_failed",
+                    "message" => $message,
+                    "errors" => $bitrixErrors,
+                );
+            }
+
             $strError = "";
             $resultId = CFormResult::Add((int) $webForm["ID"], $formValues, "Y");
 
@@ -272,10 +364,17 @@ if ($name === "") {
     $errors["name"] = "Укажите имя.";
 } elseif (mb_strlen($name) < 2) {
     $errors["name"] = "Имя слишком короткое.";
+} elseif (preg_match("/\d/u", $name)) {
+    $errors["name"] = "Имя не должно содержать цифры.";
 }
 
 if ($phone === "") {
-    $errors["phone"] = "Укажите телефон в формате РФ.";
+    $errors["phone"] = "Укажите телефон.";
+} else {
+    $phoneDigitsCount = szcubeContactPhoneDigitsCount($phone);
+    if ($phoneDigitsCount < 10 || $phoneDigitsCount > 15) {
+        $errors["phone"] = "Укажите телефон: от 10 до 15 цифр.";
+    }
 }
 
 if (!$consent) {
@@ -308,12 +407,18 @@ $requestData = array(
 $submitResult = szcubeContactSubmit($requestData);
 
 if (empty($submitResult["success"])) {
+    $responsePayload = array(
+        "success" => false,
+        "message" => isset($submitResult["message"]) ? (string) $submitResult["message"] : "Не удалось отправить заявку.",
+        "code" => isset($submitResult["code"]) ? (string) $submitResult["code"] : "submit_failed",
+    );
+
+    if (isset($submitResult["errors"]) && is_array($submitResult["errors"]) && !empty($submitResult["errors"])) {
+        $responsePayload["errors"] = $submitResult["errors"];
+    }
+
     szcubeContactJsonResponse(
-        array(
-            "success" => false,
-            "message" => isset($submitResult["message"]) ? (string) $submitResult["message"] : "Не удалось отправить заявку.",
-            "code" => isset($submitResult["code"]) ? (string) $submitResult["code"] : "submit_failed",
-        ),
+        $responsePayload,
         500
     );
 }

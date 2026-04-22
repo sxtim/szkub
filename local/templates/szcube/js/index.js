@@ -36,23 +36,158 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const normalizeRuPhone = (value) => {
-    const digits = String(value || "").replace(/\D+/g, "");
-    if (!digits) return "";
+  const contactPhoneMasks = new WeakMap();
+  const CONTACT_PHONE_PLACEHOLDER = "+7 XXX XXX-XX-XX";
+  const CONTACT_PHONE_DIGITS_REQUIRED = 10;
 
-    let normalizedDigits = digits;
+  const normalizeContactPhoneMaskDigits = (value) => {
+    let digits = String(value || "").replace(/\D+/g, "");
 
-    if (normalizedDigits.length === 10) {
-      normalizedDigits = `7${normalizedDigits}`;
-    } else if (normalizedDigits.length === 11 && normalizedDigits.startsWith("8")) {
-      normalizedDigits = `7${normalizedDigits.slice(1)}`;
+    if (digits.length === 11 && (digits.startsWith("7") || digits.startsWith("8"))) {
+      digits = digits.slice(1);
     }
 
-    if (normalizedDigits.length !== 11 || !normalizedDigits.startsWith("7")) {
+    if (digits.length > CONTACT_PHONE_DIGITS_REQUIRED) {
+      digits = digits.slice(0, CONTACT_PHONE_DIGITS_REQUIRED);
+    }
+
+    return digits;
+  };
+
+  const normalizeContactPhone = (value) =>
+    String(value || "")
+      .replace(/[^\d+()\-\s]/g, "")
+      .replace(/\s+/g, " ")
+      .replace(/(?!^)\+/g, "")
+      .trim();
+
+  const countContactPhoneDigits = (value) => normalizeContactPhone(value).replace(/\D+/g, "").length;
+
+  const getContactPhoneDigitsCount = (input) => {
+    if (!input) {
+      return 0;
+    }
+
+    const mask = contactPhoneMasks.get(input);
+    if (mask) {
+      const digits = String(mask.unmaskedValue || "").replace(/\D+/g, "");
+      return Math.max(0, digits.length - 1);
+    }
+
+    return countContactPhoneDigits(input.value);
+  };
+
+  const getContactPhoneValue = (input) => {
+    if (!input) {
       return "";
     }
 
-    return `+${normalizedDigits}`;
+    const mask = contactPhoneMasks.get(input);
+    const rawValue = mask ? mask.value : input.value;
+    return normalizeContactPhone(rawValue);
+  };
+
+  const setContactPhoneValue = (input, value) => {
+    if (!input) {
+      return;
+    }
+
+    const normalizedValue = normalizeContactPhone(value);
+    const mask = contactPhoneMasks.get(input);
+    if (mask) {
+      const digits = normalizeContactPhoneMaskDigits(normalizedValue);
+      if (!digits) {
+        mask.value = "";
+        return;
+      }
+
+      mask.unmaskedValue = `7${digits}`;
+      return;
+    }
+
+    input.value = normalizedValue;
+  };
+
+  const setContactPhonePrefix = (input) => {
+    const mask = contactPhoneMasks.get(input);
+    if (!mask) {
+      input.value = "+7 ";
+      return;
+    }
+
+    input.value = "+7 ";
+    mask.updateValue();
+    window.requestAnimationFrame(() => {
+      const cursorPosition = input.value.length;
+      input.setSelectionRange(cursorPosition, cursorPosition);
+    });
+  };
+
+  const initContactPhoneInput = (input) => {
+    if (!input) {
+      return;
+    }
+
+    input.setAttribute("placeholder", CONTACT_PHONE_PLACEHOLDER);
+
+    if (typeof window.IMask === "function") {
+      const mask = window.IMask(input, {
+        mask: "+{7} 000 000-00-00",
+        lazy: true,
+        placeholderChar: "X",
+        prepare: (appended, masked) => {
+          const raw = String(appended || "");
+          const digits = String(appended || "").replace(/\D+/g, "");
+          if (!digits) {
+            return "";
+          }
+
+          const currentDigits = String(masked.unmaskedValue || "").replace(/\D+/g, "");
+          const editableDigitsCount = Math.max(0, currentDigits.length - 1);
+
+          if (editableDigitsCount === 0 && (digits[0] === "7" || digits[0] === "8")) {
+            return digits.slice(1);
+          }
+
+          return digits;
+        },
+      });
+      contactPhoneMasks.set(input, mask);
+    }
+
+    input.addEventListener("focus", () => {
+      const mask = contactPhoneMasks.get(input);
+      if (!mask) {
+        return;
+      }
+
+      if (getContactPhoneDigitsCount(input) === 0) {
+        setContactPhonePrefix(input);
+      }
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (getContactPhoneDigitsCount(input) !== 0) {
+        return;
+      }
+
+      if (event.key === "+" || event.key === "7" || event.key === "8") {
+        event.preventDefault();
+        setContactPhonePrefix(input);
+      }
+    });
+
+    input.addEventListener("blur", () => {
+      if (getContactPhoneDigitsCount(input) === 0) {
+        const mask = contactPhoneMasks.get(input);
+        if (mask) {
+          mask.value = "";
+          return;
+        }
+      }
+
+      setContactPhoneValue(input, getContactPhoneValue(input));
+    });
   };
 
   const getContactFormParts = (form) => ({
@@ -176,17 +311,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const errors = {};
 
     const normalizedName = nameInput ? nameInput.value.trim().replace(/\s+/g, " ") : "";
-    const normalizedPhone = phoneInput ? normalizeRuPhone(phoneInput.value) : "";
+    const normalizedPhone = phoneInput ? getContactPhoneValue(phoneInput) : "";
+    const phoneDigitsCount = getContactPhoneDigitsCount(phoneInput);
     const consentChecked = consentInput ? Boolean(consentInput.checked) : false;
 
     if (!normalizedName) {
       errors.name = "Укажите имя.";
     } else if (normalizedName.length < 2) {
       errors.name = "Имя слишком короткое.";
+    } else if (/\d/.test(normalizedName)) {
+      errors.name = "Имя не должно содержать цифры.";
     }
 
     if (!normalizedPhone) {
-      errors.phone = "Укажите телефон в формате РФ.";
+      errors.phone = "Укажите телефон.";
+    } else if (phoneDigitsCount !== CONTACT_PHONE_DIGITS_REQUIRED) {
+      errors.phone = `Введите телефон в формате ${CONTACT_PHONE_PLACEHOLDER}.`;
     }
 
     if (!consentChecked) {
@@ -205,6 +345,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   contactForms.forEach((form) => {
     setContactFormMeta(form);
+    const { phoneInput } = getContactFormParts(form);
+    initContactPhoneInput(phoneInput);
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -231,7 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
         nameInput.value = validation.normalizedName;
       }
       if (phoneInput) {
-        phoneInput.value = validation.normalizedPhone;
+        setContactPhoneValue(phoneInput, validation.normalizedPhone);
       }
       if (pageUrlInput) {
         pageUrlInput.value = window.location.href;

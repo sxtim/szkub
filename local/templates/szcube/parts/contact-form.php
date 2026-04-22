@@ -31,7 +31,7 @@ $contactFormSuccessText = isset($contactFormSuccessText) && is_string($contactFo
   </label>
   <label class="contact-form__field">
     <span class="contact-form__label">Телефон</span>
-    <input class="contact-form__input" type="tel" name="phone" placeholder="+7 999 999 99 99" autocomplete="tel" inputmode="tel" required />
+    <input class="contact-form__input" type="tel" name="phone" placeholder="+7 XXX XXX-XX-XX" autocomplete="tel" inputmode="tel" required />
   </label>
   <button class="btn btn--primary contact-form__submit" type="submit">Отправить</button>
   <p class="contact-form__message" data-contact-form-message aria-live="polite" hidden></p>

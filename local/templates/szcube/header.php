@@ -97,6 +97,7 @@ if (defined("FOOTER_FLAT") && FOOTER_FLAT === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/footer-flat.css");
 }
 if (!$isDetailPrintPage) {
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/imask.min.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/vendor/nouislider.min.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/filters.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/index.js");
