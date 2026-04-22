@@ -15,88 +15,9 @@ if (!CModule::IncludeModule("form")) {
     return;
 }
 
-if (!function_exists("szcubeLeadsDashboardFindFormId")) {
-    function szcubeLeadsDashboardFindFormId($formSid)
-    {
-        $formSid = trim((string)$formSid);
-        if ($formSid === "") {
-            return 0;
-        }
-
-        $res = CForm::GetBySID($formSid);
-        if ($row = $res->Fetch()) {
-            return (int)$row["ID"];
-        }
-
-        return 0;
-    }
-}
-
-if (!function_exists("szcubeLeadsDashboardExtractAnswerValue")) {
-    function szcubeLeadsDashboardExtractAnswerValue(array $answers, $sid)
-    {
-        if (!isset($answers[$sid]) || !is_array($answers[$sid])) {
-            return "";
-        }
-
-        foreach ($answers[$sid] as $answer) {
-            if (!is_array($answer)) {
-                continue;
-            }
-
-            $valueCandidates = array(
-                isset($answer["USER_TEXT"]) ? trim((string)$answer["USER_TEXT"]) : "",
-                isset($answer["ANSWER_TEXT"]) ? trim((string)$answer["ANSWER_TEXT"]) : "",
-                isset($answer["ANSWER_VALUE"]) ? trim((string)$answer["ANSWER_VALUE"]) : "",
-                isset($answer["VALUE"]) ? trim((string)$answer["VALUE"]) : "",
-            );
-
-            foreach ($valueCandidates as $value) {
-                if ($value !== "") {
-                    return $value;
-                }
-            }
-        }
-
-        return "";
-    }
-}
-
-$formSid = "SZCUBE_LEADS";
-$formId = szcubeLeadsDashboardFindFormId($formSid);
-
-$types = array(
-    "all" => array(
-        "title" => "Все заявки",
-        "lead_type" => "",
-        "description" => "Все лиды из формы SZCUBE_LEADS",
-    ),
-    "callback" => array(
-        "title" => "Форма обратной связи",
-        "lead_type" => "callback",
-        "description" => "Общие обращения и обратный звонок",
-    ),
-    "apartments" => array(
-        "title" => "Квартиры",
-        "lead_type" => "apartment_reserve",
-        "description" => "Заявки по квартирам",
-    ),
-    "storerooms" => array(
-        "title" => "Кладовки",
-        "lead_type" => "storeroom_reserve",
-        "description" => "Заявки по кладовкам",
-    ),
-    "parking" => array(
-        "title" => "Паркинги",
-        "lead_type" => "parking_reserve",
-        "description" => "Заявки по парковочным местам",
-    ),
-    "commerce" => array(
-        "title" => "Коммерция",
-        "lead_type" => "commerce_reserve",
-        "description" => "Заявки по коммерческим помещениям",
-    ),
-);
+$formSid = function_exists("szcubeLeadGetFormSid") ? (string)szcubeLeadGetFormSid() : "SZCUBE_LEADS";
+$formId = function_exists("szcubeLeadFindFormIdBySid") ? (int)szcubeLeadFindFormIdBySid($formSid) : 0;
+$types = function_exists("szcubeLeadGetScopeMap") ? szcubeLeadGetScopeMap() : array();
 
 $selectedScope = isset($_REQUEST["scope"]) ? trim((string)$_REQUEST["scope"]) : "all";
 if (!isset($types[$selectedScope])) {
@@ -176,40 +97,22 @@ if ($formId > 0) {
             continue;
         }
 
-        $result = array();
-        $answers = array();
-        CFormResult::GetDataByID(
-            $resultId,
-            array("NAME", "PHONE", "LEAD_TYPE", "LEAD_SOURCE", "LEAD_NOTE", "PAGE_URL", "CONSENT"),
-            $result,
-            $answers
-        );
+        $rowData = function_exists("szcubeLeadBuildResultData")
+            ? szcubeLeadBuildResultData($resultId, $formId)
+            : null;
+        if (!is_array($rowData)) {
+            continue;
+        }
 
-        $leadType = szcubeLeadsDashboardExtractAnswerValue($answers, "LEAD_TYPE");
-        $rowData = array(
-            "ID" => $resultId,
-            "TIMESTAMP_X" => isset($row["TIMESTAMP_X"]) ? (string)$row["TIMESTAMP_X"] : "",
-            "STATUS_TITLE" => isset($row["STATUS_TITLE"]) ? (string)$row["STATUS_TITLE"] : "",
-            "NAME" => szcubeLeadsDashboardExtractAnswerValue($answers, "NAME"),
-            "PHONE" => szcubeLeadsDashboardExtractAnswerValue($answers, "PHONE"),
-            "LEAD_TYPE" => $leadType,
-            "LEAD_SOURCE" => szcubeLeadsDashboardExtractAnswerValue($answers, "LEAD_SOURCE"),
-            "LEAD_NOTE" => szcubeLeadsDashboardExtractAnswerValue($answers, "LEAD_NOTE"),
-            "PAGE_URL" => szcubeLeadsDashboardExtractAnswerValue($answers, "PAGE_URL"),
-            "EDIT_URL" => "/bitrix/admin/szcube_leads.php?lang=ru&RESULT_ID=" . $resultId . "&scope=" . urlencode($selectedScope),
-        );
+        $rowData["EDIT_URL"] = "/bitrix/admin/szcube_leads.php?lang=ru&RESULT_ID=" . $resultId . "&scope=" . urlencode($selectedScope);
 
         $resultsByScope["all"][] = $rowData;
 
-        foreach ($types as $scopeCode => $scopeConfig) {
-            if ($scopeCode === "all") {
-                continue;
-            }
-
-            if ($scopeConfig["lead_type"] !== "" && $scopeConfig["lead_type"] === $leadType) {
-                $resultsByScope[$scopeCode][] = $rowData;
-                break;
-            }
+        $scopeCode = function_exists("szcubeLeadResolveScope")
+            ? (string)szcubeLeadResolveScope($rowData["LEAD_TYPE"])
+            : "all";
+        if ($scopeCode !== "all" && isset($resultsByScope[$scopeCode])) {
+            $resultsByScope[$scopeCode][] = $rowData;
         }
     }
 }
@@ -230,26 +133,15 @@ if ($selectedResultId > 0) {
         if (!$resultRow || (int)$resultRow["FORM_ID"] !== $formId) {
             $selectedLeadError = "Заявка не найдена.";
         } else {
-            $result = array();
-            $answers = array();
-            CFormResult::GetDataByID(
-                $selectedResultId,
-                array("NAME", "PHONE", "LEAD_TYPE", "LEAD_SOURCE", "LEAD_NOTE", "PAGE_URL", "CONSENT"),
-                $result,
-                $answers
-            );
-
-            $selectedLead = array(
-                "ID" => $selectedResultId,
-                "TIMESTAMP_X" => isset($resultRow["TIMESTAMP_X"]) ? (string)$resultRow["TIMESTAMP_X"] : "",
-                "STATUS_TITLE" => isset($resultRow["STATUS_TITLE"]) ? (string)$resultRow["STATUS_TITLE"] : "",
-                "NAME" => szcubeLeadsDashboardExtractAnswerValue($answers, "NAME"),
-                "PHONE" => szcubeLeadsDashboardExtractAnswerValue($answers, "PHONE"),
-                "LEAD_NOTE" => szcubeLeadsDashboardExtractAnswerValue($answers, "LEAD_NOTE"),
-                "PAGE_URL" => szcubeLeadsDashboardExtractAnswerValue($answers, "PAGE_URL"),
-                "STANDARD_URL" => "/bitrix/admin/form_result_edit.php?lang=ru&WEB_FORM_ID=" . $formId . "&RESULT_ID=" . $selectedResultId . "&WEB_FORM_NAME=SZCUBE_LEADS",
-                "LIST_URL" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=" . urlencode($selectedScope),
-            );
+            $selectedLead = function_exists("szcubeLeadBuildResultData")
+                ? szcubeLeadBuildResultData($selectedResultId, $formId)
+                : null;
+            if (is_array($selectedLead)) {
+                $selectedLead["STANDARD_URL"] = "/bitrix/admin/form_result_edit.php?lang=ru&WEB_FORM_ID=" . $formId . "&RESULT_ID=" . $selectedResultId . "&WEB_FORM_NAME=" . urlencode($formSid);
+                $selectedLead["LIST_URL"] = "/bitrix/admin/szcube_leads.php?lang=ru&scope=" . urlencode($selectedScope);
+            } else {
+                $selectedLeadError = "Не удалось загрузить данные заявки.";
+            }
         }
     }
 }

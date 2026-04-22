@@ -108,6 +108,10 @@ function szcubeContactStoreStub(array $payload): array
 
 function szcubeContactGetWebFormSid(): string
 {
+    if (function_exists("szcubeLeadGetFormSid")) {
+        return (string)szcubeLeadGetFormSid();
+    }
+
     $sid = defined("SZCUBE_CONTACT_WEB_FORM_SID") ? (string) SZCUBE_CONTACT_WEB_FORM_SID : "SZCUBE_LEADS";
     $sid = trim($sid);
 
@@ -349,8 +353,14 @@ $name = isset($_POST["name"]) ? szcubeContactTrim((string) $_POST["name"]) : "";
 $rawPhone = isset($_POST["phone"]) ? (string) $_POST["phone"] : "";
 $phone = szcubeContactNormalizePhone($rawPhone);
 $consent = isset($_POST["consent"]) && (string) $_POST["consent"] === "Y";
-$leadType = isset($_POST["lead_type"]) ? szcubeContactSanitizeSlug((string) $_POST["lead_type"], "callback") : "callback";
-$leadSource = isset($_POST["lead_source"]) ? szcubeContactSanitizeSlug((string) $_POST["lead_source"], "unknown") : "unknown";
+$leadTypeRaw = isset($_POST["lead_type"]) ? (string) $_POST["lead_type"] : "callback";
+$leadSourceRaw = isset($_POST["lead_source"]) ? (string) $_POST["lead_source"] : "unknown";
+$leadType = function_exists("szcubeLeadNormalizeType")
+    ? (string)szcubeLeadNormalizeType($leadTypeRaw, $leadSourceRaw)
+    : szcubeContactSanitizeSlug($leadTypeRaw, "callback");
+$leadSource = function_exists("szcubeLeadNormalizeSource")
+    ? (string)szcubeLeadNormalizeSource($leadSourceRaw)
+    : szcubeContactSanitizeSlug($leadSourceRaw, "unknown");
 $leadNote = isset($_POST["lead_note"]) ? szcubeContactTrim((string) $_POST["lead_note"]) : "";
 $pageUrl = isset($_POST["page_url"]) ? trim((string) $_POST["page_url"]) : "";
 

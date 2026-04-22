@@ -985,8 +985,15 @@ if ($commercialDetailPrintMode) {
           <?php if (!$isSoldCommercial): ?>
           data-contact-open="contact"
           data-contact-title="Забронировать помещение"
-          data-contact-type="booking"
+          data-contact-type="commerce_reserve"
           data-contact-source="commerce_detail"
+          data-contact-note="<?= htmlspecialcharsbx(implode(" | ", array_filter(array(
+              trim((string)$commercial["title_line_1"] . " " . (string)$commercial["title_line_2"]),
+              trim((string)$projectName) !== "" ? "ЖК: " . trim((string)$projectName) : "",
+              trim((string)$projectCode) !== "" ? "Код проекта: " . trim((string)$projectCode) : "",
+              trim((string)$commercial["number"]) !== "" ? "Номер помещения: " . trim((string)$commercial["number"]) : "",
+              trim((string)$commercial["price_total"]) !== "" ? "Цена: " . trim((string)$commercial["price_total"]) : "",
+          )))) ?>"
           <?php else: ?>
           disabled
           aria-disabled="true"

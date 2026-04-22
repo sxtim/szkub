@@ -1394,8 +1394,15 @@ if ($apartmentDetailPrintMode) {
           <?php if (!$isSoldApartment): ?>
           data-contact-open="contact"
           data-contact-title="Забронировать квартиру"
-          data-contact-type="booking"
+          data-contact-type="apartment_reserve"
           data-contact-source="apartment_detail"
+          data-contact-note="<?= htmlspecialcharsbx(implode(" | ", array_filter(array(
+              trim((string)$apartment["title"]),
+              trim((string)$projectName) !== "" ? "ЖК: " . trim((string)$projectName) : "",
+              trim((string)$projectCode) !== "" ? "Код проекта: " . trim((string)$projectCode) : "",
+              trim((string)$apartment["apartment_number"]) !== "" ? "Номер квартиры: " . trim((string)$apartment["apartment_number"]) : "",
+              trim((string)$apartment["price_total"]) !== "" ? "Цена: " . trim((string)$apartment["price_total"]) : "",
+          )))) ?>"
           <?php else: ?>
           disabled
           aria-disabled="true"

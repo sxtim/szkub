@@ -5,6 +5,11 @@ if ($projectSelectorSceneConfigPath !== "/local/php_interface/project_selector_s
     require_once $projectSelectorSceneConfigPath;
 }
 
+$szcubeLeadsConfigPath = rtrim((string)($_SERVER["DOCUMENT_ROOT"] ?? ""), "/") . "/local/php_interface/szcube_leads.php";
+if ($szcubeLeadsConfigPath !== "/local/php_interface/szcube_leads.php" && is_file($szcubeLeadsConfigPath)) {
+    require_once $szcubeLeadsConfigPath;
+}
+
 if (PHP_SAPI !== "cli" && !headers_sent()) {
     $host = strtolower((string)($_SERVER["HTTP_HOST"] ?? ""));
     $host = preg_replace("/:\\d+$/", "", $host);
@@ -2464,56 +2469,18 @@ if (!function_exists("szcubeBuildLeadsAdminMenu")) {
             return;
         }
 
-        $items = array(
-            array(
-                "text" => "Все заявки",
-                "title" => "Все заявки",
-                "url" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=all",
+        $scopeMap = function_exists("szcubeLeadGetScopeMap") ? szcubeLeadGetScopeMap() : array();
+        $items = array();
+        foreach ($scopeMap as $scopeCode => $scopeConfig) {
+            $items[] = array(
+                "text" => isset($scopeConfig["title"]) ? (string)$scopeConfig["title"] : (string)$scopeCode,
+                "title" => isset($scopeConfig["title"]) ? (string)$scopeConfig["title"] : (string)$scopeCode,
+                "url" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=" . urlencode((string)$scopeCode),
                 "more_url" => array(
                     "/bitrix/admin/szcube_leads.php",
                 ),
-            ),
-            array(
-                "text" => "Форма обратной связи",
-                "title" => "Форма обратной связи",
-                "url" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=callback",
-                "more_url" => array(
-                    "/bitrix/admin/szcube_leads.php",
-                ),
-            ),
-            array(
-                "text" => "Квартиры",
-                "title" => "Заявки по квартирам",
-                "url" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=apartments",
-                "more_url" => array(
-                    "/bitrix/admin/szcube_leads.php",
-                ),
-            ),
-            array(
-                "text" => "Кладовки",
-                "title" => "Заявки по кладовкам",
-                "url" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=storerooms",
-                "more_url" => array(
-                    "/bitrix/admin/szcube_leads.php",
-                ),
-            ),
-            array(
-                "text" => "Паркинги",
-                "title" => "Заявки по паркингам",
-                "url" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=parking",
-                "more_url" => array(
-                    "/bitrix/admin/szcube_leads.php",
-                ),
-            ),
-            array(
-                "text" => "Коммерция",
-                "title" => "Заявки по коммерции",
-                "url" => "/bitrix/admin/szcube_leads.php?lang=ru&scope=commerce",
-                "more_url" => array(
-                    "/bitrix/admin/szcube_leads.php",
-                ),
-            ),
-        );
+            );
+        }
 
         $aModuleMenu[] = array(
             "parent_menu" => "global_menu_services",
@@ -2536,6 +2503,7 @@ AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubePrepareApartmentBef
 AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnAfterIBlockElementAdd", "szcubeSyncProjectDynamicElementSection");
 AddEventHandler("iblock", "OnAfterIBlockElementUpdate", "szcubeSyncProjectDynamicElementSection");
+AddEventHandler("form", "onAfterResultAdd", "szcubeHandleLeadResultCreated");
 AddEventHandler("main", "OnBuildGlobalMenu", "szcubeBuildLeadsAdminMenu");
 AddEventHandler("main", "OnAdminContextMenuShow", "szcubeAddApartmentChessAdminContextButton");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentSectionAdminUiTweaks");

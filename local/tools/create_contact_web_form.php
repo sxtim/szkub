@@ -388,7 +388,7 @@ $questionSchema = array(
 		"C_SORT" => 300,
 		"REQUIRED" => false,
 		"FIELD_TYPE" => "text",
-		"COMMENTS" => "callback / consulting / tenders / ...",
+		"COMMENTS" => "callback / project_detail / about_company_sale / apartments_catalog / consulting / tenders / apartment_reserve / storeroom_reserve / parking_reserve / commerce_reserve",
 		"ANSWER_MESSAGE" => "Тип заявки",
 		"FIELD_WIDTH" => 30,
 	),
