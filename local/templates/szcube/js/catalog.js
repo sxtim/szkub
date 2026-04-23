@@ -593,7 +593,7 @@ const catalogRenderCard = (flat) => {
   `;
 };
 
-const catalogGetContactInsertIndex = () => {
+const catalogGetGridColumnsCount = () => {
   if (window.matchMedia("(max-width: 600px)").matches) {
     return 1;
   }
@@ -608,6 +608,8 @@ const catalogGetContactInsertIndex = () => {
 
   return 4;
 };
+
+const catalogGetContactInsertIndex = () => catalogGetGridColumnsCount() * 2;
 
 const catalogPlaceContactBlock = (root, resultsContainer, count) => {
   const contactBlock = root.querySelector("[data-catalog-contact-block]");
