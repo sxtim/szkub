@@ -20,6 +20,70 @@
   padding: 0 16px;
 }
 
+.apartment-print__toolbar {
+  position: sticky;
+  top: 12px;
+  z-index: 20;
+  width: 210mm;
+  margin: 0 auto 12px;
+  padding: 10px 0px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.apartment-print__toolbar-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.apartment-print__toolbar-button {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(39, 54, 64, 0.16);
+  background: #fff;
+  color: var(--apartment-print-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.apartment-print__toolbar-button:hover,
+.apartment-print__toolbar-button:focus-visible {
+  border-color: rgba(34, 63, 148, 0.3);
+  color: #1a3b88;
+  outline: none;
+}
+
+.apartment-print__toolbar-button--primary {
+  border-color: #1a3b88;
+  background: #1a3b88;
+  color: #fff;
+}
+
+.apartment-print__toolbar-button--primary:hover,
+.apartment-print__toolbar-button--primary:focus-visible {
+  border-color: #163474;
+  background: #163474;
+  color: #fff;
+}
+
+.apartment-print__toolbar-button--ghost {
+  background: rgba(34, 63, 148, 0.04);
+}
+
 .apartment-print__sheet {
   width: 210mm;
   min-height: 297mm;
@@ -32,6 +96,15 @@
   display: flex;
   flex-direction: column;
   gap: 3mm;
+}
+
+.apartment-print__sheet,
+.apartment-print__main-card,
+.apartment-print__qr-list,
+.apartment-print__qr-card,
+.apartment-print__footer {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .apartment-print__header {
@@ -144,7 +217,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(66mm, 79mm);
   gap: 5.5mm;
-  min-height: 184mm;
+  min-height: 178mm;
 }
 
 .apartment-print__plan {
@@ -246,7 +319,7 @@
 }
 
 .apartment-print__price {
-  margin-top: 30px;
+  margin-top: 4mm;
   padding-top: 3.5mm;
   border-top: 1px solid var(--apartment-print-border);
 }
@@ -412,6 +485,13 @@
 }
 
 @media (max-width: 1100px) {
+  .apartment-print__toolbar {
+    width: 100%;
+    top: 8px;
+    padding: 10px;
+    justify-content: flex-start;
+  }
+
   .apartment-print__sheet {
     width: 100%;
     min-height: auto;
@@ -439,11 +519,15 @@
     padding: 0;
   }
 
+  .apartment-print__toolbar {
+    display: none;
+  }
+
   .apartment-print__sheet {
     width: auto;
-    min-height: 274mm;
-    padding: 2mm 5mm 3mm;
-    gap: 2mm;
+    min-height: auto;
+    padding: 2mm 5mm 2.5mm;
+    gap: 1.5mm;
     box-shadow: none;
     display: flex;
     flex-direction: column;
@@ -458,36 +542,37 @@
   }
 
   .apartment-print__main-card {
-    flex: 1 1 auto;
-    padding: 4mm;
+    flex: 0 0 auto;
+    padding: 3.5mm;
   }
 
   .apartment-print__main {
-    min-height: 100%;
-    gap: 4mm;
+    min-height: 170mm;
+    gap: 3.5mm;
     align-items: stretch;
   }
 
   .apartment-print__plan img {
-    max-height: 430px;
+    max-height: 400px;
   }
 
   .apartment-print__summary {
-    gap: 2.5mm;
+    gap: 2mm;
   }
 
   .apartment-print__facts {
     gap: 1.8mm;
-    padding-top: 3mm;
+    padding-top: 2.5mm;
   }
 
   .apartment-print__traits {
     gap: 4px;
-    padding-top: 2.5mm;
+    padding-top: 2mm;
   }
 
   .apartment-print__price {
-    padding-top: 2.5mm;
+    margin-top: 2.5mm;
+    padding-top: 2mm;
   }
 
   .apartment-print__generated-at {
@@ -495,17 +580,23 @@
   }
 
   .apartment-print__qr-list {
-    gap: 4mm;
+    gap: 3mm;
     margin-top: 0;
   }
 
   .apartment-print__qr-card {
-    padding: 3mm;
-    gap: 3mm;
+    padding: 2.5mm;
+    gap: 2.5mm;
+    grid-template-columns: 28mm minmax(0, 1fr);
+  }
+
+  .apartment-print__qr-image {
+    width: 28mm;
+    height: 28mm;
   }
 
   .apartment-print__footer {
-    margin-top: auto;
+    margin-top: 1.5mm;
     padding-top: 0;
   }
 }

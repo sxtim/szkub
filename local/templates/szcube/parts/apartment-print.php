@@ -44,11 +44,33 @@ $officeAddress = "Воронеж, ул. Фридриха Энгельса, до�
 $officeEmail = "cube-develop@yandex.ru";
 $headerLogoSvg = "";
 $headerChipParts = array();
+$printCloseUrl = isset($apartmentDetailPublicUrl) ? trim((string)$apartmentDetailPublicUrl) : "";
 
 $headerLogoPath = $_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/img/figma-f0c695eb-93ca-42c4-81da-32adaa050abc.svg";
 if (is_file($headerLogoPath) && is_readable($headerLogoPath)) {
     $headerLogoSvg = (string)file_get_contents($headerLogoPath);
     $headerLogoSvg = str_replace('preserveAspectRatio="none"', 'preserveAspectRatio="xMinYMin meet"', $headerLogoSvg);
+}
+
+if ($printCloseUrl === "") {
+    $requestUri = isset($_SERVER["REQUEST_URI"]) ? trim((string)$_SERVER["REQUEST_URI"]) : "";
+    if ($requestUri !== "") {
+        $requestParts = parse_url($requestUri);
+        $requestPath = isset($requestParts["path"]) && trim((string)$requestParts["path"]) !== ""
+            ? (string)$requestParts["path"]
+            : "/";
+        $requestQuery = array();
+
+        if (isset($requestParts["query"]) && trim((string)$requestParts["query"]) !== "") {
+            parse_str((string)$requestParts["query"], $requestQuery);
+            unset($requestQuery["print"]);
+        }
+
+        $printCloseUrl = $requestPath;
+        if (!empty($requestQuery)) {
+            $printCloseUrl .= "?" . http_build_query($requestQuery);
+        }
+    }
 }
 
 if ($projectName !== "") {
@@ -61,7 +83,30 @@ if ($entrance !== "") {
     $headerChipParts[] = ($entranceLabel !== "" ? $entranceLabel . " " : "") . $entrance;
 }
 ?>
-<section class="apartment-print" data-apartment-print-page>
+<section
+  class="apartment-print"
+  data-apartment-print-page
+  data-return-url="<?= htmlspecialcharsbx($printCloseUrl) ?>"
+>
+  <div class="apartment-print__toolbar" aria-label="Действия на странице печати">
+    <div class="apartment-print__toolbar-group">
+      <button
+        class="apartment-print__toolbar-button apartment-print__toolbar-button--primary"
+        type="button"
+        data-apartment-print-action="print"
+      >
+        Печать
+      </button>
+      <?php if ($printCloseUrl !== ""): ?>
+      <a class="apartment-print__toolbar-button apartment-print__toolbar-button--ghost" href="<?= htmlspecialcharsbx($printCloseUrl) ?>">
+        Вернуться к квартире
+      </a>
+      <?php endif; ?>
+    </div>
+    <button class="apartment-print__toolbar-button" type="button" data-apartment-print-action="close">
+      Закрыть
+    </button>
+  </div>
   <div class="apartment-print__sheet">
     <header class="apartment-print__header">
       <div class="apartment-print__brand">
