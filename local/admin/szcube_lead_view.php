@@ -150,6 +150,30 @@ require $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_a
         color: #77869b;
     }
 
+    .szcube-lead-view__crm-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+        line-height: 1.2;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .szcube-lead-view__crm-badge--sent {
+        color: #1f7a3a;
+        background: #e4f5e9;
+        border: 1px solid #b8dfc4;
+    }
+
+    .szcube-lead-view__crm-badge--pending {
+        color: #8a5c00;
+        background: #fff3cd;
+        border: 1px solid #ead58f;
+    }
+
     @media (max-width: 900px) {
         .szcube-lead-view__grid {
             grid-template-columns: 1fr;
@@ -216,6 +240,16 @@ require $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_a
                     <div class="szcube-lead-view__row">
                         <div class="szcube-lead-view__label">Статус</div>
                         <div class="szcube-lead-view__value"><?= htmlspecialcharsbx($lead["STATUS_TITLE"]) ?></div>
+                    </div>
+                    <div class="szcube-lead-view__row">
+                        <div class="szcube-lead-view__label">CRM</div>
+                        <div class="szcube-lead-view__value">
+                            <?php if ((string)$lead["SENT_TO_CRM"] === "Y"): ?>
+                                <span class="szcube-lead-view__crm-badge szcube-lead-view__crm-badge--sent">Отправлено</span>
+                            <?php else: ?>
+                                <span class="szcube-lead-view__crm-badge szcube-lead-view__crm-badge--pending">Не отправлено</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <div class="szcube-lead-view__row">
                         <div class="szcube-lead-view__label">Страница</div>

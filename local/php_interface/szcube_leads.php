@@ -321,6 +321,7 @@ if (!function_exists("szcubeLeadBuildResultData")) {
             "FORM_SID" => szcubeLeadGetFormSid(),
             "TIMESTAMP_X" => isset($resultRow["TIMESTAMP_X"]) ? (string)$resultRow["TIMESTAMP_X"] : "",
             "STATUS_TITLE" => isset($resultRow["STATUS_TITLE"]) ? (string)$resultRow["STATUS_TITLE"] : "",
+            "SENT_TO_CRM" => isset($resultRow["SENT_TO_CRM"]) ? (string)$resultRow["SENT_TO_CRM"] : "N",
             "NAME" => szcubeLeadExtractAnswerValue($answers, "NAME"),
             "PHONE" => szcubeLeadExtractAnswerValue($answers, "PHONE"),
             "LEAD_TYPE" => $leadType,
@@ -462,6 +463,102 @@ if (!function_exists("szcubeLeadSendToBitrix24")) {
             "status_code" => $statusCode,
             "response" => is_array($response) ? $response : null,
             "body" => is_string($responseRaw) ? $responseRaw : "",
+        );
+    }
+}
+
+if (!function_exists("szcubeLeadHasNativeCrmLink")) {
+    function szcubeLeadHasNativeCrmLink($formId)
+    {
+        global $DB;
+
+        $formId = (int)$formId;
+        if ($formId <= 0 || !is_object($DB)) {
+            return false;
+        }
+
+        $sql = "
+            SELECT L.ID
+            FROM b_form_crm_link L
+                INNER JOIN b_form_crm C ON C.ID = L.CRM_ID
+            WHERE L.FORM_ID = " . $formId . "
+                AND C.ACTIVE = 'Y'
+            LIMIT 1
+        ";
+
+        $res = $DB->Query($sql, true);
+        if (!$res) {
+            return false;
+        }
+
+        return is_array($res->Fetch());
+    }
+}
+
+if (!function_exists("szcubeLeadIsNativeCrmSent")) {
+    function szcubeLeadIsNativeCrmSent($resultId)
+    {
+        $resultId = (int)$resultId;
+        if ($resultId <= 0 || !class_exists("CFormResult")) {
+            return false;
+        }
+
+        $res = CFormResult::GetByID($resultId);
+        $row = $res ? $res->Fetch() : false;
+
+        return is_array($row) && isset($row["SENT_TO_CRM"]) && (string)$row["SENT_TO_CRM"] === "Y";
+    }
+}
+
+if (!function_exists("szcubeLeadSendToNativeCrm")) {
+    function szcubeLeadSendToNativeCrm($formId, $resultId)
+    {
+        $formId = (int)$formId;
+        $resultId = (int)$resultId;
+
+        if ($formId <= 0 || $resultId <= 0 || !szcubeLeadIsTargetFormId($formId)) {
+            return array(
+                "success" => false,
+                "skipped" => true,
+                "reason" => "not_target_form",
+            );
+        }
+
+        if (!szcubeLeadHasNativeCrmLink($formId)) {
+            return array(
+                "success" => false,
+                "skipped" => true,
+                "reason" => "native_crm_not_configured",
+            );
+        }
+
+        if (szcubeLeadIsNativeCrmSent($resultId)) {
+            return array(
+                "success" => true,
+                "skipped" => true,
+                "reason" => "already_sent",
+            );
+        }
+
+        if (class_exists("CFormCRM") && method_exists("CFormCRM", "onResultAdded")) {
+            CFormCRM::onResultAdded($formId, $resultId);
+        } elseif (class_exists("CFormCrm") && method_exists("CFormCrm", "onResultAdded")) {
+            CFormCrm::onResultAdded($formId, $resultId);
+        } elseif (class_exists("CFormCrm") && method_exists("CFormCrm", "AddLead")) {
+            CFormCrm::AddLead($formId, $resultId);
+        } elseif (class_exists("CFormCRM") && method_exists("CFormCRM", "AddLead")) {
+            CFormCRM::AddLead($formId, $resultId);
+        } else {
+            return array(
+                "success" => false,
+                "skipped" => true,
+                "reason" => "native_crm_class_unavailable",
+            );
+        }
+
+        return array(
+            "success" => szcubeLeadIsNativeCrmSent($resultId),
+            "skipped" => false,
         );
     }
 }

@@ -2499,12 +2499,27 @@ if (!function_exists("szcubeBuildLeadsAdminMenu")) {
     }
 }
 
+if (!function_exists("szcubeAddAdminFavicon")) {
+    function szcubeAddAdminFavicon()
+    {
+        global $APPLICATION;
+
+        if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true || !is_object($APPLICATION)) {
+            return;
+        }
+
+        $APPLICATION->AddHeadString('<link rel="icon" href="/local/templates/szcube/img/favicon.svg" type="image/svg+xml">', true);
+        $APPLICATION->AddHeadString('<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">', true);
+    }
+}
+
 AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnAfterIBlockElementAdd", "szcubeSyncProjectDynamicElementSection");
 AddEventHandler("iblock", "OnAfterIBlockElementUpdate", "szcubeSyncProjectDynamicElementSection");
 AddEventHandler("form", "onAfterResultAdd", "szcubeHandleLeadResultCreated");
 AddEventHandler("main", "OnBuildGlobalMenu", "szcubeBuildLeadsAdminMenu");
+AddEventHandler("main", "OnAdminPageBeforeShow", "szcubeAddAdminFavicon");
 AddEventHandler("main", "OnAdminContextMenuShow", "szcubeAddApartmentChessAdminContextButton");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentSectionAdminUiTweaks");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentElementAdminUiTweaks");

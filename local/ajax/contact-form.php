@@ -310,6 +310,20 @@ function szcubeContactSubmit(array $payload): array
                 CFormResult::SetField((int) $resultId, "LEAD_NOTE", $payload["lead_note"]);
             }
 
+            if (function_exists("szcubeLeadSendToNativeCrm")) {
+                $nativeCrmResult = szcubeLeadSendToNativeCrm((int) $webForm["ID"], (int) $resultId);
+                if (
+                    empty($nativeCrmResult["success"])
+                    && empty($nativeCrmResult["skipped"])
+                    && function_exists("AddMessage2Log")
+                ) {
+                    AddMessage2Log(
+                        "Native CRM sync failed for lead RESULT_ID=" . (int) $resultId . ": " . print_r($nativeCrmResult, true),
+                        "szcube_leads"
+                    );
+                }
+            }
+
             return array(
                 "success" => true,
                 "mode" => "bitrix_form",
