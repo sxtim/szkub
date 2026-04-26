@@ -30,6 +30,7 @@ define("DisableEventsCheck", true);
 
 if (PHP_SAPI === "cli") {
 	$options = getopt("", array(
+		"form-id::",
 		"form-sid::",
 		"form-name::",
 		"site-id::",
@@ -40,7 +41,7 @@ if (PHP_SAPI === "cli") {
 	));
 
 	if (isset($options["help"])) {
-		echo "Usage: php local/tools/create_contact_web_form.php [--form-sid=SZCUBE_LEADS] [--site-id=s1] [--dry-run=1]\n";
+		echo "Usage: php local/tools/create_contact_web_form.php [--form-id=2] [--form-sid=SZCUBE_LEADS] [--site-id=s1] [--dry-run=1]\n";
 		exit(0);
 	}
 
@@ -110,11 +111,26 @@ function contactFormToolGetFormBySid(string $sid): ?array
 	return is_array($row) ? $row : null;
 }
 
+function contactFormToolGetFormById(int $formId): ?array
+{
+	if ($formId <= 0) {
+		return null;
+	}
+
+	$rs = CForm::GetByID($formId);
+	$row = $rs ? $rs->Fetch() : false;
+
+	return is_array($row) ? $row : null;
+}
+
 function contactFormToolEnsureForm(array $config): array
 {
 	global $strError;
 
-	$existingForm = contactFormToolGetFormBySid($config["SID"]);
+	$targetFormId = isset($config["FORM_ID"]) ? (int)$config["FORM_ID"] : 0;
+	$existingForm = $targetFormId > 0
+		? contactFormToolGetFormById($targetFormId)
+		: contactFormToolGetFormBySid($config["SID"]);
 	$formId = $existingForm ? (int)$existingForm["ID"] : 0;
 
 	$formFields = array(
@@ -331,6 +347,7 @@ function contactFormToolEnsureQuestion(int $formId, array $questionConfig): arra
 }
 
 $formSid = isset($_REQUEST["form_sid"]) && trim((string)$_REQUEST["form_sid"]) !== "" ? trim((string)$_REQUEST["form_sid"]) : "SZCUBE_LEADS";
+$formId = isset($_REQUEST["form_id"]) ? (int)$_REQUEST["form_id"] : 0;
 $formName = isset($_REQUEST["form_name"]) && trim((string)$_REQUEST["form_name"]) !== "" ? trim((string)$_REQUEST["form_name"]) : "Заявки";
 $siteId = isset($_REQUEST["site_id"]) && trim((string)$_REQUEST["site_id"]) !== "" ? trim((string)$_REQUEST["site_id"]) : "";
 $publicGroupId = isset($_REQUEST["public_group_id"]) ? (int)$_REQUEST["public_group_id"] : 2;
@@ -357,6 +374,9 @@ if (empty($siteIds)) {
 sort($siteIds);
 
 contactFormToolOut("Target form SID: " . $formSid);
+if ($formId > 0) {
+	contactFormToolOut("Target form ID: " . $formId);
+}
 contactFormToolOut("Sites: " . implode(", ", $siteIds));
 contactFormToolOut("Groups: admin=" . $adminGroupId . ", public=" . $publicGroupId);
 contactFormToolOut("Mode: " . ($dryRun ? "DRY-RUN (no changes)" : "APPLY"));
@@ -414,6 +434,18 @@ $questionSchema = array(
 		"FIELD_WIDTH" => 90,
 	),
 	array(
+		"SID" => "CRM_COMMENT",
+		"TITLE" => "Комментарий CRM",
+		"C_SORT" => 460,
+		"REQUIRED" => false,
+		"ADDITIONAL" => true,
+		"FIELD_TYPE" => "textarea",
+		"COMMENTS" => "Подготовленный комментарий для штатной интеграции с CRM",
+		"ANSWER_MESSAGE" => "Комментарий CRM",
+		"FIELD_WIDTH" => 90,
+		"FIELD_HEIGHT" => 8,
+	),
+	array(
 		"SID" => "PAGE_URL",
 		"TITLE" => "URL страницы",
 		"C_SORT" => 500,
@@ -436,7 +468,7 @@ $questionSchema = array(
 );
 
 if ($dryRun) {
-	$existingForm = contactFormToolGetFormBySid($formSid);
+	$existingForm = $formId > 0 ? contactFormToolGetFormById($formId) : contactFormToolGetFormBySid($formSid);
 
 	if ($existingForm) {
 		contactFormToolOut(sprintf("[DRY-RUN][UPDATE] Form exists: ID=%d SID=%s NAME=%s", (int)$existingForm["ID"], $existingForm["SID"], $existingForm["NAME"]));
@@ -502,6 +534,7 @@ if ($dryRun) {
 }
 
 $form = contactFormToolEnsureForm(array(
+	"FORM_ID" => $formId,
 	"SID" => $formSid,
 	"NAME" => $formName,
 	"SITE_IDS" => $siteIds,

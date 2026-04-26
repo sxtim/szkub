@@ -197,6 +197,52 @@ function szcubeContactBuildBitrixFormValues(array $webForm, array $payload): arr
     return $values;
 }
 
+function szcubeContactHasFormField(int $formId, string $fieldSid): bool
+{
+    if ($formId <= 0 || !class_exists("CFormField")) {
+        return false;
+    }
+
+    $rsField = CFormField::GetBySID($fieldSid, $formId);
+    $field = $rsField ? $rsField->Fetch() : false;
+
+    return is_array($field);
+}
+
+function szcubeContactBuildCrmComment(array $payload, int $resultId): string
+{
+    $leadType = isset($payload["lead_type"]) ? (string)$payload["lead_type"] : "";
+    $typeTitle = $leadType;
+    if (function_exists("szcubeLeadGetTypeMeta")) {
+        $typeMeta = szcubeLeadGetTypeMeta($leadType);
+        if (isset($typeMeta["title"]) && trim((string)$typeMeta["title"]) !== "") {
+            $typeTitle = (string)$typeMeta["title"] . ($leadType !== "" ? " (" . $leadType . ")" : "");
+        }
+    }
+
+    $rows = array(
+        "Имя" => isset($payload["name"]) ? (string)$payload["name"] : "",
+        "Телефон" => isset($payload["phone"]) ? (string)$payload["phone"] : "",
+        "Тип заявки" => $typeTitle,
+        "Источник заявки" => isset($payload["lead_source"]) ? (string)$payload["lead_source"] : "",
+        "Детали заявки" => isset($payload["lead_note"]) ? (string)$payload["lead_note"] : "",
+        "URL страницы" => isset($payload["page_url"]) ? (string)$payload["page_url"] : "",
+        "ID результата веб-формы" => $resultId > 0 ? (string)$resultId : "",
+    );
+
+    $lines = array();
+    foreach ($rows as $label => $value) {
+        $value = trim((string)$value);
+        if ($value === "") {
+            continue;
+        }
+
+        $lines[] = $label . ": " . $value;
+    }
+
+    return implode("\n", $lines);
+}
+
 function szcubeContactMapBitrixFieldError(string $fieldSid): string
 {
     $fieldSid = trim(mb_strtoupper($fieldSid));
@@ -308,6 +354,10 @@ function szcubeContactSubmit(array $payload): array
 
             if ($payload["lead_note"] !== "") {
                 CFormResult::SetField((int) $resultId, "LEAD_NOTE", $payload["lead_note"]);
+            }
+
+            if (szcubeContactHasFormField((int)$webForm["ID"], "CRM_COMMENT")) {
+                CFormResult::SetField((int)$resultId, "CRM_COMMENT", szcubeContactBuildCrmComment($payload, (int)$resultId));
             }
 
             if (function_exists("szcubeLeadSendToNativeCrm")) {
