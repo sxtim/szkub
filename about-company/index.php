@@ -130,20 +130,6 @@ $aboutCompanyProjectsFallback = array(
     ),
   ),
   array(
-    "code" => "vertical",
-    "title" => "Жилой комплекс Вертикаль",
-    "status" => "planned",
-    "status_label" => "Скоро в продаже",
-    "thumb_image" => SITE_TEMPLATE_PATH . "/img/figma-6c3f203f-be9a-4001-ab97-edc7f3b4a9e3.png",
-    "thumb_alt" => "ЖК Вертикаль",
-    "detail_image" => SITE_TEMPLATE_PATH . "/img/projects/div.image-lazy__image.jpg",
-    "detail_alt" => "Концепция жилого комплекса Вертикаль",
-    "description" => array(
-      "Вертикаль — проект следующего этапа развития. Здесь закладываем выразительный силуэт, панорамные виды и компактную типологию жилья с современной инженерной логикой.",
-      "Сейчас проект находится в стадии проектной проработки: уточняем квартирографию, общественные зоны и транспортные сценарии вокруг комплекса.",
-    ),
-  ),
-  array(
     "code" => "krasnoznamennaya",
     "title" => "Жилой комплекс Краснознаменная",
     "status" => "completed",

@@ -14,6 +14,7 @@
   let lastActiveElement = null;
   let gestureHintEl = null;
   let gestureHintTimer = null;
+  let resizeFrame = null;
   let desktopPanFrame = null;
   let desktopPanTarget = null;
   let desktopPanPoint = { x: 0.5, y: 0.5 };
@@ -371,17 +372,28 @@
     zoomTarget.style.width = "";
     zoomTarget.style.height = "";
 
+    const parent = zoomTarget.parentElement;
+    const parentStyles = parent ? window.getComputedStyle(parent) : null;
+    const caption = parent?.querySelector(".media-lightbox__caption");
+    const captionHeight = caption instanceof HTMLElement ? caption.offsetHeight : 0;
+    const gap = captionHeight && parentStyles ? parseFloat(parentStyles.gap) || 0 : 0;
     const maxWidth =
-      zoomTarget.parentElement?.clientWidth ||
+      parent?.clientWidth ||
       swiperEl?.clientWidth ||
       window.innerWidth;
-    const maxHeight = parseFloat(window.getComputedStyle(zoomTarget).maxHeight);
+    const parentHeight = parent?.clientHeight
+      ? Math.max(1, parent.clientHeight - captionHeight - gap)
+      : 0;
+    const maxHeight =
+      parentHeight ||
+      parseFloat(window.getComputedStyle(zoomTarget).maxHeight) ||
+      window.innerHeight;
 
     if (!maxWidth || !maxHeight) {
       return null;
     }
 
-    const fitRatio = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight, 1.3);
+    const fitRatio = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight);
     const width = Math.max(1, Math.round(naturalWidth * fitRatio));
     const height = Math.max(1, Math.round(naturalHeight * fitRatio));
 
@@ -445,6 +457,24 @@
 
     Array.from(wrapperEl.children).forEach((slide) => {
       updateZoomAvailability(slide);
+    });
+  };
+
+  const handleResize = () => {
+    if (!(root instanceof HTMLElement) || root.hidden) {
+      return;
+    }
+
+    if (resizeFrame !== null) {
+      window.cancelAnimationFrame(resizeFrame);
+    }
+
+    resizeFrame = window.requestAnimationFrame(() => {
+      resizeFrame = null;
+      swiper?.update();
+      prepareSlides();
+      resetMobileZoom();
+      setZoomState(swiper?.zoom?.scale || 1);
     });
   };
 
@@ -625,6 +655,11 @@
     if (root.dataset.mediaLightboxKeyBound !== "1") {
       document.addEventListener("keydown", handleKeydown);
       root.dataset.mediaLightboxKeyBound = "1";
+    }
+
+    if (root.dataset.mediaLightboxResizeBound !== "1") {
+      window.addEventListener("resize", handleResize);
+      root.dataset.mediaLightboxResizeBound = "1";
     }
 
     if (root.dataset.mediaLightboxNavBound !== "1") {

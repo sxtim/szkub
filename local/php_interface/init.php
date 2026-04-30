@@ -130,6 +130,70 @@ if (!function_exists("szcubeGetIblockIdByCode")) {
     }
 }
 
+if (!function_exists("szcubeGetActiveProjectNavigationItems")) {
+    function szcubeGetActiveProjectNavigationItems()
+    {
+        static $cache = null;
+
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $cache = array();
+
+        if (!CModule::IncludeModule("iblock")) {
+            return $cache;
+        }
+
+        $iblockId = szcubeGetIblockIdByCode("projects");
+        if ($iblockId <= 0) {
+            return $cache;
+        }
+
+        $detailTemplate = "";
+        $iblockRes = CIBlock::GetList(array(), array("ID" => $iblockId), false);
+        if ($iblock = $iblockRes->Fetch()) {
+            $detailTemplate = isset($iblock["DETAIL_PAGE_URL"]) ? trim((string)$iblock["DETAIL_PAGE_URL"]) : "";
+        }
+
+        $projectRes = CIBlockElement::GetList(
+            array("SORT" => "ASC", "ID" => "ASC"),
+            array(
+                "IBLOCK_ID" => $iblockId,
+                "ACTIVE" => "Y",
+            ),
+            false,
+            false,
+            array("ID", "NAME", "CODE")
+        );
+
+        while ($project = $projectRes->Fetch()) {
+            $code = trim((string)$project["CODE"]);
+            $name = trim((string)$project["NAME"]);
+
+            if ($code === "" || $name === "") {
+                continue;
+            }
+
+            $url = $detailTemplate !== ""
+                ? trim((string)CIBlock::ReplaceDetailUrl($detailTemplate, $project, false, "E"))
+                : "";
+
+            if ($url === "" || strpos($url, "#") !== false) {
+                $url = "/projects/" . $code . "/";
+            }
+
+            $cache[] = array(
+                "code" => $code,
+                "label" => "ЖК " . $name,
+                "href" => $url,
+            );
+        }
+
+        return $cache;
+    }
+}
+
 if (!function_exists("szcubeExtractHtmlPropertyText")) {
     function szcubeExtractHtmlPropertyText($property)
     {
@@ -348,7 +412,6 @@ if (!function_exists("szcubeGetNavigationLinks")) {
             "installment" => "/installment/",
             "maternal_capital" => "/maternal-capital/",
             "project_kollekciya" => "/projects/kollekciya/",
-            "project_vertical" => "/projects/vertical/",
             "apartments_studio" => "/apartments/?rooms=studio",
             "apartments_1k" => "/apartments/?rooms=1k",
             "apartments_2k" => "/apartments/?rooms=2k",
@@ -358,10 +421,7 @@ if (!function_exists("szcubeGetNavigationLinks")) {
             "apartments_3e" => "/apartments/?rooms=3e",
         );
 
-        $links["footer_newbuildings"] = array(
-            array("label" => "ЖК Коллекция", "href" => $links["project_kollekciya"]),
-            array("label" => "ЖК Вертикаль", "href" => $links["project_vertical"]),
-        );
+        $links["footer_newbuildings"] = szcubeGetActiveProjectNavigationItems();
 
         $links["footer_realty"] = array(
             array("label" => "Студии", "href" => $links["apartments_studio"]),

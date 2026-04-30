@@ -10,12 +10,15 @@
   position: fixed;
   inset: 0;
   z-index: 6000;
+  --media-lightbox-padding: 24px;
+  --media-lightbox-viewport-offset: 48px;
   --media-lightbox-close-size: 52px;
   --media-lightbox-close-offset: 24px;
+  --media-lightbox-row-gap: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: var(--media-lightbox-padding);
 }
 
 .media-lightbox__backdrop {
@@ -29,7 +32,8 @@
   position: relative;
   z-index: 1;
   width: min(100%, 1872px);
-  max-height: calc(100dvh - 48px);
+  height: calc(100dvh - var(--media-lightbox-viewport-offset));
+  max-height: calc(100dvh - var(--media-lightbox-viewport-offset));
   min-height: 0;
 }
 
@@ -77,10 +81,12 @@
   grid-template-areas:
     "prev swiper next"
     ". footer .";
+  grid-template-rows: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 18px;
-  row-gap: 16px;
+  row-gap: var(--media-lightbox-row-gap);
   position: relative;
+  height: 100%;
 }
 
 .media-lightbox__swiper {
@@ -89,18 +95,21 @@
   max-width: 100%;
   min-width: 0;
   min-height: 0;
+  height: 100%;
   justify-self: center;
 }
 
 .media-lightbox__swiper .swiper-wrapper {
   align-items: center;
+  height: 100%;
 }
 
 .media-lightbox__swiper .swiper-slide {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: auto;
+  height: 100%;
+  min-height: 0;
 }
 
 .media-lightbox__slide {
@@ -109,7 +118,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  justify-content: flex-end;
+  gap: 18px;
+  height: 100%;
+  min-height: 0;
 }
 
 .media-lightbox__zoom {
@@ -117,10 +129,12 @@
   align-items: center;
   justify-content: center;
   max-width: 100%;
-  max-height: calc(100dvh - 80px);
+  max-height: 100%;
+  min-height: 0;
   outline: none;
   overflow: hidden;
   cursor: zoom-in;
+  flex: 0 1 auto;
 }
 
 .media-lightbox__image {
@@ -274,7 +288,8 @@
 
 @media (max-width: 1024px) {
   .media-lightbox {
-    padding: 20px;
+    --media-lightbox-padding: 20px;
+    --media-lightbox-viewport-offset: 40px;
   }
 
   .media-lightbox__dialog {
@@ -304,9 +319,10 @@
 
 @media (max-width: 640px) {
   .media-lightbox {
+    --media-lightbox-padding: 16px;
+    --media-lightbox-viewport-offset: 32px;
     --media-lightbox-close-size: 32px;
     --media-lightbox-close-offset: 16px;
-    padding: 16px;
   }
 
   .media-lightbox__dialog {
