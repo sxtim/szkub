@@ -5,46 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Main\Loader;
 
-if (!function_exists("szcubeApartmentFilterFindIblockByCode")) {
-    function szcubeApartmentFilterFindIblockByCode($code)
-    {
-        $res = CIBlock::GetList(array(), array("=CODE" => (string)$code, "ACTIVE" => "Y"), false);
-        return $res->Fetch() ?: null;
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterElementUrl")) {
-    function szcubeApartmentFilterElementUrl($template, array $fields, $fallbackPrefix)
-    {
-        $template = trim((string)$template);
-        if ($template !== "") {
-            $url = (string)CIBlock::ReplaceDetailUrl($template, $fields, false, "E");
-            if ($url !== "") {
-                return $url;
-            }
-        }
-
-        $code = isset($fields["CODE"]) ? trim((string)$fields["CODE"]) : "";
-        if ($code === "") {
-            return "";
-        }
-
-        return rtrim((string)$fallbackPrefix, "/") . "/" . $code . "/";
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterFilePath")) {
-    function szcubeApartmentFilterFilePath($value)
-    {
-        $fileId = (int)$value;
-        if ($fileId <= 0) {
-            return "";
-        }
-
-        $path = CFile::GetPath($fileId);
-        return $path ? (string)$path : "";
-    }
-}
+require_once $_SERVER["DOCUMENT_ROOT"] . "/local/include/realty_filter_core.php";
 
 if (!function_exists("szcubeApartmentFilterRoomBucketKey")) {
     function szcubeApartmentFilterRoomBucketKey($value)
@@ -129,86 +90,6 @@ if (!function_exists("szcubeApartmentFilterRoomBuckets")) {
             "3e" => array("key" => "3e", "label" => "3е", "sort" => 31, "count" => 0),
             "4k" => array("key" => "4k", "label" => "4к", "sort" => 40, "count" => 0),
         );
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterNormalizeKey")) {
-    function szcubeApartmentFilterNormalizeKey($value)
-    {
-        $value = trim((string)$value);
-        $value = mb_strtolower($value);
-        $value = preg_replace("/[^a-z0-9а-яё_-]+/iu", "-", $value);
-        $value = preg_replace("/-+/u", "-", $value);
-        return trim((string)$value, "-");
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterRangeUpdate")) {
-    function szcubeApartmentFilterRangeUpdate(array &$range, $value)
-    {
-        $value = (float)$value;
-        if ($value <= 0) {
-            return;
-        }
-
-        if ($range["min"] === null || $value < $range["min"]) {
-            $range["min"] = $value;
-        }
-        if ($range["max"] === null || $value > $range["max"]) {
-            $range["max"] = $value;
-        }
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterRangeFinalize")) {
-    function szcubeApartmentFilterRangeFinalize(array $range, $fallbackMin, $fallbackMax)
-    {
-        $actualMin = $range["min"] !== null ? (float)$range["min"] : (float)$fallbackMin;
-        $actualMax = $range["max"] !== null ? (float)$range["max"] : (float)$fallbackMax;
-        if ($actualMax < $actualMin) {
-            $actualMax = $actualMin;
-        }
-
-        $step = isset($range["step"]) ? (float)$range["step"] : 1;
-        $precision = isset($range["precision"]) ? (int)$range["precision"] : 0;
-        $renderMin = $actualMin;
-        $renderMax = $actualMax;
-
-        if ($precision >= 0) {
-            $actualMin = round($actualMin, $precision);
-            $actualMax = round($actualMax, $precision);
-            $renderMin = round($renderMin, $precision);
-            $renderMax = round($renderMax, $precision);
-        }
-
-        return array(
-            "actual_min" => $actualMin,
-            "actual_max" => $actualMax,
-            "render_min" => $renderMin,
-            "render_max" => $renderMax,
-            "step" => $step,
-            "precision" => $precision,
-        );
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterMultiPropertyValues")) {
-    function szcubeApartmentFilterMultiPropertyValues(array $property)
-    {
-        $value = isset($property["VALUE"]) ? $property["VALUE"] : array();
-        if (!is_array($value)) {
-            $value = array($value);
-        }
-
-        $result = array();
-        foreach ($value as $item) {
-            $item = trim((string)$item);
-            if ($item !== "") {
-                $result[] = $item;
-            }
-        }
-
-        return array_values(array_unique($result));
     }
 }
 
@@ -325,117 +206,6 @@ if (!function_exists("szcubeApartmentFilterBuildBadges")) {
     }
 }
 
-if (!function_exists("szcubeApartmentFilterRequestState")) {
-    function szcubeApartmentFilterRequestState()
-    {
-        return array(
-            "projects" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("project") : array(),
-            "entrances" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("entrance") : array(),
-            "rooms" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("rooms") : array(),
-            "statuses" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("status") : array(),
-            "finishes" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("finish") : array(),
-            "features" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("feature") : array(),
-            "price_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("price_from") : null,
-            "price_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("price_to") : null,
-            "floor_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("floor_from") : null,
-            "floor_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("floor_to") : null,
-            "area_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("area_from") : null,
-            "area_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("area_to") : null,
-            "ceiling_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("ceiling_from") : null,
-            "ceiling_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("ceiling_to") : null,
-        );
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterHasRequestCriteria")) {
-    function szcubeApartmentFilterHasRequestCriteria(array $state)
-    {
-        foreach (array("projects", "entrances", "rooms", "statuses", "finishes", "features") as $key) {
-            if (!empty($state[$key]) && is_array($state[$key])) {
-                return true;
-            }
-        }
-
-        foreach (array("price_from", "price_to", "floor_from", "floor_to", "area_from", "area_to", "ceiling_from", "ceiling_to") as $key) {
-            if ($state[$key] !== null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
-if (!function_exists("szcubeApartmentFilterMatchesRequestState")) {
-    function szcubeApartmentFilterMatchesRequestState(array $flat, array $state)
-    {
-        if (!empty($state["projects"]) && !in_array((string)$flat["project_code"], $state["projects"], true)) {
-            return false;
-        }
-        if (!empty($state["entrances"]) && !in_array((string)$flat["entrance"], $state["entrances"], true)) {
-            return false;
-        }
-        if (!empty($state["rooms"]) && !in_array((string)$flat["rooms_bucket"], $state["rooms"], true)) {
-            return false;
-        }
-        if (!empty($state["statuses"]) && !in_array((string)$flat["status"], $state["statuses"], true)) {
-            return false;
-        }
-        if (!empty($state["finishes"]) && !in_array((string)$flat["finish"], $state["finishes"], true)) {
-            return false;
-        }
-        if (!empty($state["features"])) {
-            $tags = isset($flat["feature_tags"]) && is_array($flat["feature_tags"]) ? $flat["feature_tags"] : array();
-            if (!array_intersect($state["features"], $tags)) {
-                return false;
-            }
-        }
-
-        $priceTotal = isset($flat["price_total"]) ? (float)$flat["price_total"] : 0.0;
-        if ($priceTotal > 0) {
-            if ($state["price_from"] !== null && $priceTotal + 0.0001 < (float)$state["price_from"]) {
-                return false;
-            }
-            if ($state["price_to"] !== null && $priceTotal - 0.0001 > (float)$state["price_to"]) {
-                return false;
-            }
-        }
-
-        $floorFrom = isset($flat["floor"]) ? (int)$flat["floor"] : 0;
-        $floorTo = isset($flat["floor_max"]) ? (int)$flat["floor_max"] : $floorFrom;
-        if ($floorFrom > 0) {
-            if ($state["floor_from"] !== null && $floorTo + 0.0001 < (float)$state["floor_from"]) {
-                return false;
-            }
-            if ($state["floor_to"] !== null && $floorFrom - 0.0001 > (float)$state["floor_to"]) {
-                return false;
-            }
-        }
-
-        $areaTotal = isset($flat["area_total"]) ? (float)$flat["area_total"] : 0.0;
-        if ($areaTotal > 0) {
-            if ($state["area_from"] !== null && $areaTotal + 0.0001 < (float)$state["area_from"]) {
-                return false;
-            }
-            if ($state["area_to"] !== null && $areaTotal - 0.0001 > (float)$state["area_to"]) {
-                return false;
-            }
-        }
-
-        $ceiling = isset($flat["ceiling"]) ? (float)$flat["ceiling"] : 0.0;
-        if ($ceiling > 0) {
-            if ($state["ceiling_from"] !== null && $ceiling + 0.0001 < (float)$state["ceiling_from"]) {
-                return false;
-            }
-            if ($state["ceiling_to"] !== null && $ceiling - 0.0001 > (float)$state["ceiling_to"]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-}
-
 if (!function_exists("szcubeApartmentFilterSortValue")) {
     function szcubeApartmentFilterSortValue()
     {
@@ -445,60 +215,31 @@ if (!function_exists("szcubeApartmentFilterSortValue")) {
     }
 }
 
-if (!function_exists("szcubeApartmentFilterSortItems")) {
-    function szcubeApartmentFilterSortItems(array $items, $sortValue)
-    {
-        $sortValue = trim((string)$sortValue);
-        if ($sortValue === "" || $sortValue === "default") {
-            return array_values($items);
-        }
-
-        usort($items, static function ($left, $right) use ($sortValue) {
-            $compareNumbers = static function ($a, $b, $key, $direction) {
-                $leftValue = isset($a[$key]) ? (float)$a[$key] : 0.0;
-                $rightValue = isset($b[$key]) ? (float)$b[$key] : 0.0;
-                if (abs($leftValue - $rightValue) < 0.0001) {
-                    return 0;
-                }
-
-                if ($direction === "desc") {
-                    return $leftValue < $rightValue ? 1 : -1;
-                }
-
-                return $leftValue > $rightValue ? 1 : -1;
-            };
-
-            switch ($sortValue) {
-                case "price_asc":
-                    $result = $compareNumbers($left, $right, "price_total", "asc");
-                    break;
-                case "price_desc":
-                    $result = $compareNumbers($left, $right, "price_total", "desc");
-                    break;
-                case "floor_asc":
-                    $result = $compareNumbers($left, $right, "floor_max", "asc");
-                    break;
-                case "floor_desc":
-                    $result = $compareNumbers($left, $right, "floor_max", "desc");
-                    break;
-                case "area_desc":
-                    $result = $compareNumbers($left, $right, "area_total", "desc");
-                    break;
-                default:
-                    $result = 0;
-                    break;
-            }
-
-            if ($result !== 0) {
-                return $result;
-            }
-
-            return ((int)$left["id"] <=> (int)$right["id"]);
-        });
-
-        return array_values($items);
-    }
-}
+$apartmentDiscreteStateKeys = array("projects", "entrances", "rooms", "statuses", "finishes", "features");
+$apartmentRangeStateKeys = array("price_from", "price_to", "floor_from", "floor_to", "area_from", "area_to", "ceiling_from", "ceiling_to");
+$apartmentMatchDefinition = array(
+    "discrete" => array(
+        "projects" => array("field" => "project_code"),
+        "entrances" => array("field" => "entrance"),
+        "rooms" => array("field" => "rooms_bucket"),
+        "statuses" => array("field" => "status"),
+        "finishes" => array("field" => "finish"),
+        "features" => array("field" => "feature_tags", "mode" => "intersect"),
+    ),
+    "ranges" => array(
+        array("field" => "price_total", "from" => "price_from", "to" => "price_to"),
+        array("field_from" => "floor", "field_to" => "floor_max", "from" => "floor_from", "to" => "floor_to", "mode" => "overlap"),
+        array("field" => "area_total", "from" => "area_from", "to" => "area_to"),
+        array("field" => "ceiling", "from" => "ceiling_from", "to" => "ceiling_to"),
+    ),
+);
+$apartmentSortMap = array(
+    "price_asc" => array("field" => "price_total", "direction" => "asc"),
+    "price_desc" => array("field" => "price_total", "direction" => "desc"),
+    "floor_asc" => array("field" => "floor_max", "direction" => "asc"),
+    "floor_desc" => array("field" => "floor_max", "direction" => "desc"),
+    "area_desc" => array("field" => "area_total", "direction" => "desc"),
+);
 
 $cacheTime = isset($arParams["CACHE_TIME"]) ? (int)$arParams["CACHE_TIME"] : 36000000;
 $projectsPageUrl = isset($arParams["PROJECTS_PAGE_URL"]) && trim((string)$arParams["PROJECTS_PAGE_URL"]) !== ""
@@ -516,8 +257,8 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
         return;
     }
 
-    $apartmentsIblock = szcubeApartmentFilterFindIblockByCode("apartments");
-    $projectsIblock = szcubeApartmentFilterFindIblockByCode("projects");
+    $apartmentsIblock = szcubeRealtyFilterFindIblockByCode("apartments");
+    $projectsIblock = szcubeRealtyFilterFindIblockByCode("projects");
     if (!is_array($apartmentsIblock) || !is_array($projectsIblock)) {
         $this->AbortResultCache();
         return;
@@ -543,7 +284,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
     while ($projectElement = $projectRes->GetNextElement()) {
         $project = $projectElement->GetFields();
         $projectProperties = $projectElement->GetProperties();
-        $project["DETAIL_PAGE_URL"] = szcubeApartmentFilterElementUrl($projectsDetailTemplate, $project, $projectsPageUrl);
+        $project["DETAIL_PAGE_URL"] = szcubeRealtyFilterElementUrl($projectsDetailTemplate, $project, $projectsPageUrl);
         $project["DELIVERY_TEXT"] = isset($projectProperties["DELIVERY_TEXT"]["VALUE"]) ? trim((string)$projectProperties["DELIVERY_TEXT"]["VALUE"]) : "";
         $projectMap[(int)$project["ID"]] = $project;
     }
@@ -590,7 +331,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
 
         $flatUrl = trim((string)$flatFields["DETAIL_PAGE_URL"]);
         if ($flatUrl === "") {
-            $flatUrl = szcubeApartmentFilterElementUrl($apartmentsDetailTemplate, $flatFields, $catalogPageUrl);
+            $flatUrl = szcubeRealtyFilterElementUrl($apartmentsDetailTemplate, $flatFields, $catalogPageUrl);
         }
 
         $statusKey = isset($flatProperties["STATUS"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["STATUS"]["VALUE_XML_ID"]) : "";
@@ -620,16 +361,16 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
         $ceiling = isset($flatProperties["CEILING"]["VALUE"]) ? (float)$flatProperties["CEILING"]["VALUE"] : 0.0;
         $finishLabel = isset($flatProperties["FINISH"]["VALUE"]) ? trim((string)$flatProperties["FINISH"]["VALUE"]) : "";
         $finishKey = isset($flatProperties["FINISH"]["VALUE_XML_ID"]) ? trim((string)$flatProperties["FINISH"]["VALUE_XML_ID"]) : "";
-        $flatFeatureTags = szcubeApartmentFilterMultiPropertyValues(isset($flatProperties["FEATURE_TAGS"]) && is_array($flatProperties["FEATURE_TAGS"]) ? $flatProperties["FEATURE_TAGS"] : array());
+        $flatFeatureTags = szcubeRealtyFilterPropertyMultipleValues(isset($flatProperties["FEATURE_TAGS"]) && is_array($flatProperties["FEATURE_TAGS"]) ? $flatProperties["FEATURE_TAGS"] : array());
         $priceOld = isset($flatProperties["PRICE_OLD"]["VALUE"]) ? (float)$flatProperties["PRICE_OLD"]["VALUE"] : 0.0;
         $houseFloors = szcubeApartmentFilterNormalizeHouseFloors(
             $floor,
             $floorTo,
             isset($flatProperties["HOUSE_FLOORS"]["VALUE"]) ? (int)$flatProperties["HOUSE_FLOORS"]["VALUE"] : 0
         );
-        $planImage = szcubeApartmentFilterFilePath(isset($flatProperties["PLAN_IMAGE"]["VALUE"]) ? $flatProperties["PLAN_IMAGE"]["VALUE"] : 0);
+        $planImage = szcubeRealtyFilterFilePath(isset($flatProperties["PLAN_IMAGE"]["VALUE"]) ? $flatProperties["PLAN_IMAGE"]["VALUE"] : 0);
         $planAlt = isset($flatProperties["PLAN_ALT"]["VALUE"]) ? trim((string)$flatProperties["PLAN_ALT"]["VALUE"]) : "";
-        $manualBadges = szcubeApartmentFilterMultiPropertyValues(isset($flatProperties["BADGES"]) && is_array($flatProperties["BADGES"]) ? $flatProperties["BADGES"] : array());
+        $manualBadges = szcubeRealtyFilterPropertyMultipleValues(isset($flatProperties["BADGES"]) && is_array($flatProperties["BADGES"]) ? $flatProperties["BADGES"] : array());
         $badges = szcubeApartmentFilterBuildBadges($manualBadges, $priceTotal, $priceOld, $floor, $floorTo);
         $floorDisplay = szcubeApartmentFilterFloorLabel($floor, $floorTo, $houseFloors, false);
         $floorShort = szcubeApartmentFilterFloorLabel($floor, $floorTo, $houseFloors, true);
@@ -684,7 +425,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
 
         $featureTagKeys = array();
         foreach ($flatFeatureTags as $tagLabel) {
-            $tagKey = szcubeApartmentFilterNormalizeKey($tagLabel);
+            $tagKey = szcubeRealtyFilterNormalizeKey($tagLabel);
             if ($tagKey === "") {
                 continue;
             }
@@ -700,11 +441,11 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
             $featureTags[$tagKey]["count"]++;
         }
 
-        szcubeApartmentFilterRangeUpdate($ranges["price"], $priceTotal);
-        szcubeApartmentFilterRangeUpdate($ranges["area"], $areaTotal);
-        szcubeApartmentFilterRangeUpdate($ranges["floor"], $floor);
-        szcubeApartmentFilterRangeUpdate($ranges["floor"], $floorMax);
-        szcubeApartmentFilterRangeUpdate($ranges["ceiling"], $ceiling);
+        szcubeRealtyFilterRangeUpdate($ranges["price"], $priceTotal);
+        szcubeRealtyFilterRangeUpdate($ranges["area"], $areaTotal);
+        szcubeRealtyFilterRangeUpdate($ranges["floor"], $floor);
+        szcubeRealtyFilterRangeUpdate($ranges["floor"], $floorMax);
+        szcubeRealtyFilterRangeUpdate($ranges["ceiling"], $ceiling);
 
         $flats[] = array(
             "id" => (int)$flatFields["ID"],
@@ -768,10 +509,10 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
     });
 
     $rangeResult = array(
-        "price" => szcubeApartmentFilterRangeFinalize($ranges["price"], 0, 1000000),
-        "area" => szcubeApartmentFilterRangeFinalize($ranges["area"], 0, 100),
-        "floor" => szcubeApartmentFilterRangeFinalize($ranges["floor"], 1, 10),
-        "ceiling" => szcubeApartmentFilterRangeFinalize($ranges["ceiling"], 0, 3),
+        "price" => szcubeRealtyFilterRangeFinalize($ranges["price"], 0, 1000000),
+        "area" => szcubeRealtyFilterRangeFinalize($ranges["area"], 0, 100),
+        "floor" => szcubeRealtyFilterRangeFinalize($ranges["floor"], 1, 10),
+        "ceiling" => szcubeRealtyFilterRangeFinalize($ranges["ceiling"], 0, 3),
     );
 
     $filteredFlats = $flats;
@@ -779,7 +520,7 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
     $currentSort = "default";
 
     if ($serverPaginationEnabled) {
-        $requestState = szcubeApartmentFilterRequestState();
+        $requestState = szcubeRealtyFilterRequestState($apartmentDiscreteStateKeys, $apartmentRangeStateKeys);
         $currentSort = szcubeApartmentFilterSortValue();
 
         $rangeResult["price"] = szcubeResolveSelectedRange($rangeResult["price"], "price_from", "price_to");
@@ -796,13 +537,13 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
         $requestState["ceiling_from"] = isset($rangeResult["ceiling"]["actual_min"]) ? (float)$rangeResult["ceiling"]["actual_min"] : null;
         $requestState["ceiling_to"] = isset($rangeResult["ceiling"]["actual_max"]) ? (float)$rangeResult["ceiling"]["actual_max"] : null;
 
-        if (szcubeApartmentFilterHasRequestCriteria($requestState)) {
-            $filteredFlats = array_values(array_filter($flats, static function ($flat) use ($requestState) {
-                return szcubeApartmentFilterMatchesRequestState($flat, $requestState);
+        if (szcubeRealtyFilterHasRequestCriteria($requestState, $apartmentDiscreteStateKeys, $apartmentRangeStateKeys)) {
+            $filteredFlats = array_values(array_filter($flats, static function ($flat) use ($requestState, $apartmentMatchDefinition) {
+                return szcubeRealtyFilterMatchesRequestState($flat, $requestState, $apartmentMatchDefinition);
             }));
         }
 
-        $filteredFlats = szcubeApartmentFilterSortItems($filteredFlats, $currentSort);
+        $filteredFlats = szcubeRealtyFilterSortItems($filteredFlats, $currentSort, $apartmentSortMap);
         $paginationResult = szcubeBuildArrayPagination($filteredFlats, $pageSize, "PAGEN_1");
         $filteredFlats = isset($paginationResult["items"]) && is_array($paginationResult["items"]) ? $paginationResult["items"] : array();
         $pagination = isset($paginationResult["pagination"]) && is_array($paginationResult["pagination"]) ? $paginationResult["pagination"] : null;

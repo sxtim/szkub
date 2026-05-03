@@ -5,176 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Main\Loader;
 
-if (!function_exists("szcubeCommercialFilterFindIblockByCode")) {
-    function szcubeCommercialFilterFindIblockByCode($code)
-    {
-        $res = CIBlock::GetList(array(), array("=CODE" => (string)$code, "ACTIVE" => "Y"), false);
-        return $res->Fetch() ?: null;
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterElementUrl")) {
-    function szcubeCommercialFilterElementUrl($template, array $fields, $fallbackPrefix)
-    {
-        $template = trim((string)$template);
-        if ($template !== "") {
-            $url = (string)CIBlock::ReplaceDetailUrl($template, $fields, false, "E");
-            if ($url !== "") {
-                return $url;
-            }
-        }
-
-        $code = isset($fields["CODE"]) ? trim((string)$fields["CODE"]) : "";
-        if ($code === "") {
-            return "";
-        }
-
-        return rtrim((string)$fallbackPrefix, "/") . "/" . $code . "/";
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterNormalizeKey")) {
-    function szcubeCommercialFilterNormalizeKey($value)
-    {
-        $value = trim((string)$value);
-        if ($value === "") {
-            return "";
-        }
-
-        if (function_exists("mb_strtolower")) {
-            $value = mb_strtolower($value);
-        } else {
-            $value = strtolower($value);
-        }
-
-        $value = preg_replace("/[^a-z0-9а-яё_-]+/iu", "-", $value);
-        $value = preg_replace("/-+/u", "-", (string)$value);
-        return trim((string)$value, "-");
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterPropertySingleValue")) {
-    function szcubeCommercialFilterPropertySingleValue(array $property)
-    {
-        if (isset($property["VALUE_ENUM"]) && trim((string)$property["VALUE_ENUM"]) !== "") {
-            return trim((string)$property["VALUE_ENUM"]);
-        }
-
-        if (isset($property["VALUE"]) && !is_array($property["VALUE"])) {
-            return trim((string)$property["VALUE"]);
-        }
-
-        return "";
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterPropertySingleKey")) {
-    function szcubeCommercialFilterPropertySingleKey(array $property)
-    {
-        if (isset($property["VALUE_XML_ID"]) && trim((string)$property["VALUE_XML_ID"]) !== "") {
-            return szcubeCommercialFilterNormalizeKey($property["VALUE_XML_ID"]);
-        }
-
-        return szcubeCommercialFilterNormalizeKey(szcubeCommercialFilterPropertySingleValue($property));
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterPropertyMultipleValues")) {
-    function szcubeCommercialFilterPropertyMultipleValues(array $property)
-    {
-        $source = array();
-        if (isset($property["VALUE_ENUM"]) && is_array($property["VALUE_ENUM"])) {
-            $source = $property["VALUE_ENUM"];
-        } elseif (isset($property["VALUE"]) && is_array($property["VALUE"])) {
-            $source = $property["VALUE"];
-        } elseif (isset($property["VALUE"]) && trim((string)$property["VALUE"]) !== "") {
-            $source = array($property["VALUE"]);
-        }
-
-        $result = array();
-        foreach ($source as $item) {
-            $item = trim((string)$item);
-            if ($item !== "") {
-                $result[] = $item;
-            }
-        }
-
-        return array_values(array_unique($result));
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterFilePath")) {
-    function szcubeCommercialFilterFilePath($value)
-    {
-        $fileId = (int)$value;
-        if ($fileId <= 0) {
-            return "";
-        }
-
-        $path = CFile::GetPath($fileId);
-        return $path ? (string)$path : "";
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterRangeUpdate")) {
-    function szcubeCommercialFilterRangeUpdate(array &$range, $value)
-    {
-        $value = (float)$value;
-        if ($value <= 0 || !is_finite($value)) {
-            return;
-        }
-
-        if ($range["min"] === null || $value < $range["min"]) {
-            $range["min"] = $value;
-        }
-        if ($range["max"] === null || $value > $range["max"]) {
-            $range["max"] = $value;
-        }
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterRangeFinalize")) {
-    function szcubeCommercialFilterRangeFinalize(array $range, $fallbackMin, $fallbackMax)
-    {
-        $actualMin = $range["min"] !== null ? (float)$range["min"] : (float)$fallbackMin;
-        $actualMax = $range["max"] !== null ? (float)$range["max"] : (float)$fallbackMax;
-        $step = isset($range["step"]) ? (float)$range["step"] : 1;
-        $precision = isset($range["precision"]) ? (int)$range["precision"] : 0;
-        if ($actualMax <= $actualMin) {
-            $actualMax = $actualMin + ($step > 0 ? $step : 1);
-        }
-
-        return array(
-            "actual_min" => round($actualMin, $precision),
-            "actual_max" => round($actualMax, $precision),
-            "render_min" => round($actualMin, $precision),
-            "render_max" => round($actualMax, $precision),
-            "step" => $step,
-            "precision" => $precision,
-        );
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterOptionAppend")) {
-    function szcubeCommercialFilterOptionAppend(array &$options, $key, $label)
-    {
-        $key = trim((string)$key);
-        $label = trim((string)$label);
-        if ($key === "" || $label === "") {
-            return;
-        }
-
-        if (!isset($options[$key])) {
-            $options[$key] = array(
-                "key" => $key,
-                "label" => $label,
-                "count" => 0,
-            );
-        }
-
-        $options[$key]["count"]++;
-    }
-}
+require_once $_SERVER["DOCUMENT_ROOT"] . "/local/include/realty_filter_core.php";
 
 if (!function_exists("szcubeCommercialFilterFloorShort")) {
     function szcubeCommercialFilterFloorShort($floor, $houseFloors)
@@ -198,96 +29,6 @@ if (!function_exists("szcubeCommercialFilterFloorShort")) {
     }
 }
 
-if (!function_exists("szcubeCommercialFilterRequestState")) {
-    function szcubeCommercialFilterRequestState()
-    {
-        return array(
-            "projects" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("project") : array(),
-            "types" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("type") : array(),
-            "statuses" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("status") : array(),
-            "features" => function_exists("szcubeRequestCsvList") ? szcubeRequestCsvList("feature") : array(),
-            "price_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("price_from") : null,
-            "price_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("price_to") : null,
-            "floor_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("floor_from") : null,
-            "floor_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("floor_to") : null,
-            "area_from" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("area_from") : null,
-            "area_to" => function_exists("szcubeRequestNumberValue") ? szcubeRequestNumberValue("area_to") : null,
-        );
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterHasRequestCriteria")) {
-    function szcubeCommercialFilterHasRequestCriteria(array $state)
-    {
-        foreach (array("projects", "types", "statuses", "features") as $key) {
-            if (!empty($state[$key]) && is_array($state[$key])) {
-                return true;
-            }
-        }
-
-        foreach (array("price_from", "price_to", "floor_from", "floor_to", "area_from", "area_to") as $key) {
-            if ($state[$key] !== null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
-if (!function_exists("szcubeCommercialFilterMatchesRequestState")) {
-    function szcubeCommercialFilterMatchesRequestState(array $item, array $state)
-    {
-        if (!empty($state["projects"]) && !in_array((string)$item["project_code"], $state["projects"], true)) {
-            return false;
-        }
-        if (!empty($state["types"]) && !in_array((string)$item["type_key"], $state["types"], true)) {
-            return false;
-        }
-        if (!empty($state["statuses"]) && !in_array((string)$item["status"], $state["statuses"], true)) {
-            return false;
-        }
-        if (!empty($state["features"])) {
-            $tags = isset($item["feature_tags"]) && is_array($item["feature_tags"]) ? $item["feature_tags"] : array();
-            if (!array_intersect($state["features"], $tags)) {
-                return false;
-            }
-        }
-
-        $priceTotal = isset($item["price_total"]) ? (float)$item["price_total"] : 0.0;
-        if ($priceTotal > 0) {
-            if ($state["price_from"] !== null && $priceTotal + 0.0001 < (float)$state["price_from"]) {
-                return false;
-            }
-            if ($state["price_to"] !== null && $priceTotal - 0.0001 > (float)$state["price_to"]) {
-                return false;
-            }
-        }
-
-        $areaTotal = isset($item["area_total"]) ? (float)$item["area_total"] : 0.0;
-        if ($areaTotal > 0) {
-            if ($state["area_from"] !== null && $areaTotal + 0.0001 < (float)$state["area_from"]) {
-                return false;
-            }
-            if ($state["area_to"] !== null && $areaTotal - 0.0001 > (float)$state["area_to"]) {
-                return false;
-            }
-        }
-
-        $floorValue = isset($item["floor_max"]) ? (float)$item["floor_max"] : 0.0;
-        if ($floorValue > 0) {
-            if ($state["floor_from"] !== null && $floorValue + 0.0001 < (float)$state["floor_from"]) {
-                return false;
-            }
-            if ($state["floor_to"] !== null && $floorValue - 0.0001 > (float)$state["floor_to"]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-}
-
 if (!function_exists("szcubeCommercialFilterSortValue")) {
     function szcubeCommercialFilterSortValue()
     {
@@ -297,77 +38,41 @@ if (!function_exists("szcubeCommercialFilterSortValue")) {
     }
 }
 
-if (!function_exists("szcubeCommercialFilterSortItems")) {
-    function szcubeCommercialFilterSortItems(array $items, $sortValue)
-    {
-        $sortValue = trim((string)$sortValue);
-        if ($sortValue === "" || $sortValue === "default") {
-            usort($items, static function ($left, $right) {
-                $sortDiff = ((int)$left["sort"] <=> (int)$right["sort"]);
-                if ($sortDiff !== 0) {
-                    return $sortDiff;
-                }
-
-                return ((int)$left["id"] <=> (int)$right["id"]);
-            });
-
-            return array_values($items);
-        }
-
-        usort($items, static function ($left, $right) use ($sortValue) {
-            $compareNumbers = static function ($a, $b, $key, $direction) {
-                $leftValue = isset($a[$key]) ? (float)$a[$key] : 0.0;
-                $rightValue = isset($b[$key]) ? (float)$b[$key] : 0.0;
-                if (abs($leftValue - $rightValue) < 0.0001) {
-                    return 0;
-                }
-
-                if ($direction === "desc") {
-                    return $leftValue < $rightValue ? 1 : -1;
-                }
-
-                return $leftValue > $rightValue ? 1 : -1;
-            };
-
-            switch ($sortValue) {
-                case "price_asc":
-                    $result = $compareNumbers($left, $right, "price_total", "asc");
-                    break;
-                case "price_desc":
-                    $result = $compareNumbers($left, $right, "price_total", "desc");
-                    break;
-                case "floor_asc":
-                    $result = $compareNumbers($left, $right, "floor_max", "asc");
-                    break;
-                case "floor_desc":
-                    $result = $compareNumbers($left, $right, "floor_max", "desc");
-                    break;
-                case "area_desc":
-                    $result = $compareNumbers($left, $right, "area_total", "desc");
-                    break;
-                default:
-                    $result = 0;
-                    break;
-            }
-
-            if ($result !== 0) {
-                return $result;
-            }
-
-            return ((int)$left["id"] <=> (int)$right["id"]);
-        });
-
-        return array_values($items);
-    }
-}
+$commercialDiscreteStateMap = array(
+    "projects" => "project",
+    "types" => "type",
+    "statuses" => "status",
+    "features" => "feature",
+);
+$commercialRangeStateKeys = array("price_from", "price_to", "floor_from", "floor_to", "area_from", "area_to");
+$commercialMatchDefinition = array(
+    "discrete" => array(
+        "projects" => array("field" => "project_code"),
+        "types" => array("field" => "type_key"),
+        "statuses" => array("field" => "status"),
+        "features" => array("field" => "feature_tags", "mode" => "intersect"),
+    ),
+    "ranges" => array(
+        array("field" => "price_total", "from" => "price_from", "to" => "price_to"),
+        array("field" => "floor_max", "from" => "floor_from", "to" => "floor_to"),
+        array("field" => "area_total", "from" => "area_from", "to" => "area_to"),
+    ),
+);
+$commercialSortMap = array(
+    "price_asc" => array("field" => "price_total", "direction" => "asc"),
+    "price_desc" => array("field" => "price_total", "direction" => "desc"),
+    "floor_asc" => array("field" => "floor_max", "direction" => "asc"),
+    "floor_desc" => array("field" => "floor_max", "direction" => "desc"),
+    "area_desc" => array("field" => "area_total", "direction" => "desc"),
+);
 
 if (!Loader::includeModule("iblock")) {
     ShowError("Не удалось подключить модуль iblock");
     return;
 }
 
-$commercialIblock = szcubeCommercialFilterFindIblockByCode("commercial");
-$projectsIblock = szcubeCommercialFilterFindIblockByCode("projects");
+$commercialIblock = szcubeRealtyFilterFindIblockByCode("commercial");
+$projectsIblock = szcubeRealtyFilterFindIblockByCode("projects");
 
 $arResult = array(
     "COMMERCIALS" => array(),
@@ -463,12 +168,12 @@ while ($element = $elementRes->GetNextElement()) {
         $commercialNumber = trim((string)$fields["NAME"]);
     }
 
-    $typeLabel = szcubeCommercialFilterPropertySingleValue(isset($properties["COMMERCIAL_TYPE"]) ? $properties["COMMERCIAL_TYPE"] : array());
-    $typeKey = szcubeCommercialFilterPropertySingleKey(isset($properties["COMMERCIAL_TYPE"]) ? $properties["COMMERCIAL_TYPE"] : array());
-    $statusLabel = szcubeCommercialFilterPropertySingleValue(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
-    $statusKey = szcubeCommercialFilterPropertySingleKey(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
-    $badges = szcubeCommercialFilterPropertyMultipleValues(isset($properties["BADGES"]) ? $properties["BADGES"] : array());
-    $featureTags = szcubeCommercialFilterPropertyMultipleValues(isset($properties["FEATURE_TAGS"]) ? $properties["FEATURE_TAGS"] : array());
+    $typeLabel = szcubeRealtyFilterPropertySingleValue(isset($properties["COMMERCIAL_TYPE"]) ? $properties["COMMERCIAL_TYPE"] : array());
+    $typeKey = szcubeRealtyFilterPropertySingleKey(isset($properties["COMMERCIAL_TYPE"]) ? $properties["COMMERCIAL_TYPE"] : array());
+    $statusLabel = szcubeRealtyFilterPropertySingleValue(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
+    $statusKey = szcubeRealtyFilterPropertySingleKey(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
+    $badges = szcubeRealtyFilterPropertyMultipleValues(isset($properties["BADGES"]) ? $properties["BADGES"] : array());
+    $featureTags = szcubeRealtyFilterPropertyMultipleValues(isset($properties["FEATURE_TAGS"]) ? $properties["FEATURE_TAGS"] : array());
 
     $areaTotal = isset($properties["AREA_TOTAL"]["VALUE"]) ? (float)$properties["AREA_TOTAL"]["VALUE"] : 0;
     $priceTotal = isset($properties["PRICE_TOTAL"]["VALUE"]) ? (float)$properties["PRICE_TOTAL"]["VALUE"] : 0;
@@ -476,25 +181,25 @@ while ($element = $elementRes->GetNextElement()) {
     $floor = isset($properties["FLOOR"]["VALUE"]) ? (int)$properties["FLOOR"]["VALUE"] : 0;
     $houseFloors = isset($properties["HOUSE_FLOORS"]["VALUE"]) ? (int)$properties["HOUSE_FLOORS"]["VALUE"] : 0;
     $ceiling = isset($properties["CEILING"]["VALUE"]) ? (float)$properties["CEILING"]["VALUE"] : 0;
-    $planImage = szcubeCommercialFilterFilePath(isset($properties["PLAN_IMAGE"]["VALUE"]) ? $properties["PLAN_IMAGE"]["VALUE"] : 0);
+    $planImage = szcubeRealtyFilterFilePath(isset($properties["PLAN_IMAGE"]["VALUE"]) ? $properties["PLAN_IMAGE"]["VALUE"] : 0);
     if ($planImage === "" && (int)$fields["PREVIEW_PICTURE"] > 0) {
         $planImage = (string)CFile::GetPath((int)$fields["PREVIEW_PICTURE"]);
     }
 
-    szcubeCommercialFilterOptionAppend($projectOptions, $project["code"], $project["name"]);
-    szcubeCommercialFilterOptionAppend($typeOptions, $typeKey, $typeLabel);
-    szcubeCommercialFilterOptionAppend($statusOptions, $statusKey, $statusLabel);
+    szcubeRealtyFilterOptionAppend($projectOptions, $project["code"], $project["name"]);
+    szcubeRealtyFilterOptionAppend($typeOptions, $typeKey, $typeLabel);
+    szcubeRealtyFilterOptionAppend($statusOptions, $statusKey, $statusLabel);
     foreach ($featureTags as $tag) {
-        szcubeCommercialFilterOptionAppend($featureOptions, szcubeCommercialFilterNormalizeKey($tag), $tag);
+        szcubeRealtyFilterOptionAppend($featureOptions, szcubeRealtyFilterNormalizeKey($tag), $tag);
     }
-    szcubeCommercialFilterRangeUpdate($ranges["price"], $priceTotal);
-    szcubeCommercialFilterRangeUpdate($ranges["area"], $areaTotal);
-    szcubeCommercialFilterRangeUpdate($ranges["floor"], $floor);
+    szcubeRealtyFilterRangeUpdate($ranges["price"], $priceTotal);
+    szcubeRealtyFilterRangeUpdate($ranges["area"], $areaTotal);
+    szcubeRealtyFilterRangeUpdate($ranges["floor"], $floor);
 
     $detailUrl = trim((string)$fields["DETAIL_PAGE_URL"]);
     $detailTemplate = isset($commercialIblock["DETAIL_PAGE_URL"]) ? (string)$commercialIblock["DETAIL_PAGE_URL"] : "";
     if ($detailUrl === "" || strpos($detailUrl, "#") !== false) {
-        $detailUrl = szcubeCommercialFilterElementUrl($detailTemplate, $fields, "/commerce");
+        $detailUrl = szcubeRealtyFilterElementUrl($detailTemplate, $fields, "/commerce");
     }
 
     $arResult["COMMERCIALS"][] = array(
@@ -525,7 +230,7 @@ while ($element = $elementRes->GetNextElement()) {
         "price_old" => $priceOld,
         "ceiling" => $ceiling,
         "badges" => $badges,
-        "feature_tags" => array_map("szcubeCommercialFilterNormalizeKey", $featureTags),
+        "feature_tags" => array_map("szcubeRealtyFilterNormalizeKey", $featureTags),
         "plan_image" => $planImage,
         "plan_alt" => isset($properties["PLAN_ALT"]["VALUE"]) && trim((string)$properties["PLAN_ALT"]["VALUE"]) !== ""
             ? trim((string)$properties["PLAN_ALT"]["VALUE"])
@@ -547,11 +252,11 @@ $arResult["TYPES"] = array_values($typeOptions);
 $arResult["STATUSES"] = array_values($statusOptions);
 $arResult["FEATURE_TAGS"] = array_values($featureOptions);
 $rangeResult = array(
-    "price" => szcubeCommercialFilterRangeFinalize($ranges["price"], 0, 0),
-    "area" => szcubeCommercialFilterRangeFinalize($ranges["area"], 0, 0),
-    "floor" => szcubeCommercialFilterRangeFinalize($ranges["floor"], 1, 1),
+    "price" => szcubeRealtyFilterRangeFinalize($ranges["price"], 0, 0, true),
+    "area" => szcubeRealtyFilterRangeFinalize($ranges["area"], 0, 0, true),
+    "floor" => szcubeRealtyFilterRangeFinalize($ranges["floor"], 1, 1, true),
 );
-$requestState = szcubeCommercialFilterRequestState();
+$requestState = szcubeRealtyFilterRequestState($commercialDiscreteStateMap, $commercialRangeStateKeys);
 $currentSort = szcubeCommercialFilterSortValue();
 
 $rangeResult["price"] = szcubeResolveSelectedRange($rangeResult["price"], "price_from", "price_to");
@@ -566,13 +271,29 @@ $requestState["floor_from"] = isset($rangeResult["floor"]["actual_min"]) ? (floa
 $requestState["floor_to"] = isset($rangeResult["floor"]["actual_max"]) ? (float)$rangeResult["floor"]["actual_max"] : null;
 
 $filteredCommercials = $arResult["COMMERCIALS"];
-if (szcubeCommercialFilterHasRequestCriteria($requestState)) {
-    $filteredCommercials = array_values(array_filter($filteredCommercials, static function ($item) use ($requestState) {
-        return szcubeCommercialFilterMatchesRequestState($item, $requestState);
+if (szcubeRealtyFilterHasRequestCriteria($requestState, array_keys($commercialDiscreteStateMap), $commercialRangeStateKeys)) {
+    $filteredCommercials = array_values(array_filter($filteredCommercials, static function ($item) use ($requestState, $commercialMatchDefinition) {
+        return szcubeRealtyFilterMatchesRequestState($item, $requestState, $commercialMatchDefinition);
     }));
 }
 
-$filteredCommercials = szcubeCommercialFilterSortItems($filteredCommercials, $currentSort);
+$filteredCommercials = szcubeRealtyFilterSortItems(
+    $filteredCommercials,
+    $currentSort,
+    $commercialSortMap,
+    static function (array $items) {
+        usort($items, static function ($left, $right) {
+            $sortDiff = ((int)$left["sort"] <=> (int)$right["sort"]);
+            if ($sortDiff !== 0) {
+                return $sortDiff;
+            }
+
+            return ((int)$left["id"] <=> (int)$right["id"]);
+        });
+
+        return $items;
+    }
+);
 $paginationResult = szcubeBuildArrayPagination($filteredCommercials, $pageSize, "PAGEN_1");
 
 $arResult["COMMERCIALS"] = isset($paginationResult["items"]) && is_array($paginationResult["items"]) ? $paginationResult["items"] : array();
