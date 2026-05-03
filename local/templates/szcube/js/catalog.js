@@ -7,13 +7,11 @@ const catalogFormatPrice = (value) => {
   return `${new Intl.NumberFormat("ru-RU").format(Math.round(numeric))} ₽`;
 };
 
-const catalogEscapeHtml = (value) =>
-  String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+const {
+  escapeHtml: catalogEscapeHtml,
+  uniqueValues: catalogUniqueValues,
+  readRangeValue: catalogReadRangeValue,
+} = window.szcubeCatalogShared;
 
 const catalogNormalizeBadges = (badges) => {
   if (!Array.isArray(badges)) {
@@ -44,8 +42,6 @@ const catalogRenderBadges = (badges) => {
   `;
 };
 
-const catalogUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
-
 const catalogParsePayload = (root) => {
   const payloadEl = root.querySelector("[data-apartment-filter-payload]");
   if (!payloadEl) {
@@ -58,12 +54,6 @@ const catalogParsePayload = (root) => {
     console.error("Catalog payload parse error", error);
     return null;
   }
-};
-
-const catalogReadRangeValue = (root, key, fallback) => {
-  const input = root.querySelector(`[data-range-input="${key}"]`);
-  const value = input ? Number(input.value) : Number.NaN;
-  return Number.isFinite(value) ? value : fallback;
 };
 
 const catalogNumberDiffers = (value, fallback) => {

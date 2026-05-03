@@ -28,6 +28,7 @@ if (defined("TENDERS_PAGE") && TENDERS_PAGE === true) {
 }
 if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog-shared.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
 if (
@@ -36,11 +37,13 @@ if (
 ) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/parking.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog-shared.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/parking-catalog.js");
 }
 if (defined("COMMERCIAL_PAGE") && COMMERCIAL_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/parking.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog-shared.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
 }
 if (

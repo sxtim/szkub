@@ -1,10 +1,10 @@
-const parkingEscapeHtml = (value) =>
-  String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+const {
+  escapeHtml: parkingEscapeHtml,
+  uniqueValues: parkingUniqueValues,
+  readRangeValue: parkingReadRangeValue,
+  getStorageArray: parkingGetFavorites,
+  setStorageArray: parkingSetFavorites,
+} = window.szcubeCatalogShared;
 
 const parkingParsePayload = (root) => {
   const payloadEl = root.querySelector("[data-parking-filter-payload]");
@@ -79,8 +79,6 @@ const parkingParsePayload = (root) => {
     return null;
   }
 };
-
-const parkingUniqueValues = (values) => Array.from(new Set(values.filter(Boolean)));
 
 const parkingNormalizeState = (value) => {
   const normalizeValues = (items) => {
@@ -224,33 +222,6 @@ const parkingApplyState = (root, payload, state) => {
   parkingSetRange(root, "level", state.levelFrom, state.levelTo, ranges.level?.actual_min ?? 0, ranges.level?.actual_max ?? 0);
 
   parkingUpdateDropdownLabels(root);
-};
-
-const parkingReadRangeValue = (root, key, fallback) => {
-  const input = root.querySelector(`[data-range-input="${key}"]`);
-  const value = input ? Number(input.value) : Number.NaN;
-  return Number.isFinite(value) ? value : fallback;
-};
-
-const parkingGetFavorites = (storageKey) => {
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) {
-      return [];
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    return [];
-  }
-};
-
-const parkingSetFavorites = (storageKey, items) => {
-  try {
-    window.localStorage.setItem(storageKey, JSON.stringify(items));
-  } catch (error) {
-    // noop
-  }
 };
 
 const parkingStateToQuery = (state, payload) => {
