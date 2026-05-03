@@ -3,6 +3,7 @@ define("COMMERCIAL_PAGE", true);
 define("FOOTER_FLAT", true);
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 $APPLICATION->SetTitle("Коммерческие помещения");
+$APPLICATION->SetPageProperty("title", "Коммерческие помещения в Воронеже от девелопера КУБ | Продажа в ЖК");
 $catalogPageIntro = function_exists("szcubeGetCatalogPage") ? szcubeGetCatalogPage("commerce") : array();
 ?>
 
