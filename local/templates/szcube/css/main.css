@@ -789,7 +789,7 @@ a {
 }
 
 .hero {
-  padding-bottom: 134px;
+  padding-bottom: 80px;
 }
 .hero__top {
   margin-top: 26px;
@@ -1013,7 +1013,7 @@ a {
   align-items: flex-start;
   column-gap: 28px;
   row-gap: 24px;
-  margin-bottom: 82px;
+  margin-bottom: 40px;
 }
 .filters__controls {
   display: grid;
@@ -2137,7 +2137,7 @@ a {
   }
 }
 .news {
-  padding-bottom: 97px;
+  padding-bottom: 80px;
 }
 .news__cards {
   display: grid;
@@ -2220,7 +2220,7 @@ a {
   }
 }
 .faq {
-  padding-bottom: 159px;
+  padding-bottom: 80px;
 }
 .faq__grid {
   display: grid;
