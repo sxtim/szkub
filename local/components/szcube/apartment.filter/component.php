@@ -508,6 +508,10 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
         return mb_strtolower((string)$left["label"]) <=> mb_strtolower((string)$right["label"]);
     });
 
+    $rooms = array_filter($rooms, static function ($room) {
+        return isset($room["count"]) && (int)$room["count"] > 0;
+    });
+
     $rangeResult = array(
         "price" => szcubeRealtyFilterRangeFinalize($ranges["price"], 0, 1000000),
         "area" => szcubeRealtyFilterRangeFinalize($ranges["area"], 0, 100),
