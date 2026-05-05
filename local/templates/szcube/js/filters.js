@@ -15,6 +15,7 @@ const initRangeSliders = () => {
     if (slider.noUiSlider) {
       return;
     }
+    const rangeKey = slider.dataset.range;
     const min = Number(slider.dataset.min);
     const max = Number(slider.dataset.max);
     const start = Number(slider.dataset.start);
@@ -50,7 +51,6 @@ const initRangeSliders = () => {
     );
 
     slider.noUiSlider.on("update", (values) => {
-      const rangeKey = slider.dataset.range;
       if (syncingRanges.has(rangeKey)) {
         return;
       }
@@ -91,7 +91,11 @@ const initRangeSliders = () => {
       syncingRanges.delete(rangeKey);
     });
 
-    slider.noUiSlider.on("set", () => {
+    slider.noUiSlider.on("change", () => {
+      if (syncingRanges.has(rangeKey)) {
+        return;
+      }
+
       const eventTarget = fromInputs[0] || toInputs[0];
       if (eventTarget) {
         eventTarget.dispatchEvent(new Event("change", { bubbles: true }));
