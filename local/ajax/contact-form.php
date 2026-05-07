@@ -112,15 +112,17 @@ function szcubeContactGetWebFormSid(): string
         return (string)szcubeLeadGetFormSid();
     }
 
-    $sid = defined("SZCUBE_CONTACT_WEB_FORM_SID") ? (string) SZCUBE_CONTACT_WEB_FORM_SID : "SZCUBE_LEADS";
+    $sid = defined("SZCUBE_CONTACT_WEB_FORM_SID") ? (string) SZCUBE_CONTACT_WEB_FORM_SID : "SIMPLE_FORM_2";
     $sid = trim($sid);
 
-    return $sid !== "" ? $sid : "SZCUBE_LEADS";
+    return $sid !== "" ? $sid : "SIMPLE_FORM_2";
 }
 
 function szcubeContactGetWebForm(): ?array
 {
-    $webFormId = defined("SZCUBE_CONTACT_WEB_FORM_ID") ? (int) SZCUBE_CONTACT_WEB_FORM_ID : 0;
+    $webFormId = function_exists("szcubeLeadGetFormId")
+        ? (int) szcubeLeadGetFormId()
+        : (defined("SZCUBE_CONTACT_WEB_FORM_ID") ? (int) SZCUBE_CONTACT_WEB_FORM_ID : 2);
 
     if ($webFormId > 0) {
         $rsForm = CForm::GetByID($webFormId);

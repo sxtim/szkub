@@ -17,8 +17,9 @@ if (!CModule::IncludeModule("form")) {
     return;
 }
 
-$formSid = function_exists("szcubeLeadGetFormSid") ? (string)szcubeLeadGetFormSid() : "SZCUBE_LEADS";
-$formId = function_exists("szcubeLeadFindFormIdBySid") ? (int)szcubeLeadFindFormIdBySid($formSid) : 0;
+$formSid = function_exists("szcubeLeadGetFormSid") ? (string)szcubeLeadGetFormSid() : "SIMPLE_FORM_2";
+$formId = function_exists("szcubeLeadGetFormId") ? (int)szcubeLeadGetFormId() : 2;
+$formId = $formId > 0 ? $formId : (function_exists("szcubeLeadFindFormIdBySid") ? (int)szcubeLeadFindFormIdBySid($formSid) : 0);
 $resultId = isset($_REQUEST["RESULT_ID"]) ? (int)$_REQUEST["RESULT_ID"] : 0;
 $scope = isset($_REQUEST["scope"]) ? trim((string)$_REQUEST["scope"]) : "all";
 
@@ -26,7 +27,7 @@ $lead = null;
 $errorMessage = "";
 
 if ($formId <= 0) {
-    $errorMessage = "Форма SZCUBE_LEADS не найдена.";
+    $errorMessage = "Форма заявок не найдена.";
 } elseif ($resultId <= 0) {
     $errorMessage = "Не передан RESULT_ID.";
 } else {

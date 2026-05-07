@@ -10,6 +10,14 @@ if ($szcubeLeadsConfigPath !== "/local/php_interface/szcube_leads.php" && is_fil
     require_once $szcubeLeadsConfigPath;
 }
 
+if (!defined("SZCUBE_CONTACT_WEB_FORM_ID")) {
+    define("SZCUBE_CONTACT_WEB_FORM_ID", 2);
+}
+
+if (!defined("SZCUBE_CONTACT_WEB_FORM_SID")) {
+    define("SZCUBE_CONTACT_WEB_FORM_SID", "SIMPLE_FORM_2");
+}
+
 if (PHP_SAPI !== "cli" && !headers_sent()) {
     $host = strtolower((string)($_SERVER["HTTP_HOST"] ?? ""));
     $host = preg_replace("/:\\d+$/", "", $host);

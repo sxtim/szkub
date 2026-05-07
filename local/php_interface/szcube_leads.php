@@ -1,12 +1,21 @@
 <?php
 
+if (!function_exists("szcubeLeadGetFormId")) {
+    function szcubeLeadGetFormId()
+    {
+        $formId = defined("SZCUBE_CONTACT_WEB_FORM_ID") ? (int)SZCUBE_CONTACT_WEB_FORM_ID : 2;
+
+        return $formId > 0 ? $formId : 2;
+    }
+}
+
 if (!function_exists("szcubeLeadGetFormSid")) {
     function szcubeLeadGetFormSid()
     {
-        $sid = defined("SZCUBE_CONTACT_WEB_FORM_SID") ? (string)SZCUBE_CONTACT_WEB_FORM_SID : "SZCUBE_LEADS";
+        $sid = defined("SZCUBE_CONTACT_WEB_FORM_SID") ? (string)SZCUBE_CONTACT_WEB_FORM_SID : "SIMPLE_FORM_2";
         $sid = trim($sid);
 
-        return $sid !== "" ? $sid : "SZCUBE_LEADS";
+        return $sid !== "" ? $sid : "SIMPLE_FORM_2";
     }
 }
 
@@ -264,6 +273,11 @@ if (!function_exists("szcubeLeadIsTargetFormId")) {
         $formId = (int)$formId;
         if ($formId <= 0) {
             return false;
+        }
+
+        $targetFormId = szcubeLeadGetFormId();
+        if ($targetFormId > 0 && $formId === $targetFormId) {
+            return true;
         }
 
         static $cache = array();
