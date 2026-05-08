@@ -44,12 +44,19 @@ foreach ($arResult["ITEMS"] as $item) {
 		}
 	}
 
+	$title = isset($item["~NAME"]) ? (string)$item["~NAME"] : (isset($item["NAME"]) ? (string)$item["NAME"] : "");
+	if (function_exists("szcubeGetHomeBannerPublicTitle")) {
+		$title = szcubeGetHomeBannerPublicTitle($title);
+	}
+
+	$text = isset($item["~PREVIEW_TEXT"]) ? trim((string)$item["~PREVIEW_TEXT"]) : (isset($item["PREVIEW_TEXT"]) ? trim((string)$item["PREVIEW_TEXT"]) : "");
+
 	$slotItems[$slotCode] = array(
 		"ID_ATTR" => $this->GetEditAreaId($item["ID"]),
 		"HREF" => $linkUrl,
 		"TARGET" => $linkTarget,
-		"TITLE" => isset($item["~NAME"]) ? (string)$item["~NAME"] : (isset($item["NAME"]) ? (string)$item["NAME"] : ""),
-		"TEXT" => isset($item["~PREVIEW_TEXT"]) ? trim((string)$item["~PREVIEW_TEXT"]) : (isset($item["PREVIEW_TEXT"]) ? trim((string)$item["PREVIEW_TEXT"]) : ""),
+		"TITLE" => $title,
+		"TEXT" => $text,
 		"IMAGE_SRC" => isset($item["PREVIEW_PICTURE"]["SRC"]) ? (string)$item["PREVIEW_PICTURE"]["SRC"] : "",
 	);
 }
@@ -84,10 +91,12 @@ $bottomRight = $slotItems["BOTTOM_RIGHT"];
 						<? if ($asideTop["IMAGE_SRC"] !== ""): ?>
 							<img src="<?= htmlspecialcharsbx($asideTop["IMAGE_SRC"]) ?>" alt="<?= htmlspecialcharsbx($asideTop["TITLE"]) ?>" loading="lazy" />
 						<? endif; ?>
-						<div class="hero-card__label">
-							<?= htmlspecialcharsbx($asideTop["TITLE"]) ?>
-							<? if ($asideTop["TEXT"] !== ""): ?><br /><?= nl2br(htmlspecialcharsbx($asideTop["TEXT"])) ?><? endif; ?>
-						</div>
+						<? if ($asideTop["TITLE"] !== "" || $asideTop["TEXT"] !== ""): ?>
+							<div class="hero-card__label">
+								<? if ($asideTop["TITLE"] !== ""): ?><?= htmlspecialcharsbx($asideTop["TITLE"]) ?><? endif; ?>
+								<? if ($asideTop["TEXT"] !== ""): ?><?= $asideTop["TITLE"] !== "" ? "<br />" : "" ?><?= nl2br(htmlspecialcharsbx($asideTop["TEXT"])) ?><? endif; ?>
+							</div>
+						<? endif; ?>
 					</a>
 				<? endif; ?>
 
@@ -96,10 +105,12 @@ $bottomRight = $slotItems["BOTTOM_RIGHT"];
 						<? if ($asideBottom["IMAGE_SRC"] !== ""): ?>
 							<img src="<?= htmlspecialcharsbx($asideBottom["IMAGE_SRC"]) ?>" alt="<?= htmlspecialcharsbx($asideBottom["TITLE"]) ?>" loading="lazy" />
 						<? endif; ?>
-						<div class="hero-card__label hero-card__label--tall">
-							<?= htmlspecialcharsbx($asideBottom["TITLE"]) ?>
-							<? if ($asideBottom["TEXT"] !== ""): ?><br /><?= nl2br(htmlspecialcharsbx($asideBottom["TEXT"])) ?><? endif; ?>
-						</div>
+						<? if ($asideBottom["TITLE"] !== "" || $asideBottom["TEXT"] !== ""): ?>
+							<div class="hero-card__label hero-card__label--tall">
+								<? if ($asideBottom["TITLE"] !== ""): ?><?= htmlspecialcharsbx($asideBottom["TITLE"]) ?><? endif; ?>
+								<? if ($asideBottom["TEXT"] !== ""): ?><?= $asideBottom["TITLE"] !== "" ? "<br />" : "" ?><?= nl2br(htmlspecialcharsbx($asideBottom["TEXT"])) ?><? endif; ?>
+							</div>
+						<? endif; ?>
 					</a>
 				<? endif; ?>
 			</div>
@@ -111,10 +122,12 @@ $bottomRight = $slotItems["BOTTOM_RIGHT"];
 					<? if ($bottomLeft["IMAGE_SRC"] !== ""): ?>
 						<img src="<?= htmlspecialcharsbx($bottomLeft["IMAGE_SRC"]) ?>" alt="<?= htmlspecialcharsbx($bottomLeft["TITLE"]) ?>" loading="lazy" />
 					<? endif; ?>
-					<div class="hero-banner__label">
-						<?= htmlspecialcharsbx($bottomLeft["TITLE"]) ?>
-						<? if ($bottomLeft["TEXT"] !== ""): ?><br /><?= nl2br(htmlspecialcharsbx($bottomLeft["TEXT"])) ?><? endif; ?>
-					</div>
+					<? if ($bottomLeft["TITLE"] !== "" || $bottomLeft["TEXT"] !== ""): ?>
+						<div class="hero-banner__label">
+							<? if ($bottomLeft["TITLE"] !== ""): ?><?= htmlspecialcharsbx($bottomLeft["TITLE"]) ?><? endif; ?>
+							<? if ($bottomLeft["TEXT"] !== ""): ?><?= $bottomLeft["TITLE"] !== "" ? "<br />" : "" ?><?= nl2br(htmlspecialcharsbx($bottomLeft["TEXT"])) ?><? endif; ?>
+						</div>
+					<? endif; ?>
 				</a>
 			<? endif; ?>
 
@@ -123,10 +136,12 @@ $bottomRight = $slotItems["BOTTOM_RIGHT"];
 					<? if ($bottomRight["IMAGE_SRC"] !== ""): ?>
 						<img src="<?= htmlspecialcharsbx($bottomRight["IMAGE_SRC"]) ?>" alt="<?= htmlspecialcharsbx($bottomRight["TITLE"]) ?>" loading="lazy" />
 					<? endif; ?>
-					<div class="hero-banner__label">
-						<?= htmlspecialcharsbx($bottomRight["TITLE"]) ?>
-						<? if ($bottomRight["TEXT"] !== ""): ?><br /><?= nl2br(htmlspecialcharsbx($bottomRight["TEXT"])) ?><? endif; ?>
-					</div>
+					<? if ($bottomRight["TITLE"] !== "" || $bottomRight["TEXT"] !== ""): ?>
+						<div class="hero-banner__label">
+							<? if ($bottomRight["TITLE"] !== ""): ?><?= htmlspecialcharsbx($bottomRight["TITLE"]) ?><? endif; ?>
+							<? if ($bottomRight["TEXT"] !== ""): ?><?= $bottomRight["TITLE"] !== "" ? "<br />" : "" ?><?= nl2br(htmlspecialcharsbx($bottomRight["TEXT"])) ?><? endif; ?>
+						</div>
+					<? endif; ?>
 				</a>
 			<? endif; ?>
 		</div>
