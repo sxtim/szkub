@@ -1225,7 +1225,25 @@ if ($apartmentDetailPrintMode) {
   </div>
 </section>
 <?php else: ?>
-<?php $isSoldApartment = isset($apartment["availability_status"]) && (string)$apartment["availability_status"] === "sold"; ?>
+<?php
+$apartmentAvailabilityStatus = isset($apartment["availability_status"]) ? (string)$apartment["availability_status"] : "";
+$apartmentAvailabilityLabel = isset($apartment["availability_label"]) ? trim((string)$apartment["availability_label"]) : "";
+$isSoldApartment = $apartmentAvailabilityStatus === "sold";
+$isBookedApartment = $apartmentAvailabilityStatus === "booked";
+$apartmentCtaLabel = $isBookedApartment ? "Оставить заявку" : "Забронировать";
+$apartmentCtaTitle = $isBookedApartment ? "Оставить заявку по квартире" : "Забронировать квартиру";
+$apartmentCtaType = $isBookedApartment ? "apartment_booked_request" : "apartment_reserve";
+$apartmentCtaSource = $isBookedApartment ? "apartment_detail_booked" : "apartment_detail";
+$apartmentContactNoteItems = array_filter(array(
+    trim((string)$apartment["title"]),
+    trim((string)$projectName) !== "" ? "ЖК: " . trim((string)$projectName) : "",
+    trim((string)$projectCode) !== "" ? "Код проекта: " . trim((string)$projectCode) : "",
+    trim((string)$apartment["apartment_number"]) !== "" ? "Номер квартиры: " . trim((string)$apartment["apartment_number"]) : "",
+    trim((string)$apartment["price_total"]) !== "" ? "Цена: " . trim((string)$apartment["price_total"]) : "",
+    $apartmentAvailabilityLabel !== "" ? "Статус: " . $apartmentAvailabilityLabel : "",
+));
+$apartmentContactNote = implode(" | ", $apartmentContactNoteItems);
+?>
 <section class="apartment-detail">
   <div class="container">
 	    <div class="apartment-hero">
@@ -1393,22 +1411,16 @@ if ($apartmentDetailPrintMode) {
           type="button"
           <?php if (!$isSoldApartment): ?>
           data-contact-open="contact"
-          data-contact-title="Забронировать квартиру"
-          data-contact-type="apartment_reserve"
-          data-contact-source="apartment_detail"
-          data-contact-note="<?= htmlspecialcharsbx(implode(" | ", array_filter(array(
-              trim((string)$apartment["title"]),
-              trim((string)$projectName) !== "" ? "ЖК: " . trim((string)$projectName) : "",
-              trim((string)$projectCode) !== "" ? "Код проекта: " . trim((string)$projectCode) : "",
-              trim((string)$apartment["apartment_number"]) !== "" ? "Номер квартиры: " . trim((string)$apartment["apartment_number"]) : "",
-              trim((string)$apartment["price_total"]) !== "" ? "Цена: " . trim((string)$apartment["price_total"]) : "",
-          )))) ?>"
+          data-contact-title="<?= htmlspecialcharsbx($apartmentCtaTitle) ?>"
+          data-contact-type="<?= htmlspecialcharsbx($apartmentCtaType) ?>"
+          data-contact-source="<?= htmlspecialcharsbx($apartmentCtaSource) ?>"
+          data-contact-note="<?= htmlspecialcharsbx($apartmentContactNote) ?>"
           <?php else: ?>
           disabled
           aria-disabled="true"
           <?php endif; ?>
         >
-          <?= $isSoldApartment ? "ПРОДАНО" : "Забронировать" ?>
+          <?= $isSoldApartment ? "ПРОДАНО" : htmlspecialcharsbx($apartmentCtaLabel) ?>
         </button>
 
         <div class="apartment-hero__params">

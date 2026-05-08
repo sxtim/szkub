@@ -78,6 +78,11 @@ if (!function_exists("szcubeLeadGetTypeMap")) {
                 "description" => "Заявка по квартире",
                 "scope" => "apartments",
             ),
+            "apartment_booked_request" => array(
+                "title" => "Заявка по забронированной квартире",
+                "description" => "Интерес к квартире в статусе Забронировано",
+                "scope" => "apartments",
+            ),
             "storeroom_reserve" => array(
                 "title" => "Бронирование кладовки",
                 "description" => "Заявка по кладовке",
@@ -122,7 +127,7 @@ if (!function_exists("szcubeLeadGetScopeMap")) {
             "apartments" => array(
                 "title" => "Квартиры",
                 "description" => "Заявки по квартирам",
-                "lead_types" => array("apartment_reserve"),
+                "lead_types" => array("apartment_reserve", "apartment_booked_request"),
             ),
             "storerooms" => array(
                 "title" => "Кладовки",

@@ -215,6 +215,10 @@ require $_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_a
                         <div class="szcube-lead-view__value"><?= htmlspecialcharsbx($lead["PHONE"]) ?></div>
                     </div>
                     <div class="szcube-lead-view__row">
+                        <div class="szcube-lead-view__label">Тип заявки</div>
+                        <div class="szcube-lead-view__value"><?= htmlspecialcharsbx($lead["TYPE_META"]["title"]) ?></div>
+                    </div>
+                    <div class="szcube-lead-view__row">
                         <div class="szcube-lead-view__label">Детали заявки</div>
                         <div class="szcube-lead-view__value">
                             <?php if ($lead["LEAD_NOTE"] !== ""): ?>

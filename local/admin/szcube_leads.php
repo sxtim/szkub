@@ -502,6 +502,10 @@ $failedCount = isset($_GET["failed"]) ? (int)$_GET["failed"] : 0;
                             <div class="szcube-leads__detail-value"><?= htmlspecialcharsbx($selectedLead["PHONE"]) ?></div>
                         </div>
                         <div class="szcube-leads__detail-row">
+                            <div class="szcube-leads__detail-label">Тип заявки</div>
+                            <div class="szcube-leads__detail-value"><?= htmlspecialcharsbx($selectedLead["TYPE_META"]["title"]) ?></div>
+                        </div>
+                        <div class="szcube-leads__detail-row">
                             <div class="szcube-leads__detail-label">Детали заявки</div>
                             <div class="szcube-leads__detail-value">
                                 <?php if ($selectedLead["LEAD_NOTE"] !== ""): ?>
@@ -597,6 +601,7 @@ $failedCount = isset($_GET["failed"]) ? (int)$_GET["failed"] : 0;
                         <th>Дата</th>
                         <th>Имя</th>
                         <th>Телефон</th>
+                        <th>Тип</th>
                         <th>CRM</th>
                         <th>Детали</th>
                         <th>Страница</th>
@@ -610,6 +615,7 @@ $failedCount = isset($_GET["failed"]) ? (int)$_GET["failed"] : 0;
                             <td><?= htmlspecialcharsbx($item["TIMESTAMP_X"]) ?></td>
                             <td><?= htmlspecialcharsbx($item["NAME"]) ?></td>
                             <td><?= htmlspecialcharsbx($item["PHONE"]) ?></td>
+                            <td><?= htmlspecialcharsbx($item["TYPE_META"]["title"]) ?></td>
                             <td>
                                 <?php if ((string)$item["SENT_TO_CRM"] === "Y"): ?>
                                     <span class="szcube-leads__crm-badge szcube-leads__crm-badge--sent">Отправлено</span>
