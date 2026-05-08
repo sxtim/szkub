@@ -137,6 +137,16 @@ $requiredProperties = array(
 		"PROPERTY_TYPE" => "S",
 		"SORT" => 120,
 	),
+	array(
+		"CODE" => "HIDE_TITLE",
+		"NAME" => "Не выводить название",
+		"PROPERTY_TYPE" => "L",
+		"LIST_TYPE" => "C",
+		"SORT" => 130,
+		"VALUES" => array(
+			array("VALUE" => "Да", "XML_ID" => "Y", "SORT" => 100, "DEF" => "N"),
+		),
+	),
 );
 
 $propertyIds = array();
@@ -163,6 +173,12 @@ foreach ($requiredProperties as $propertyDef) {
 		);
 		if ($propertyDef["CODE"] === "SLOT") {
 			$fields["LIST_TYPE"] = "L";
+		}
+		if (isset($propertyDef["LIST_TYPE"])) {
+			$fields["LIST_TYPE"] = $propertyDef["LIST_TYPE"];
+		}
+		if (isset($propertyDef["VALUES"]) && is_array($propertyDef["VALUES"])) {
+			$fields["VALUES"] = $propertyDef["VALUES"];
 		}
 		$propertyId = (int)$ibp->Add($fields);
 		if ($propertyId <= 0) {

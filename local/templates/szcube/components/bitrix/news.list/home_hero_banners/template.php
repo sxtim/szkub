@@ -48,6 +48,16 @@ foreach ($arResult["ITEMS"] as $item) {
 	if (function_exists("szcubeGetHomeBannerPublicTitle")) {
 		$title = szcubeGetHomeBannerPublicTitle($title);
 	}
+	$hideTitle = false;
+	if (isset($item["PROPERTIES"]["HIDE_TITLE"]["VALUE_XML_ID"]) && !is_array($item["PROPERTIES"]["HIDE_TITLE"]["VALUE_XML_ID"])) {
+		$hideTitle = strtoupper(trim((string)$item["PROPERTIES"]["HIDE_TITLE"]["VALUE_XML_ID"])) === "Y";
+	} elseif (isset($item["PROPERTIES"]["HIDE_TITLE"]["VALUE"]) && !is_array($item["PROPERTIES"]["HIDE_TITLE"]["VALUE"])) {
+		$hideValue = trim((string)$item["PROPERTIES"]["HIDE_TITLE"]["VALUE"]);
+		$hideTitle = $hideValue !== "" && mb_strtolower($hideValue) !== "нет";
+	}
+	if ($hideTitle) {
+		$title = "";
+	}
 
 	$text = isset($item["~PREVIEW_TEXT"]) ? trim((string)$item["~PREVIEW_TEXT"]) : (isset($item["PREVIEW_TEXT"]) ? trim((string)$item["PREVIEW_TEXT"]) : "");
 
