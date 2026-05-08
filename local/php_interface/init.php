@@ -1901,33 +1901,6 @@ if (!function_exists("szcubePrepareApartmentBeforeSave")) {
     }
 }
 
-if (!function_exists("szcubeResolveElementIblockId")) {
-    function szcubeResolveElementIblockId(array $fields)
-    {
-        if (isset($fields["IBLOCK_ID"]) && (int)$fields["IBLOCK_ID"] > 0) {
-            return (int)$fields["IBLOCK_ID"];
-        }
-
-        $elementId = isset($fields["ID"]) ? (int)$fields["ID"] : 0;
-        if ($elementId <= 0) {
-            return 0;
-        }
-
-        $res = CIBlockElement::GetList(
-            array(),
-            array("ID" => $elementId),
-            false,
-            false,
-            array("ID", "IBLOCK_ID")
-        );
-        if ($row = $res->Fetch()) {
-            return (int)$row["IBLOCK_ID"];
-        }
-
-        return 0;
-    }
-}
-
 if (!function_exists("szcubeIsAutoHomeBannerName")) {
     function szcubeIsAutoHomeBannerName($value)
     {
@@ -1951,114 +1924,6 @@ if (!function_exists("szcubeGetHomeBannerPublicTitle")) {
         return $value;
     }
 }
-
-if (!function_exists("szcubeGetHomeBannerPropertyValue")) {
-    function szcubeGetHomeBannerPropertyValue(array $fields, $propertyId)
-    {
-        $propertyId = (int)$propertyId;
-        if ($propertyId <= 0 || !isset($fields["PROPERTY_VALUES"]) || !is_array($fields["PROPERTY_VALUES"])) {
-            return "";
-        }
-
-        $propertyValues = $fields["PROPERTY_VALUES"];
-        if (!array_key_exists($propertyId, $propertyValues)) {
-            return "";
-        }
-
-        $value = $propertyValues[$propertyId];
-        while (is_array($value)) {
-            if (array_key_exists("VALUE", $value)) {
-                $value = $value["VALUE"];
-                continue;
-            }
-
-            if (array_key_exists("n0", $value)) {
-                $value = $value["n0"];
-                continue;
-            }
-
-            $firstKey = null;
-            foreach ($value as $innerKey => $_innerValue) {
-                $firstKey = $innerKey;
-                break;
-            }
-            if ($firstKey === null) {
-                return "";
-            }
-
-            $value = $value[$firstKey];
-        }
-
-        return trim((string)$value);
-    }
-}
-
-if (!function_exists("szcubeBuildAutoHomeBannerName")) {
-    function szcubeBuildAutoHomeBannerName(array $fields)
-    {
-        $parts = array();
-
-        $iblockId = szcubeResolveElementIblockId($fields);
-        if ($iblockId > 0) {
-            $propertyRes = CIBlockProperty::GetList(
-                array("SORT" => "ASC", "ID" => "ASC"),
-                array("IBLOCK_ID" => $iblockId, "CODE" => "SLOT")
-            );
-            if ($property = $propertyRes->Fetch()) {
-                $slotRawValue = szcubeGetHomeBannerPropertyValue($fields, (int)$property["ID"]);
-                if ($slotRawValue !== "") {
-                    $enumRes = CIBlockPropertyEnum::GetList(
-                        array("SORT" => "ASC", "ID" => "ASC"),
-                        array("PROPERTY_ID" => (int)$property["ID"], "ID" => $slotRawValue)
-                    );
-                    if ($enum = $enumRes->Fetch()) {
-                        $slotXmlId = strtoupper(trim((string)$enum["XML_ID"]));
-                        if ($slotXmlId !== "") {
-                            $parts[] = $slotXmlId;
-                        }
-                    } else {
-                        $parts[] = strtoupper($slotRawValue);
-                    }
-                }
-            }
-        }
-
-        $code = isset($fields["CODE"]) ? trim((string)$fields["CODE"]) : "";
-        if ($code !== "") {
-            $parts[] = $code;
-        }
-
-        $elementId = isset($fields["ID"]) ? (int)$fields["ID"] : 0;
-        if ($elementId > 0) {
-            $parts[] = "ID" . $elementId;
-        }
-
-        if (empty($parts)) {
-            $parts[] = "TMP";
-            $parts[] = date("YmdHis");
-        }
-
-        return SZCUBE_HOME_BANNER_AUTO_NAME_PREFIX . implode(":", array_unique($parts));
-    }
-}
-
-if (!function_exists("szcubePrepareHomeBannerBeforeSave")) {
-    function szcubePrepareHomeBannerBeforeSave(&$fields)
-    {
-        $iblockId = szcubeResolveElementIblockId(is_array($fields) ? $fields : array());
-        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("home_banners")) {
-            return;
-        }
-
-        $name = isset($fields["NAME"]) ? trim((string)$fields["NAME"]) : "";
-        if ($name !== "" && !szcubeIsAutoHomeBannerName($name)) {
-            return;
-        }
-
-        $fields["NAME"] = szcubeBuildAutoHomeBannerName($fields);
-    }
-}
-
 if (!function_exists("szcubeGetDynamicElementProjectId")) {
     function szcubeGetDynamicElementProjectId($elementId, $iblockId)
     {
@@ -2613,91 +2478,6 @@ if (!function_exists("szcubeInjectApartmentElementAdminUiTweaks")) {
     }
 }
 
-if (!function_exists("szcubeInjectHomeBannerAdminUiTweaks")) {
-    function szcubeInjectHomeBannerAdminUiTweaks()
-    {
-        global $APPLICATION;
-
-        if (!is_object($APPLICATION)) {
-            return;
-        }
-
-        $currentPage = $APPLICATION->GetCurPage(true);
-        if ($currentPage !== "/bitrix/admin/iblock_element_edit.php") {
-            return;
-        }
-
-        $iblockId = isset($_REQUEST["IBLOCK_ID"]) ? (int)$_REQUEST["IBLOCK_ID"] : 0;
-        if ($iblockId <= 0 || $iblockId !== szcubeGetIblockIdByCode("home_banners")) {
-            return;
-        }
-
-        $slotPropertyId = 0;
-        $propertyRes = CIBlockProperty::GetList(
-            array("SORT" => "ASC", "ID" => "ASC"),
-            array(
-                "IBLOCK_ID" => $iblockId,
-                "CODE" => "SLOT",
-            )
-        );
-        if ($property = $propertyRes->Fetch()) {
-            $slotPropertyId = (int)$property["ID"];
-        }
-
-        $script = '<script>BX.ready(function(){'
-            . 'var config=' . CUtil::PhpToJSObject(array(
-                "slotPropertyId" => $slotPropertyId,
-                "autoPrefix" => SZCUBE_HOME_BANNER_AUTO_NAME_PREFIX,
-            )) . ';'
-            . 'var nameInput=document.querySelector(\'[name="NAME"]\')||document.getElementById("NAME");'
-            . 'if(!nameInput){return;}'
-            . 'var form=nameInput.form||document.querySelector("form");'
-            . 'function isAutoName(value){'
-                . 'value=(value||"").trim();'
-                . 'return value.indexOf(config.autoPrefix)===0;'
-            . '}'
-            . 'function findPropertyControl(propertyId){'
-                . 'if(!propertyId){return null;}'
-                . 'return document.querySelector(\'[name^="PROPERTY_\'+propertyId+\'"]\')||document.getElementById("PROPERTY_"+propertyId);'
-            . '}'
-            . 'function buildAutoName(){'
-                . 'if(nameInput.dataset.szcubeStoredAutoName){return nameInput.dataset.szcubeStoredAutoName;}'
-                . 'var parts=[];'
-                . 'var slotControl=findPropertyControl(config.slotPropertyId);'
-                . 'if(slotControl && slotControl.options && slotControl.selectedIndex>=0){'
-                    . 'var selected=slotControl.options[slotControl.selectedIndex];'
-                    . 'var slotValue=(selected && (selected.value||selected.textContent||""))||"";'
-                    . 'slotValue=(slotValue+"").trim().toUpperCase();'
-                    . 'if(slotValue){parts.push(slotValue);}'
-                . '}'
-                . 'var codeInput=document.querySelector(\'[name="CODE"]\')||document.getElementById("CODE");'
-                . 'var codeValue=codeInput ? (codeInput.value||"").trim() : "";'
-                . 'if(codeValue){parts.push(codeValue);}'
-                . 'if(!parts.length){parts.push("TMP");parts.push(String(Date.now()));}'
-                . 'nameInput.dataset.szcubeStoredAutoName=config.autoPrefix+parts.join(":");'
-                . 'return nameInput.dataset.szcubeStoredAutoName;'
-            . '}'
-            . 'if(isAutoName(nameInput.value)){'
-                . 'nameInput.dataset.szcubeStoredAutoName=nameInput.value.trim();'
-                . 'nameInput.value="";'
-            . '}'
-            . 'nameInput.placeholder="Можно оставить пустым";'
-            . 'var note=document.createElement("div");'
-            . 'note.className="szcube-home-banner-name-note";'
-            . 'note.style.marginTop="6px";'
-            . 'note.style.fontSize="12px";'
-            . 'note.style.color="#6b7280";'
-            . 'note.textContent="Пустое поле сохранится как техническое имя и не будет показано на сайте.";' 
-            . 'if(nameInput.parentNode){nameInput.parentNode.appendChild(note);}'
-            . 'if(form){form.addEventListener("submit",function(){'
-                . 'if((nameInput.value||"").trim()===""){nameInput.value=buildAutoName();}'
-            . '});}'
-        . '});</script>';
-
-        $APPLICATION->AddHeadString($script, true);
-    }
-}
-
 if (!function_exists("szcubeInjectApartmentChessAdminToolbarButton")) {
     function szcubeInjectApartmentChessAdminToolbarButton()
     {
@@ -2830,8 +2610,6 @@ if (!function_exists("szcubeAddAdminFavicon")) {
 
 AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubePrepareApartmentBeforeSave");
 AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubePrepareApartmentBeforeSave");
-AddEventHandler("iblock", "OnBeforeIBlockElementAdd", "szcubePrepareHomeBannerBeforeSave");
-AddEventHandler("iblock", "OnBeforeIBlockElementUpdate", "szcubePrepareHomeBannerBeforeSave");
 AddEventHandler("iblock", "OnAfterIBlockElementAdd", "szcubeSyncProjectDynamicElementSection");
 AddEventHandler("iblock", "OnAfterIBlockElementUpdate", "szcubeSyncProjectDynamicElementSection");
 AddEventHandler("form", "onAfterResultAdd", "szcubeHandleLeadResultCreated");
@@ -2840,5 +2618,4 @@ AddEventHandler("main", "OnAdminPageBeforeShow", "szcubeAddAdminFavicon");
 AddEventHandler("main", "OnAdminContextMenuShow", "szcubeAddApartmentChessAdminContextButton");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentSectionAdminUiTweaks");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentElementAdminUiTweaks");
-AddEventHandler("main", "OnProlog", "szcubeInjectHomeBannerAdminUiTweaks");
 AddEventHandler("main", "OnProlog", "szcubeInjectApartmentChessAdminToolbarButton");
