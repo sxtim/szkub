@@ -109,6 +109,35 @@ if (!function_exists("szcubeRealtyFilterPropertyMultipleValues")) {
     }
 }
 
+if (!function_exists("szcubeRealtyFilterIsPubliclyHiddenStatus")) {
+    function szcubeRealtyFilterIsPubliclyHiddenStatus($statusKey, $statusLabel = "", $hideBooked = false)
+    {
+        $statusKey = trim((string)$statusKey);
+        $statusLabel = trim((string)$statusLabel);
+
+        $statusKey = function_exists("mb_strtolower") ? mb_strtolower($statusKey) : strtolower($statusKey);
+        $statusLabel = function_exists("mb_strtolower") ? mb_strtolower($statusLabel) : strtolower($statusLabel);
+
+        if ($statusKey === "sold") {
+            return true;
+        }
+
+        if ($statusLabel !== "" && preg_match("/^продан[а-я]*$/u", $statusLabel) === 1) {
+            return true;
+        }
+
+        if (!$hideBooked) {
+            return false;
+        }
+
+        if ($statusKey === "booked") {
+            return true;
+        }
+
+        return $statusLabel !== "" && preg_match("/^забронир[а-я]*$/u", $statusLabel) === 1;
+    }
+}
+
 if (!function_exists("szcubeRealtyFilterRangeUpdate")) {
     function szcubeRealtyFilterRangeUpdate(array &$range, $value, $allowZero = false)
     {

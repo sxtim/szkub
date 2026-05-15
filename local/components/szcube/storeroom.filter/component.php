@@ -136,6 +136,9 @@ while ($element = $elementRes->GetNextElement()) {
 
     $statusLabel = szcubeRealtyFilterPropertySingleValue(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
     $statusKey = szcubeRealtyFilterPropertySingleKey(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
+    if (szcubeRealtyFilterIsPubliclyHiddenStatus($statusKey, $statusLabel, false)) {
+        continue;
+    }
     $badges = szcubeRealtyFilterPropertyMultipleValues(isset($properties["BADGES"]) ? $properties["BADGES"] : array());
     $areaTotal = isset($properties["AREA_TOTAL"]["VALUE"]) ? (float)$properties["AREA_TOTAL"]["VALUE"] : 0;
     $priceTotal = isset($properties["PRICE_TOTAL"]["VALUE"]) ? (float)$properties["PRICE_TOTAL"]["VALUE"] : 0;

@@ -172,6 +172,9 @@ while ($element = $elementRes->GetNextElement()) {
     $typeKey = szcubeRealtyFilterPropertySingleKey(isset($properties["COMMERCIAL_TYPE"]) ? $properties["COMMERCIAL_TYPE"] : array());
     $statusLabel = szcubeRealtyFilterPropertySingleValue(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
     $statusKey = szcubeRealtyFilterPropertySingleKey(isset($properties["STATUS"]) ? $properties["STATUS"] : array());
+    if (szcubeRealtyFilterIsPubliclyHiddenStatus($statusKey, $statusLabel, false)) {
+        continue;
+    }
     $badges = szcubeRealtyFilterPropertyMultipleValues(isset($properties["BADGES"]) ? $properties["BADGES"] : array());
     $featureTags = szcubeRealtyFilterPropertyMultipleValues(isset($properties["FEATURE_TAGS"]) ? $properties["FEATURE_TAGS"] : array());
 

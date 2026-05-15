@@ -114,14 +114,16 @@ if (!function_exists("szcubeApartmentFilterDiscountBadge")) {
 if (!function_exists("szcubeApartmentFilterIsPubliclyHiddenStatus")) {
     function szcubeApartmentFilterIsPubliclyHiddenStatus($statusKey, $statusLabel = "")
     {
+        if (function_exists("szcubeRealtyFilterIsPubliclyHiddenStatus")) {
+            return szcubeRealtyFilterIsPubliclyHiddenStatus($statusKey, $statusLabel, true);
+        }
+
         $statusKey = trim(mb_strtolower((string)$statusKey));
         $statusLabel = trim(mb_strtolower((string)$statusLabel));
 
-        if ($statusKey === "sold" || $statusKey === "booked") {
-            return true;
-        }
-
-        return $statusLabel !== "" && preg_match("/^(продан[а-я]*|забронир[а-я]*)$/u", $statusLabel) === 1;
+        return $statusKey === "sold"
+            || $statusKey === "booked"
+            || ($statusLabel !== "" && preg_match("/^(продан[а-я]*|забронир[а-я]*)$/u", $statusLabel) === 1);
     }
 }
 
