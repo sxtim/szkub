@@ -18,6 +18,7 @@ $asset->addCss(SITE_TEMPLATE_PATH . "/css/main.css");
 if (!$isDetailPrintPage) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/contact-form.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/accordion.css");
+    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog-shared.js");
 }
 if (defined("CONSULTING_PAGE") && CONSULTING_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
@@ -28,8 +29,10 @@ if (defined("TENDERS_PAGE") && TENDERS_PAGE === true) {
 }
 if (defined("CATALOG_PAGE") && CATALOG_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
-    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog-shared.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog.js");
+}
+if (defined("FAVORITES_PAGE") && FAVORITES_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
 }
 if (
     (defined("PARKING_PAGE") && PARKING_PAGE === true)
@@ -37,7 +40,6 @@ if (
 ) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/catalog.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/parking.css");
-    $asset->addJs(SITE_TEMPLATE_PATH . "/js/catalog-shared.js");
     $asset->addJs(SITE_TEMPLATE_PATH . "/js/parking-catalog.js");
 }
 if (defined("COMMERCIAL_PAGE") && COMMERCIAL_PAGE === true) {
@@ -199,6 +201,7 @@ if (!defined("ERROR_404")) {
                 <ul class="nav__dropdown">
                   <li><a href="<?=$getNavLink("promotions", "/promotions/")?>">Акции</a></li>
                   <li><a href="<?=$getNavLink("news", "/news/")?>">Новости</a></li>
+                  <li><a href="<?=$getNavLink("favorites", "/favorites/")?>">Избранное</a></li>
                   <li><a href="<?=$getNavLink("parking", "/parking/")?>">Паркинг</a></li>
                   <li><a href="<?=$getNavLink("storerooms", "/storerooms/")?>">Кладовые</a></li>
                   <li><a href="<?=$getNavLink("mortgage", "/mortgage/")?>">Ипотека</a></li>
@@ -214,6 +217,12 @@ if (!defined("ERROR_404")) {
               />
               <a href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>
             </div>
+            <a class="header__favorite" href="<?=$getNavLink("favorites", "/favorites/")?>" data-favorites-link aria-label="Избранное" title="Избранное">
+              <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M10.9988 18.1463L9.77616 17.0337C5.43468 13.1098 2.56445 10.5081 2.56445 7.31585C2.56445 4.71413 4.59884 2.69336 7.20562 2.69336C8.67789 2.69336 10.0906 3.37417 10.9988 4.44819C11.9071 3.37417 13.3198 2.69336 14.7921 2.69336C17.3989 2.69336 19.4333 4.71413 19.4333 7.31585C19.4333 10.5081 16.563 13.1098 12.2215 17.0412L10.9988 18.1463Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="header__favorite-count" data-favorites-count hidden>0</span>
+            </a>
             <button class="btn btn--light" type="button" data-contact-open="contact" data-contact-title="Заказать обратный звонок" data-contact-type="callback" data-contact-source="header">Заказать звонок</button>
           </div>
           <button class="mobile-nav-btn" type="button" aria-label="Открыть меню">
@@ -229,6 +238,7 @@ if (!defined("ERROR_404")) {
             <li><a href="<?=$getNavLink("tenders", "/tenders/")?>">Тендеры</a></li>
             <li><a href="<?=$getNavLink("promotions", "/promotions/")?>">Акции</a></li>
             <li><a href="<?=$getNavLink("news", "/news/")?>">Новости</a></li>
+            <li><a href="<?=$getNavLink("favorites", "/favorites/")?>">Избранное <span class="mobile-nav__count" data-favorites-count hidden>0</span></a></li>
             <li><a href="<?=$getNavLink("parking", "/parking/")?>">Паркинг</a></li>
             <li><a href="<?=$getNavLink("storerooms", "/storerooms/")?>">Кладовые</a></li>
             <li><a href="<?=$getNavLink("about_company", "/about-company/")?>">О компании</a></li>

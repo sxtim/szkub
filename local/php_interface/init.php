@@ -10,6 +10,11 @@ if ($szcubeLeadsConfigPath !== "/local/php_interface/szcube_leads.php" && is_fil
     require_once $szcubeLeadsConfigPath;
 }
 
+$szcubeFavoritesPath = rtrim((string)($_SERVER["DOCUMENT_ROOT"] ?? ""), "/") . "/local/include/favorites.php";
+if ($szcubeFavoritesPath !== "/local/include/favorites.php" && is_file($szcubeFavoritesPath)) {
+    require_once $szcubeFavoritesPath;
+}
+
 if (!defined("SZCUBE_CONTACT_WEB_FORM_ID")) {
     define("SZCUBE_CONTACT_WEB_FORM_ID", 2);
 }
@@ -418,6 +423,7 @@ if (!function_exists("szcubeGetNavigationLinks")) {
             "contacts" => "/#contacts",
             "promotions" => "/promotions/",
             "news" => "/news/",
+            "favorites" => "/favorites/",
             "parking" => "/parking/",
             "storerooms" => "/storerooms/",
             "mortgage" => "/mortgage/",

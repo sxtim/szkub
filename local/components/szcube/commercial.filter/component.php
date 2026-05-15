@@ -204,6 +204,11 @@ while ($element = $elementRes->GetNextElement()) {
 
     $arResult["COMMERCIALS"][] = array(
         "id" => (int)$fields["ID"],
+        "favorite" => array(
+            "entity_type" => "commercial",
+            "entity_id" => (int)$fields["ID"],
+            "key" => "commercial:" . (int)$fields["ID"],
+        ),
         "code" => (string)$fields["CODE"],
         "sort" => (int)$fields["SORT"],
         "url" => $detailUrl,

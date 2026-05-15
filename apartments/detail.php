@@ -1086,6 +1086,11 @@ if ($code !== "" && class_exists("\\Bitrix\\Main\\Loader") && \Bitrix\Main\Loade
 						"area_diff" => abs($similarAreaRaw - $areaTotalRaw),
 						"price_diff" => abs($similarPriceRaw - $priceTotalRaw),
 						"card" => array(
+							"favorite" => array(
+								"entity_type" => "apartment",
+								"entity_id" => (int)$similarFields["ID"],
+								"key" => "apartment:" . (int)$similarFields["ID"],
+							),
 							"url" => $similarUrl,
 							"project_name" => $projectName,
 							"project_delivery" => $handover,
@@ -1276,7 +1281,7 @@ $apartmentContactNote = implode(" | ", $apartmentContactNoteItems);
 	                  <path d="M14.5 14.5L18 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
 	                </svg>
 	              </button>
-	              <button class="apartment-hero__action" type="button" data-apartment-action="favorite" aria-label="Добавить в избранное">
+	              <button class="apartment-hero__action" type="button" data-apartment-action="favorite" data-favorite-type="apartment" data-favorite-id="<?= (int)$apartmentId ?>" data-favorite-key="apartment:<?= (int)$apartmentId ?>" aria-label="Добавить в избранное" aria-pressed="false" title="В избранное">
 	                <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 	                  <path d="M10.9988 18.1463L9.77616 17.0337C5.43468 13.1098 2.56445 10.5081 2.56445 7.31585C2.56445 4.71413 4.59884 2.69336 7.20562 2.69336C8.67789 2.69336 10.0906 3.37417 10.9988 4.44819C11.9071 3.37417 13.3198 2.69336 14.7921 2.69336C17.3989 2.69336 19.4333 4.71413 19.4333 7.31585C19.4333 10.5081 16.563 13.1098 12.2215 17.0412L10.9988 18.1463Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 	                </svg>

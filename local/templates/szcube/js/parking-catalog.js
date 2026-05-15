@@ -2,8 +2,6 @@ const {
   escapeHtml: parkingEscapeHtml,
   uniqueValues: parkingUniqueValues,
   readRangeValue: parkingReadRangeValue,
-  getStorageArray: parkingGetFavorites,
-  setStorageArray: parkingSetFavorites,
 } = window.szcubeCatalogShared;
 
 const parkingParsePayload = (root) => {
@@ -24,10 +22,6 @@ const parkingParsePayload = (root) => {
           ? payload.items
           : [],
       config: {
-        favorite_storage_key:
-          typeof config.favorite_storage_key === "string" && config.favorite_storage_key.trim() !== ""
-            ? config.favorite_storage_key.trim()
-            : "parking-favorites",
         lead_type:
           typeof config.lead_type === "string" && config.lead_type.trim() !== ""
             ? config.lead_type.trim()
@@ -263,7 +257,19 @@ const parkingStateToQuery = (state, payload) => {
   return params;
 };
 
-const parkingRenderCard = (parking, favoriteKeys, config) => {
+const parkingFavoriteAttrs = (item) => {
+  const favorite = item && typeof item.favorite === "object" ? item.favorite : {};
+  const type = typeof favorite.entity_type === "string" ? favorite.entity_type.trim() : "";
+  const id = Number(favorite.entity_id || item?.id || 0);
+  if (!type || !Number.isFinite(id) || id <= 0) {
+    return "";
+  }
+
+  const key = typeof favorite.key === "string" && favorite.key.trim() ? favorite.key.trim() : `${type}:${id}`;
+  return ` data-favorite-type="${parkingEscapeHtml(type)}" data-favorite-id="${parkingEscapeHtml(String(id))}" data-favorite-key="${parkingEscapeHtml(key)}" aria-pressed="false"`;
+};
+
+const parkingRenderCard = (parking, config) => {
   const title = parkingEscapeHtml(parking.title || "Парковочное место");
   const projectName = parkingEscapeHtml(parking.project_name || "");
   const typeLabel = parkingEscapeHtml(parking.type_label || config.type_fallback_label || "Паркинг");
@@ -274,7 +280,6 @@ const parkingRenderCard = (parking, favoriteKeys, config) => {
   const areaLabel = parkingEscapeHtml(parking.area_total_formatted || "");
   const metaParts = [levelLabel, areaLabel].filter(Boolean);
   const badges = Array.isArray(parking.badges) ? parking.badges.filter(Boolean).slice(0, 2) : [];
-  const isFavorite = favoriteKeys.includes(parking.favorite_key);
   const reserveNote = [
     title ? `${config.note_item_label}: ${title}` : "",
     projectName ? `${config.note_project_label}: ${projectName}` : "",
@@ -326,7 +331,7 @@ const parkingRenderCard = (parking, favoriteKeys, config) => {
       : `<div class="catalog-list-card__details" aria-hidden="true"></div>`;
 
   return `
-    <article class="apartment-card catalog-list-card" data-favorite-key="${parkingEscapeHtml(parking.favorite_key || "")}">
+    <article class="apartment-card catalog-list-card">
       <div class="apartment-card__list">
         <div class="apartment-card__summary">
           <div class="apartment-card__rooms">${title}</div>
@@ -344,7 +349,7 @@ const parkingRenderCard = (parking, favoriteKeys, config) => {
             : `<span class="catalog-list-card__action-slot" aria-hidden="true"></span>`}
         </div>
         <div class="apartment-card__icons">
-          <button class="apartment-card__icon apartment-card__action apartment-card__fav${isFavorite ? " is-active" : ""}" type="button" aria-label="В избранное" title="В избранное">
+          <button class="apartment-card__icon apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное"${parkingFavoriteAttrs(parking)}>
             <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -367,9 +372,7 @@ const initParkingCatalog = () => {
     const resetBtn = root.querySelector("[data-parking-reset]");
     const allParkings = Array.isArray(payload.parkings) ? payload.parkings : [];
     const config = payload.config || {};
-    const favoritesStorageKey = config.favorite_storage_key || "parking-favorites";
     const initialQuery = parkingStateFromQuery();
-    let favoriteKeys = parkingGetFavorites(favoritesStorageKey);
     let isReady = false;
 
     if (!results || !empty) {
@@ -395,13 +398,14 @@ const initParkingCatalog = () => {
     });
 
     const render = () => {
-      results.innerHTML = allParkings.map((item) => parkingRenderCard(item, favoriteKeys, config)).join("");
+      results.innerHTML = allParkings.map((item) => parkingRenderCard(item, config)).join("");
       empty.hidden = allParkings.length > 0;
       results.hidden = allParkings.length === 0;
 
       if (resetBtn) {
         resetBtn.hidden = !parkingHasCriteria(getState());
       }
+      window.szcubeCatalogShared?.hydrateFavorites?.(results);
     };
 
     const navigateWithState = () => {
@@ -445,18 +449,7 @@ const initParkingCatalog = () => {
       const favButton = event.target.closest(".apartment-card__fav");
       if (favButton) {
         event.preventDefault();
-        const card = favButton.closest("[data-favorite-key]");
-        const favoriteKey = card?.dataset.favoriteKey || "";
-        if (!favoriteKey) {
-          return;
-        }
-        if (favoriteKeys.includes(favoriteKey)) {
-          favoriteKeys = favoriteKeys.filter((item) => item !== favoriteKey);
-        } else {
-          favoriteKeys = [...favoriteKeys, favoriteKey];
-        }
-        parkingSetFavorites(favoritesStorageKey, favoriteKeys);
-        favButton.classList.toggle("is-active", favoriteKeys.includes(favoriteKey));
+        window.szcubeCatalogShared?.toggleFavoriteButton?.(favButton);
       }
     });
 

@@ -50,7 +50,7 @@
       if (favoriteButton) {
         event.preventDefault();
         event.stopPropagation();
-        favoriteButton.classList.toggle("is-active");
+        window.szcubeCatalogShared?.toggleFavoriteButton?.(favoriteButton);
         return;
       }
 

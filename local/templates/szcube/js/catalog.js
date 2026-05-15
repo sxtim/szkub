@@ -27,6 +27,18 @@ const catalogNormalizeBadges = (badges) => {
   );
 };
 
+const catalogFavoriteAttrs = (item) => {
+  const favorite = item && typeof item.favorite === "object" ? item.favorite : {};
+  const type = typeof favorite.entity_type === "string" ? favorite.entity_type.trim() : "";
+  const id = Number(favorite.entity_id || item?.id || 0);
+  if (!type || !Number.isFinite(id) || id <= 0) {
+    return "";
+  }
+
+  const key = typeof favorite.key === "string" && favorite.key.trim() ? favorite.key.trim() : `${type}:${id}`;
+  return ` data-favorite-type="${catalogEscapeHtml(type)}" data-favorite-id="${catalogEscapeHtml(String(id))}" data-favorite-key="${catalogEscapeHtml(key)}" aria-pressed="false"`;
+};
+
 const catalogRenderBadges = (badges) => {
   const normalizedBadges = catalogNormalizeBadges(badges);
   if (!normalizedBadges.length) {
@@ -513,7 +525,7 @@ const catalogRenderListCardContent = (flat, boardUrl) => {
               <path d="M10.75 10.75H14.5V14.5H10.75V10.75Z" stroke="currentColor" stroke-width="1.2"/>
             </svg>
           </button>` : ""}
-          <button class="apartment-card__icon apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное">
+          <button class="apartment-card__icon apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное"${catalogFavoriteAttrs(flat)}>
             <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -556,7 +568,7 @@ const catalogRenderCard = (flat) => {
         </div>
         <div class="apartment-card__actions">
           ${boardAction}
-          <button class="apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное">
+          <button class="apartment-card__action apartment-card__fav" type="button" aria-label="В избранное" title="В избранное"${catalogFavoriteAttrs(flat)}>
             <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M6.37256 1.89355C5.22588 0.557201 3.30974 0.144211 1.873 1.36791C0.436265 2.5916 0.233992 4.63754 1.36227 6.08483C2.30036 7.28811 5.13934 9.826 6.0698 10.6474C6.17387 10.7393 6.22593 10.7853 6.28666 10.8033C6.33962 10.8191 6.39761 10.8191 6.45063 10.8033C6.51136 10.7853 6.56336 10.7393 6.66749 10.6474C7.59796 9.826 10.4369 7.28811 11.375 6.08483C12.5033 4.63754 12.3257 2.57873 10.8642 1.36791C9.40281 0.157083 7.51925 0.557201 6.37256 1.89355Z" stroke="#8C8C8C" stroke-width="1.27452" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -783,6 +795,7 @@ const initApartmentCatalog = () => {
     if (resetButton) {
       resetButton.hidden = !catalogHasCriteria(catalogBuildState(root, payload));
     }
+    window.szcubeCatalogShared?.hydrateFavorites?.(resultsContainer);
   };
 
   ["(max-width: 1200px)", "(max-width: 900px)", "(max-width: 600px)"].forEach((query) => {
@@ -870,9 +883,9 @@ const initApartmentCatalog = () => {
 
     const favoriteButton = event.target.closest(".apartment-card__fav");
     if (favoriteButton) {
-      favoriteButton.classList.toggle("is-active");
       event.preventDefault();
       event.stopPropagation();
+      window.szcubeCatalogShared?.toggleFavoriteButton?.(favoriteButton);
       return;
     }
 

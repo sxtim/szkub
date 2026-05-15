@@ -531,6 +531,7 @@ const initProjectApartmentSelector = () => {
     const lotPriceMain = lotCard?.querySelector("[data-lot-price-main]") || null;
     const lotPriceOld = lotCard?.querySelector("[data-lot-price-old]") || null;
     const lotBadges = lotCard?.querySelector("[data-lot-badges]") || null;
+    const lotFavorite = lotCard?.querySelector("[data-lot-favorite]") || null;
     const lotClose = lotCard?.querySelector("[data-selector-close-lot]") || null;
     const lots = Array.from(root.querySelectorAll("[data-flat-id]"));
     const sceneSections = Array.from(root.querySelectorAll("[data-section-overlay]"));
@@ -767,6 +768,19 @@ const initProjectApartmentSelector = () => {
         lotBadges.hidden = badges.length === 0;
       }
 
+      if (lotFavorite) {
+        lotFavorite.dataset.favoriteType = button.dataset.flatFavoriteType || "apartment";
+        lotFavorite.dataset.favoriteId = button.dataset.flatFavoriteId || button.dataset.flatId || "";
+        lotFavorite.dataset.favoriteKey =
+          button.dataset.flatFavoriteKey ||
+          (lotFavorite.dataset.favoriteType && lotFavorite.dataset.favoriteId
+            ? `${lotFavorite.dataset.favoriteType}:${lotFavorite.dataset.favoriteId}`
+            : "");
+        lotFavorite.classList.remove("is-active");
+        lotFavorite.setAttribute("aria-pressed", "false");
+        window.szcubeCatalogShared?.hydrateFavorites?.(lotCard);
+      }
+
       lotCard.hidden = false;
       root.classList.add("is-lot-open");
     };
@@ -970,6 +984,12 @@ const initProjectApartmentSelector = () => {
 
     lotClose?.addEventListener("click", () => {
       hideLotCard();
+    });
+
+    lotFavorite?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      window.szcubeCatalogShared?.toggleFavoriteButton?.(lotFavorite);
     });
 
     root.addEventListener("click", (event) => {

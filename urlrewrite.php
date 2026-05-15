@@ -43,6 +43,12 @@ $arUrlRewrite = array(
 		"PATH"	=>	"/projects/index.php",
 	),
 	array(
+		"CONDITION"	=>	"#^/favorites/?$#",
+		"RULE"	=>	"",
+		"ID"	=>	"",
+		"PATH"	=>	"/local/pages/favorites.php",
+	),
+	array(
 		"CONDITION"	=>	"#^/promotions/#",
 		"RULE"	=>	"",
 		"ID"	=>	"bitrix:news",

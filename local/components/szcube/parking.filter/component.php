@@ -172,7 +172,11 @@ while ($element = $elementRes->GetNextElement()) {
         "price_old" => $priceOld,
         "price_old_formatted" => szcubeParkingFilterFormatPrice($priceOld),
         "badges" => $badges,
-        "favorite_key" => "parking-" . (int)$fields["ID"],
+        "favorite" => array(
+            "entity_type" => "parking",
+            "entity_id" => (int)$fields["ID"],
+            "key" => "parking:" . (int)$fields["ID"],
+        ),
     );
 }
 

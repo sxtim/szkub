@@ -166,7 +166,11 @@ while ($element = $elementRes->GetNextElement()) {
         "price_old" => $priceOld,
         "price_old_formatted" => szcubeStoreroomFilterFormatPrice($priceOld),
         "badges" => $badges,
-        "favorite_key" => "storeroom-" . (int)$fields["ID"],
+        "favorite" => array(
+            "entity_type" => "storeroom",
+            "entity_id" => (int)$fields["ID"],
+            "key" => "storeroom:" . (int)$fields["ID"],
+        ),
     );
 }
 

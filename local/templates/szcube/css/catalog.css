@@ -772,3 +772,78 @@
     justify-items: flex-start;
   }
 }
+
+.favorites-page .catalog-list-card,
+.favorites-page .apartment-card__list > * {
+  min-width: 0;
+}
+
+.favorites-page .apartment-card__rooms,
+.favorites-page .apartment-card__area,
+.favorites-page .catalog-list-card__type,
+.favorites-page .catalog-list-card__meta,
+.favorites-page .apartment-card__list-price {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 901px) {
+  .favorites-page .catalog-grid.is-list .catalog-list-card .apartment-card__list {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(120px, 0.7fr) minmax(150px, auto) minmax(76px, auto);
+  }
+}
+
+@media (max-width: 900px) {
+  .favorites-page .catalog-grid.is-list .catalog-list-card {
+    position: relative;
+  }
+
+  .favorites-page .catalog-grid.is-list .catalog-list-card .apartment-card__list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .favorites-page .catalog-grid.is-list .catalog-list-card .apartment-card__summary {
+    padding-right: 92px;
+  }
+
+  .favorites-page .catalog-grid.is-list .catalog-list-card .apartment-card__icons {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    justify-content: flex-end;
+    width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .catalog-grid.is-list .catalog-list-card .catalog-list-card__actions {
+    width: 100%;
+  }
+
+  .catalog-grid.is-list .catalog-list-card .catalog-list-card__primary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .catalog-grid.is-list .catalog-list-card .catalog-list-card__action-slot {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .favorites-page .catalog-grid.is-list .apartment-card {
+    padding: 16px;
+  }
+
+  .favorites-page .catalog-grid.is-list .catalog-list-card .apartment-card__list {
+    grid-template-columns: 1fr;
+  }
+
+  .favorites-page .catalog-grid.is-list .catalog-list-card .apartment-card__summary {
+    padding-right: 88px;
+  }
+
+  .favorites-page .catalog-grid.is-list .catalog-list-card .apartment-card__icons {
+    top: 16px;
+    right: 16px;
+  }
+}

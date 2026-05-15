@@ -117,11 +117,11 @@ if (!function_exists("szcubeApartmentFilterIsPubliclyHiddenStatus")) {
         $statusKey = trim(mb_strtolower((string)$statusKey));
         $statusLabel = trim(mb_strtolower((string)$statusLabel));
 
-        if ($statusKey === "sold") {
+        if ($statusKey === "sold" || $statusKey === "booked") {
             return true;
         }
 
-        return $statusLabel !== "" && preg_match("/^продан[а-я]*$/u", $statusLabel) === 1;
+        return $statusLabel !== "" && preg_match("/^(продан[а-я]*|забронир[а-я]*)$/u", $statusLabel) === 1;
     }
 }
 
@@ -449,6 +449,11 @@ if ($this->StartResultCache(false, array($projectsPageUrl, $catalogPageUrl, $ser
 
         $flats[] = array(
             "id" => (int)$flatFields["ID"],
+            "favorite" => array(
+                "entity_type" => "apartment",
+                "entity_id" => (int)$flatFields["ID"],
+                "key" => "apartment:" . (int)$flatFields["ID"],
+            ),
             "code" => trim((string)$flatFields["CODE"]),
             "xml_id" => trim((string)$flatFields["XML_ID"]),
             "url" => $flatUrl,

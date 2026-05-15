@@ -31,7 +31,6 @@ $payload = array(
     "ranges" => $ranges,
     "count" => $count,
     "config" => array(
-        "favorite_storage_key" => "storeroom-favorites",
         "lead_type" => "storeroom_reserve",
         "lead_source" => "storeroom_catalog",
         "count_forms" => $countForms,

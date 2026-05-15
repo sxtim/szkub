@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (action === "favorite") {
-        button.classList.toggle("is-active");
+        window.szcubeCatalogShared?.toggleFavoriteButton?.(button);
         return;
       }
 
