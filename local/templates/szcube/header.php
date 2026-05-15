@@ -211,11 +211,13 @@ if (!defined("ERROR_404")) {
           </nav>
           <div class="header__actions">
             <div class="header__phone">
-              <img
-                src="<?=SITE_TEMPLATE_PATH?>/img/figma-5ce40d0d-8a0e-4c43-b274-c7aeeb5d600e.svg"
-                alt=""
-              />
-              <a href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>
+              <a class="header__phone-link" href="tel:+7(473)300-68-87" aria-label="Позвонить +7(473) 300-68-87">
+                <img
+                  src="<?=SITE_TEMPLATE_PATH?>/img/figma-5ce40d0d-8a0e-4c43-b274-c7aeeb5d600e.svg"
+                  alt=""
+                />
+                <span>+7(473) 300-68-87</span>
+              </a>
             </div>
             <a class="header__favorite" href="<?=$getNavLink("favorites", "/favorites/")?>" data-favorites-link aria-label="Избранное" title="Избранное">
               <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

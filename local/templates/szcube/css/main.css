@@ -563,7 +563,7 @@ a {
 .header .nav__list a,
 .nav__more-btn,
 .nav__dropdown a,
-.header__phone a,
+.header__phone-link,
 .mobile-nav a {
   transition: color 0.2s ease, text-shadow 0.2s ease;
 }
@@ -573,8 +573,8 @@ a {
 .nav__more-btn:focus-visible,
 .nav__dropdown a:hover,
 .nav__dropdown a:focus-visible,
-.header__phone a:hover,
-.header__phone a:focus-visible,
+.header__phone-link:hover,
+.header__phone-link:focus-visible,
 .mobile-nav a:hover,
 .mobile-nav a:focus-visible {
   color: #ffffff;
@@ -652,13 +652,18 @@ a {
   gap: 22px;
 }
 .header__phone {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   color: var(--white);
   font-weight: 700;
   font-size: 15px;
 }
+
+.header__phone-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--white);
+}
+
 .header__phone img {
   width: 42px;
   height: 24px;
@@ -732,6 +737,18 @@ a {
     display: none;
   }
   .header__actions {
+    display: flex;
+    margin-left: auto;
+    gap: 12px;
+  }
+  .header__phone-link {
+    width: 42px;
+    height: 42px;
+    justify-content: center;
+    gap: 0;
+  }
+  .header__phone-link span,
+  .header__actions .btn--light {
     display: none;
   }
 }
@@ -803,6 +820,27 @@ a {
 @media (max-width: 1380px) {
   .mobile-nav-btn {
     display: flex;
+  }
+}
+
+@media (max-width: 420px) {
+  .header__inner {
+    gap: 12px;
+  }
+
+  .header .logo {
+    width: 126px;
+    height: auto;
+  }
+
+  .header__actions {
+    gap: 8px;
+  }
+
+  .header__phone-link,
+  .header__favorite {
+    width: 38px;
+    height: 38px;
   }
 }
 .mobile-nav {
