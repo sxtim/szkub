@@ -538,6 +538,10 @@ a {
   cursor: pointer;
 }
 .header .logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
 .header .logo:hover img,
@@ -829,8 +833,8 @@ a {
   }
 
   .header .logo {
-    width: 126px;
-    height: auto;
+    width: 88px;
+    height: 23px;
   }
 
   .header__actions {
