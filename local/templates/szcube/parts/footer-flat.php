@@ -30,7 +30,7 @@
               </li>
               <li>
                 <img class="footer__icon" src="<?=SITE_TEMPLATE_PATH?>/img/ic-phone.svg" alt="" />
-                <a href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>
+                <a href="tel:+7(473) 254-68-68">+7(473) 254-68-68</a>
               </li>
             </ul>
             <div class="footer__main-bottom">

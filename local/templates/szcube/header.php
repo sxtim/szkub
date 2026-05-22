@@ -211,12 +211,12 @@ if (!defined("ERROR_404")) {
           </nav>
           <div class="header__actions">
             <div class="header__phone">
-              <a class="header__phone-link" href="tel:+7(473)300-68-87" aria-label="Позвонить +7(473) 300-68-87">
+              <a class="header__phone-link" href="tel:+7(473)254-68-68" aria-label="Позвонить +7(473) 254-68-68">
                 <img
                   src="<?=SITE_TEMPLATE_PATH?>/img/figma-5ce40d0d-8a0e-4c43-b274-c7aeeb5d600e.svg"
                   alt=""
                 />
-                <span>+7(473) 300-68-87</span>
+                <span>+7(473) 254-68-68</span>
               </a>
             </div>
             <a class="header__favorite" href="<?=$getNavLink("favorites", "/favorites/")?>" data-favorites-link aria-label="Избранное" title="Избранное">
@@ -247,7 +247,7 @@ if (!defined("ERROR_404")) {
             <li><a href="<?=$getNavLink("mortgage", "/mortgage/")?>">Ипотека</a></li>
             <li><a href="<?=$getNavLink("contacts", "/#contacts")?>">Контакты</a></li>
             <li>
-              <a class="mobile-nav__phone" href="tel:+7(473) 300-68-87">+7(473) 300-68-87</a>
+              <a class="mobile-nav__phone" href="tel:+7(473) 254-68-68">+7(473) 254-68-68</a>
             </li>
             <li>
               <button class="btn btn--light" type="button" data-contact-open="contact" data-contact-title="Заказать обратный звонок" data-contact-type="callback" data-contact-source="header_mobile">Заказать звонок</button>

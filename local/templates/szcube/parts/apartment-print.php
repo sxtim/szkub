@@ -121,7 +121,7 @@ if ($entrance !== "") {
         <a class="apartment-print__office-email" href="mailto:<?= htmlspecialcharsbx($officeEmail) ?>"><?= htmlspecialcharsbx($officeEmail) ?></a>
       </div>
       <div class="apartment-print__contact">
-        <a href="tel:+7(473)300-68-87">+7 (473) 300-68-87</a>
+        <a href="tel:+7(473)254-68-68">+7 (473) 254-68-68</a>
         <span>Ежедневно с 9:00 до 19:00</span>
       </div>
       <?php if (!empty($headerChipParts)): ?>
