@@ -2181,7 +2181,7 @@ if (!function_exists("szcubeBuildApartmentChessAdminUrl")) {
             $query["back_url"] = $backUrl;
         }
 
-        return "/local/tools/apartment_chess_admin.php?" . http_build_query($query, "", "&");
+        return "/local/admin/szcube_apartment_chess.php?" . http_build_query($query, "", "&");
     }
 }
 

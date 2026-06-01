@@ -357,7 +357,7 @@ if (!function_exists("szcubeApartmentChessAdminBuildBoard")) {
 
 function szcubeApartmentChessAdminBuildSelfUrl(array $params = array())
 {
-    $base = "/local/tools/apartment_chess_admin.php";
+    $base = "/local/admin/szcube_apartment_chess.php";
     $query = array(
         "lang" => defined("LANGUAGE_ID") ? LANGUAGE_ID : "ru",
         "IBLOCK_ID" => isset($_REQUEST["IBLOCK_ID"]) ? (int)$_REQUEST["IBLOCK_ID"] : 0,
