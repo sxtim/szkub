@@ -185,6 +185,14 @@ function szcubeContactBuildBitrixFormValues(array $webForm, array $payload): arr
         "CONSENT" => "Y",
     );
 
+    if (szcubeContactHasFormField($formId, "LEAD_NOTE")) {
+        $map["LEAD_NOTE"] = $payload["lead_note"];
+    }
+
+    if (szcubeContactHasFormField($formId, "CRM_COMMENT")) {
+        $map["CRM_COMMENT"] = szcubeContactBuildCrmComment($payload, 0);
+    }
+
     $values = array();
     foreach ($map as $questionSid => $value) {
         $question = szcubeContactResolveQuestionInputKey($formId, $questionSid);
@@ -211,25 +219,64 @@ function szcubeContactHasFormField(int $formId, string $fieldSid): bool
     return is_array($field);
 }
 
-function szcubeContactBuildCrmComment(array $payload, int $resultId): string
+function szcubeContactGetLeadSourceTitle(string $leadSource): string
 {
-    $leadType = isset($payload["lead_type"]) ? (string)$payload["lead_type"] : "";
-    $typeTitle = $leadType;
+    $leadSource = trim($leadSource);
+    if ($leadSource === "") {
+        return "";
+    }
+
+    $sourceTitles = array(
+        "header" => "Шапка сайта",
+        "header_mobile" => "Мобильная шапка сайта",
+        "footer_default" => "Футер сайта",
+        "footer_flat" => "Футер сайта",
+        "modal" => "Модальное окно",
+        "home_inline" => "Главная страница",
+        "project_inline" => "Страница ЖК",
+        "about_company_inline" => "Страница о компании",
+        "apartments_inline" => "Каталог квартир",
+        "apartment_detail" => "Карточка квартиры",
+        "apartment_detail_booked" => "Карточка забронированной квартиры",
+        "storeroom_catalog" => "Каталог кладовок",
+        "parking_catalog" => "Каталог паркинга",
+        "commerce_detail" => "Карточка коммерческого помещения",
+        "consulting_inline" => "Страница консалтинга",
+        "tenders_inline" => "Страница тендеров",
+        "article_hero" => "Промо-блок статьи",
+        "mortgage_calculator" => "Ипотечный калькулятор",
+    );
+
+    return isset($sourceTitles[$leadSource]) ? $sourceTitles[$leadSource] : $leadSource;
+}
+
+function szcubeContactGetLeadTypeTitle(string $leadType): string
+{
+    $leadType = trim($leadType);
+    if ($leadType === "") {
+        return "";
+    }
+
     if (function_exists("szcubeLeadGetTypeMeta")) {
         $typeMeta = szcubeLeadGetTypeMeta($leadType);
         if (isset($typeMeta["title"]) && trim((string)$typeMeta["title"]) !== "") {
-            $typeTitle = (string)$typeMeta["title"] . ($leadType !== "" ? " (" . $leadType . ")" : "");
+            return trim((string)$typeMeta["title"]);
         }
     }
 
+    return $leadType;
+}
+
+function szcubeContactBuildCrmComment(array $payload, int $resultId): string
+{
+    $leadType = isset($payload["lead_type"]) ? (string)$payload["lead_type"] : "";
+    $leadSource = isset($payload["lead_source"]) ? (string)$payload["lead_source"] : "";
+
     $rows = array(
-        "Имя" => isset($payload["name"]) ? (string)$payload["name"] : "",
-        "Телефон" => isset($payload["phone"]) ? (string)$payload["phone"] : "",
-        "Тип заявки" => $typeTitle,
-        "Источник заявки" => isset($payload["lead_source"]) ? (string)$payload["lead_source"] : "",
-        "Детали заявки" => isset($payload["lead_note"]) ? (string)$payload["lead_note"] : "",
-        "URL страницы" => isset($payload["page_url"]) ? (string)$payload["page_url"] : "",
-        "ID результата веб-формы" => $resultId > 0 ? (string)$resultId : "",
+        "Тип заявки" => szcubeContactGetLeadTypeTitle($leadType),
+        "Форма сайта" => szcubeContactGetLeadSourceTitle($leadSource),
+        "Страница" => isset($payload["page_url"]) ? (string)$payload["page_url"] : "",
+        "Детали" => isset($payload["lead_note"]) ? (string)$payload["lead_note"] : "",
     );
 
     $lines = array();
