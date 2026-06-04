@@ -189,10 +189,6 @@ function szcubeContactBuildBitrixFormValues(array $webForm, array $payload): arr
         $map["LEAD_NOTE"] = $payload["lead_note"];
     }
 
-    if (szcubeContactHasFormField($formId, "CRM_COMMENT")) {
-        $map["CRM_COMMENT"] = szcubeContactBuildCrmComment($payload, 0);
-    }
-
     $values = array();
     foreach ($map as $questionSid => $value) {
         $question = szcubeContactResolveQuestionInputKey($formId, $questionSid);
@@ -217,6 +213,85 @@ function szcubeContactHasFormField(int $formId, string $fieldSid): bool
     $field = $rsField ? $rsField->Fetch() : false;
 
     return is_array($field);
+}
+
+function szcubeContactSetAdditionalResultTextField(int $formId, int $resultId, string $fieldSid, string $value): bool
+{
+    global $DB;
+
+    if (
+        $formId <= 0
+        || $resultId <= 0
+        || $fieldSid === ""
+        || !class_exists("CFormField")
+        || !class_exists("CFormResult")
+        || !is_object($DB)
+    ) {
+        return false;
+    }
+
+    $rsField = CFormField::GetBySID($fieldSid, $formId);
+    $field = $rsField ? $rsField->Fetch() : false;
+    if (!is_array($field) || (int)$field["ID"] <= 0 || (string)$field["ADDITIONAL"] !== "Y") {
+        return false;
+    }
+
+    $fieldId = (int)$field["ID"];
+    $DB->Query(
+        "DELETE FROM b_form_result_answer WHERE RESULT_ID=" . (int)$resultId . " AND FIELD_ID=" . $fieldId
+    );
+
+    if ($value === "") {
+        return true;
+    }
+
+    CFormResult::AddAnswer(array(
+        "RESULT_ID" => (int)$resultId,
+        "FORM_ID" => (int)$formId,
+        "FIELD_ID" => $fieldId,
+        "USER_TEXT" => $value,
+        "USER_TEXT_SEARCH" => mb_strtoupper($value),
+    ));
+
+    return true;
+}
+
+function szcubeContactSetResultTextField(int $formId, int $resultId, string $fieldSid, string $value): bool
+{
+    if (szcubeContactSetAdditionalResultTextField($formId, $resultId, $fieldSid, $value)) {
+        return true;
+    }
+
+    if (!class_exists("CFormResult")) {
+        return false;
+    }
+
+    CFormResult::SetField($resultId, $fieldSid, $value);
+
+    return true;
+}
+
+function szcubeContactSetPendingCrmComment(int $formId, string $comment): void
+{
+    $GLOBALS["SZCUBE_CONTACT_PENDING_CRM_COMMENT"][(int)$formId] = $comment;
+}
+
+function szcubeContactClearPendingCrmComment(int $formId): void
+{
+    unset($GLOBALS["SZCUBE_CONTACT_PENDING_CRM_COMMENT"][(int)$formId]);
+}
+
+function szcubeContactWritePendingCrmComment($formId, $resultId): void
+{
+    $formId = (int)$formId;
+    $resultId = (int)$resultId;
+    $comment = $GLOBALS["SZCUBE_CONTACT_PENDING_CRM_COMMENT"][$formId] ?? "";
+
+    if ($comment === "") {
+        return;
+    }
+
+    szcubeContactSetResultTextField($formId, $resultId, "CRM_COMMENT", (string)$comment);
 }
 
 function szcubeContactGetLeadSourceTitle(string $leadSource): string
@@ -389,8 +464,21 @@ function szcubeContactSubmit(array $payload): array
                 );
             }
 
+            $crmComment = "";
+            $hasCrmCommentField = szcubeContactHasFormField((int)$webForm["ID"], "CRM_COMMENT");
+            if ($hasCrmCommentField) {
+                $crmComment = szcubeContactBuildCrmComment($payload, 0);
+                szcubeContactSetPendingCrmComment((int)$webForm["ID"], $crmComment);
+                if (function_exists("AddEventHandler")) {
+                    AddEventHandler("form", "onAfterResultAdd", "szcubeContactWritePendingCrmComment", 1);
+                }
+            }
+
             $strError = "";
             $resultId = CFormResult::Add((int) $webForm["ID"], $formValues, "Y");
+            if ($hasCrmCommentField) {
+                szcubeContactClearPendingCrmComment((int)$webForm["ID"]);
+            }
 
             if ((int) $resultId <= 0) {
                 return array(
@@ -405,8 +493,8 @@ function szcubeContactSubmit(array $payload): array
                 CFormResult::SetField((int) $resultId, "LEAD_NOTE", $payload["lead_note"]);
             }
 
-            if (szcubeContactHasFormField((int)$webForm["ID"], "CRM_COMMENT")) {
-                CFormResult::SetField((int)$resultId, "CRM_COMMENT", szcubeContactBuildCrmComment($payload, (int)$resultId));
+            if ($hasCrmCommentField) {
+                szcubeContactSetResultTextField((int)$webForm["ID"], (int)$resultId, "CRM_COMMENT", $crmComment);
             }
 
             if (function_exists("szcubeLeadSendToNativeCrm")) {
