@@ -9,16 +9,7 @@ $this->AddEditAction($arResult["ID"], $arResult["EDIT_LINK"], CIBlock::GetArrayB
 $this->AddDeleteAction($arResult["ID"], $arResult["DELETE_LINK"], CIBlock::GetArrayByID($arResult["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage("CT_BNL_ELEMENT_DELETE_CONFIRM")));
 
 $title = isset($arResult["NAME"]) ? (string)$arResult["NAME"] : "";
-$previewText = "";
-if (isset($arResult["~PREVIEW_TEXT"]) && (string)$arResult["~PREVIEW_TEXT"] !== "") {
-	$previewText = trim((string)$arResult["~PREVIEW_TEXT"]);
-} elseif (isset($arResult["PREVIEW_TEXT"])) {
-	$previewText = trim((string)$arResult["PREVIEW_TEXT"]);
-}
 $heroText = array();
-if ($previewText !== "") {
-	$heroText[] = $previewText;
-}
 
 $imageSrc = "";
 if (isset($arResult["PREVIEW_PICTURE"]["SRC"])) {
