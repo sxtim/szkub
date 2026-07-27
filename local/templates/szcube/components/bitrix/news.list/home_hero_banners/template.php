@@ -61,6 +61,14 @@ foreach ($arResult["ITEMS"] as $item) {
 
 	$text = isset($item["~PREVIEW_TEXT"]) ? trim((string)$item["~PREVIEW_TEXT"]) : (isset($item["PREVIEW_TEXT"]) ? trim((string)$item["PREVIEW_TEXT"]) : "");
 
+	$responsiveImageSrc = "";
+	if ($slotCode === "MAIN" && isset($item["PROPERTIES"]["RESPONSIVE_IMAGE"]["VALUE"])) {
+		$responsiveImageId = (int)$item["PROPERTIES"]["RESPONSIVE_IMAGE"]["VALUE"];
+		if ($responsiveImageId > 0) {
+			$responsiveImageSrc = (string)CFile::GetPath($responsiveImageId);
+		}
+	}
+
 	$slotItems[$slotCode] = array(
 		"ID_ATTR" => $this->GetEditAreaId($item["ID"]),
 		"HREF" => $linkUrl,
@@ -68,6 +76,7 @@ foreach ($arResult["ITEMS"] as $item) {
 		"TITLE" => $title,
 		"TEXT" => $text,
 		"IMAGE_SRC" => isset($item["PREVIEW_PICTURE"]["SRC"]) ? (string)$item["PREVIEW_PICTURE"]["SRC"] : "",
+		"RESPONSIVE_IMAGE_SRC" => $responsiveImageSrc,
 	);
 }
 
@@ -83,8 +92,13 @@ $bottomRight = $slotItems["BOTTOM_RIGHT"];
 		<div class="hero__top">
 			<? if ($main !== null): ?>
 				<a class="hero-main" id="<?= htmlspecialcharsbx($main["ID_ATTR"]) ?>" href="<?= htmlspecialcharsbx($main["HREF"]) ?>"<?= $main["TARGET"] !== "" && $main["TARGET"] !== "_self" ? ' target="' . htmlspecialcharsbx($main["TARGET"]) . '" rel="noopener"' : "" ?>>
-					<? if ($main["IMAGE_SRC"] !== ""): ?>
-						<img src="<?= htmlspecialcharsbx($main["IMAGE_SRC"]) ?>" alt="<?= htmlspecialcharsbx($main["TITLE"]) ?>" loading="lazy" />
+					<? if ($main["IMAGE_SRC"] !== "" || $main["RESPONSIVE_IMAGE_SRC"] !== ""): ?>
+						<picture class="hero-main__media">
+							<? if ($main["RESPONSIVE_IMAGE_SRC"] !== ""): ?>
+								<source media="(max-width: 1200px)" srcset="<?= htmlspecialcharsbx($main["RESPONSIVE_IMAGE_SRC"]) ?>" />
+							<? endif; ?>
+							<img src="<?= htmlspecialcharsbx($main["IMAGE_SRC"] !== "" ? $main["IMAGE_SRC"] : $main["RESPONSIVE_IMAGE_SRC"]) ?>" alt="<?= htmlspecialcharsbx($main["TITLE"]) ?>" loading="lazy" />
+						</picture>
 					<? endif; ?>
 					<? if ($main["TITLE"] !== "" || $main["TEXT"] !== ""): ?>
 						<div class="hero-main__overlay">
