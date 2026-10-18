@@ -806,6 +806,17 @@ $APPLICATION->SetPageProperty("robots", "noindex, nofollow");
 </section>
 
 <section class="grad-analysis-cta" aria-labelledby="grad-analysis-cta-title">
+  <div class="grad-analysis-cta__media" aria-hidden="true">
+    <img
+      class="grad-analysis-cta__image"
+      src="<?= SITE_TEMPLATE_PATH ?>/img/grad-analysis/cta-house.webp"
+      width="1040"
+      height="585"
+      alt=""
+      loading="lazy"
+      decoding="async"
+    >
+  </div>
   <div class="container grad-analysis-cta__container">
     <div class="grad-analysis-cta__main">
       <div class="grad-analysis-cta__lead">
