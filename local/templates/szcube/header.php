@@ -23,6 +23,9 @@ if (!$isDetailPrintPage) {
 if (defined("CONSULTING_PAGE") && CONSULTING_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
 }
+if (defined("GRAD_ANALYSIS_PAGE") && GRAD_ANALYSIS_PAGE === true) {
+    $asset->addCss(SITE_TEMPLATE_PATH . "/css/grad-analysis.css");
+}
 if (defined("TENDERS_PAGE") && TENDERS_PAGE === true) {
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/consulting.css");
     $asset->addCss(SITE_TEMPLATE_PATH . "/css/tenders.css");
