@@ -576,11 +576,7 @@
   display: block;
   width: 58px;
   height: 64px;
-  fill: none;
-  stroke: var(--grad-analysis-navy);
-  stroke-width: 3.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  object-fit: contain;
 }
 
 .grad-analysis-result__title {
@@ -1283,11 +1279,7 @@
   display: block;
   width: 56px;
   height: 64px;
-  fill: none;
-  stroke: var(--grad-analysis-teal);
-  stroke-width: 3.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  object-fit: contain;
 }
 
 .grad-analysis-hero__media-message {

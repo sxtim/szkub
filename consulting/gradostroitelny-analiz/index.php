@@ -65,17 +65,14 @@ $APPLICATION->SetPageProperty("robots", "noindex, nofollow");
 
       <div class="grad-analysis-hero__overlay">
         <div class="grad-analysis-hero__result-card">
-          <svg
+          <img
             class="grad-analysis-hero__result-icon"
-            viewBox="0 0 58 64"
+            src="<?= SITE_TEMPLATE_PATH ?>/img/grad-analysis/icon-document-check.svg"
+            width="58"
+            height="64"
+            alt=""
             aria-hidden="true"
           >
-            <path d="M8 3.5h28l12 12V53H8z" />
-            <path d="M36 3.5v12h12" />
-            <path d="M16 24h18M16 31h18M16 38h12" />
-            <circle cx="42" cy="48" r="12" />
-            <path d="m36.5 48 4 4 7-8" />
-          </svg>
 
           <p>
             По результатам вы получите структурированную<br>
@@ -606,17 +603,14 @@ $APPLICATION->SetPageProperty("robots", "noindex, nofollow");
 <section class="grad-analysis-result" aria-labelledby="grad-analysis-result-title">
   <div class="container grad-analysis-result__container">
     <div class="grad-analysis-result__panel">
-      <svg
+      <img
         class="grad-analysis-result__icon"
-        viewBox="0 0 58 64"
+        src="<?= SITE_TEMPLATE_PATH ?>/img/grad-analysis/icon-document-check.svg"
+        width="58"
+        height="64"
+        alt=""
         aria-hidden="true"
       >
-        <path d="M8 3.5h28l12 12V53H8z" />
-        <path d="M36 3.5v12h12" />
-        <path d="M16 24h18M16 31h18M16 38h12" />
-        <circle cx="42" cy="48" r="12" />
-        <path d="m36.5 48 4 4 7-8" />
-      </svg>
 
       <div class="grad-analysis-result__content">
         <h2 class="grad-analysis-result__title" id="grad-analysis-result-title">Результат</h2>
