@@ -167,6 +167,19 @@ if (!defined("ERROR_404")) {
       });
     </script>
     <!-- /Yandex.Metrika counter -->
+    <!-- Top.Mail.Ru counter -->
+    <script type="text/javascript">
+      var _tmr = window._tmr || (window._tmr = []);
+      _tmr.push({id: "3807477", type: "pageView", start: (new Date()).getTime()});
+      (function (d, w, id) {
+        if (d.getElementById(id)) return;
+        var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true; ts.id = id;
+        ts.src = "https://top-fwz1.mail.ru/js/code.js";
+        var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
+        if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
+      })(document, window, "tmr-code");
+    </script>
+    <!-- /Top.Mail.Ru counter -->
     <?php endif; ?>
   </head>
   <?php
@@ -178,6 +191,7 @@ if (!defined("ERROR_404")) {
   <body<?= !empty($bodyClasses) ? ' class="' . htmlspecialchars(implode(" ", $bodyClasses), ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8") . '"' : "" ?>>
     <?php if ($isProductionRequest): ?>
     <noscript><div><img src="https://mc.yandex.ru/watch/108149201" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <noscript><div><img src="https://top-fwz1.mail.ru/counter?id=3807477;js=na" style="position:absolute;left:-9999px;" alt="Top.Mail.Ru" /></div></noscript>
     <?php endif; ?>
     <?php $APPLICATION->ShowPanel(); ?>
     <div class="page">
