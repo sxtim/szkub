@@ -4,8 +4,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 }
 
 use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Context;
 
 $asset = Asset::getInstance();
+$requestHost = strtolower((string)Context::getCurrent()->getRequest()->getHttpHost());
+$isProductionRequest = in_array($requestHost, array("szcube.ru", "www.szcube.ru"), true);
 $navLinks = function_exists("szcubeGetNavigationLinks") ? szcubeGetNavigationLinks() : array();
 $getNavLink = static function ($key, $default = "") use ($navLinks) {
     return isset($navLinks[$key]) ? (string)$navLinks[$key] : (string)$default;
@@ -145,6 +148,7 @@ if (!defined("ERROR_404")) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?php $APPLICATION->ShowTitle(); ?></title>
     <?php $APPLICATION->ShowHead(); ?>
+    <?php if ($isProductionRequest): ?>
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
       (function(m,e,t,r,i,k,a){
@@ -163,6 +167,7 @@ if (!defined("ERROR_404")) {
       });
     </script>
     <!-- /Yandex.Metrika counter -->
+    <?php endif; ?>
   </head>
   <?php
   $bodyClasses = array();
@@ -171,7 +176,9 @@ if (!defined("ERROR_404")) {
   }
   ?>
   <body<?= !empty($bodyClasses) ? ' class="' . htmlspecialchars(implode(" ", $bodyClasses), ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8") . '"' : "" ?>>
+    <?php if ($isProductionRequest): ?>
     <noscript><div><img src="https://mc.yandex.ru/watch/108149201" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <?php endif; ?>
     <?php $APPLICATION->ShowPanel(); ?>
     <div class="page">
       <?php if (!$isDetailPrintPage): ?>
